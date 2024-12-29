@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  k8s:
+    image: k8s.leonid.sh:latest
+    container_name: k8s
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ~/.ssh:/.ssh
+      - ~/.hetzner:/.hetzner
+      - ~/.kube:/.kube
+      - ./:/k8s.leonid.sh
+    command: sleep infinity

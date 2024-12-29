@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ~/.ssh:/root/.ssh
-      - ~/.hetzner:/root/.hetzner
-      - ~/.kube:/root/.kube
-      - ./:/root/k8s.leonid.sh
+      - ~/.ssh:/.ssh
+      - ~/.hetzner:/.hetzner
+      - ~/.kube:/.kube
+      - ./:/k8s.leonid.sh
     command: sleep infinity

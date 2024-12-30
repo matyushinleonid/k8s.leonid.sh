@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     ca-certificates \
     lsb-release \
-    ruby-full
+    ruby-full \
+    tree \
+    nano
 
 # Install Terraform
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \

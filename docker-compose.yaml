@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - TERRAFORM_CLOUD_TOKEN=${TERRAFORM_CLOUD_TOKEN}
+      - BASHLY_SOURCE_DIR=/root/k8s.leonid.sh/bashly
     volumes:
       - ~/.ssh:/root/.ssh
       - ~/.kube:/root/.kube

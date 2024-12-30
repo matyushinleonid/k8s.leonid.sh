@@ -1,0 +1,104 @@
+---
+- name: Join a load balancer node (no static inventory)
+  hosts: localhost
+  gather_facts: false
+  become: false
+
+  vars:
+    existing_ctrl_public_ipv6: "{{ existing_ctrl_public_ipv6 }}"
+    public_ipv6: "{{ public_ipv6 }}"
+    internal_ipv4: "{{ internal_ipv4 }}"
+    hostname: "{{ hostname }}"
+    apt_kubernetes_version: "1.30.6-0"
+    worker_ips: "{{ worker_internal_ipv4 | default([]) }}"
+
+  tasks:
+    - name: Add existing control plane to ephemeral inventory
+      add_host:
+        name: existing_cp
+        ansible_host: "{{ existing_ctrl_public_ipv6 }}"
+        ansible_user: root
+        ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
+
+    - name: Add new load balancer node to ephemeral inventory
+      add_host:
+        name: new_lb
+        ansible_host: "{{ public_ipv6 }}"
+        ansible_user: root
+        ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
+
+    - name: Get kubeadm join command from existing control plane
+      command: kubeadm token create --print-join-command --ttl 0
+      register: join_cmd_raw
+      delegate_to: existing_cp
+
+- name: Configure the new load balancer node
+  hosts: new_lb
+  gather_facts: false
+  become: true
+
+  vars:
+    new_node_hostname: "{{ hostvars['localhost'].hostname }}"
+    new_node_internal_ip: "{{ hostvars['localhost'].internal_ipv4 }}"
+    base_join_cmd: "{{ hostvars['localhost'].join_cmd_raw.stdout }}"
+    apt_kubernetes_version: "{{ hostvars['localhost'].apt_kubernetes_version }}"
+    lb_worker_ips: "{{ hostvars['localhost'].worker_ips }}"
+
+  tasks:
+    - name: Include common tasks
+      import_tasks: common_tasks.yaml
+      vars:
+        apt_kubernetes_version: "{{ apt_kubernetes_version }}"
+
+    - name: Join cluster as load balancer node
+      command: >
+        {{ base_join_cmd }}
+        --node-name={{ new_node_hostname }}
+        --apiserver-advertise-address={{ new_node_internal_ip }}
+      register: kubeadm_join
+      ignore_errors: yes
+
+    - name: Fail if join failed
+      fail:
+        msg: "Load balancer join failed."
+      when: kubeadm_join.rc != 0
+
+    - name: Install HAProxy
+      apt:
+        name: haproxy
+        state: present
+
+    - name: Configure HAProxy base
+      blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        insertafter: EOF
+        block: |
+          frontend http
+              bind *:80
+              bind :::80
+              default_backend k8s_nodes
+
+          backend k8s_nodes
+              balance roundrobin
+              option httpchk GET /
+              http-check expect status 404
+
+    - name: Add server lines for worker nodes
+      lineinfile:
+        path: /etc/haproxy/haproxy.cfg
+        insertafter: '^  http-check expect status 404'
+        line: "    server node{{ item.0 }} {{ item.1 }}:32616 check"
+      loop: "{{ lb_worker_ips|list|enumerate }}"
+      when: lb_worker_ips|length > 0
+
+    - name: If no worker IPs provided, add a single placeholder
+      lineinfile:
+        path: /etc/haproxy/haproxy.cfg
+        insertafter: '^  http-check expect status 404'
+        line: "    # No worker IPs provided, please update me"
+      when: lb_worker_ips|length == 0
+
+    - name: Restart HAProxy
+      systemd:
+        name: haproxy
+        state: restarted

@@ -27,6 +27,7 @@ k8s.leonid.sh_usage() {
   # :command.usage_commands
   printf "%s\n" "Commands:"
   printf "  %s   Terraform commands\n" "terraform"
+  printf "  %s   Ansible playbooks\n" "ansible  "
   echo
 
   # :command.long_usage
@@ -156,6 +157,211 @@ k8s.leonid.sh_terraform_destroy_usage() {
   fi
 }
 
+# :command.usage
+k8s.leonid.sh_ansible_usage() {
+  printf "k8s.leonid.sh ansible - Ansible playbooks\n\n"
+
+  printf "%s\n" "Usage:"
+  printf "  k8s.leonid.sh ansible COMMAND\n"
+  printf "  k8s.leonid.sh ansible [COMMAND] --help | -h\n"
+  echo
+  # :command.usage_commands
+  printf "%s\n" "Commands:"
+  printf "  %s   Initialize the first Kubernetes control plane node\n" "init_control_plane"
+  printf "  %s   Join an additional control plane node\n" "join_ctrl         "
+  printf "  %s   Join a worker node\n" "join_worker       "
+  printf "  %s   Join a load balancer node\n" "join_load_balancer"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+k8s.leonid.sh_ansible_init_control_plane_usage() {
+  printf "k8s.leonid.sh ansible init_control_plane - Initialize the first Kubernetes control plane node\n\n"
+
+  printf "%s\n" "Usage:"
+  printf "  k8s.leonid.sh ansible init_control_plane ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 [ARG_HOSTNAME]\n"
+  printf "  k8s.leonid.sh ansible init_control_plane --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    printf "    Public IPv6 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    printf "    Internal IPv4 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_HOSTNAME"
+    printf "    Hostname (default: ctrl-001)\n"
+    printf "    %s\n" "Default: ctrl-001"
+    echo
+
+  fi
+}
+
+# :command.usage
+k8s.leonid.sh_ansible_join_ctrl_usage() {
+  printf "k8s.leonid.sh ansible join_ctrl - Join an additional control plane node\n\n"
+
+  printf "%s\n" "Usage:"
+  printf "  k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n"
+  printf "  k8s.leonid.sh ansible join_ctrl --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    printf "    Public IPv6 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    printf "    Internal IPv4 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_HOSTNAME"
+    printf "    Hostname\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_EXISTING_CTRL_PUBLIC_IPV6"
+    printf "    Existing control plane's public IPv6 address\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+k8s.leonid.sh_ansible_join_worker_usage() {
+  printf "k8s.leonid.sh ansible join_worker - Join a worker node\n\n"
+
+  printf "%s\n" "Usage:"
+  printf "  k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n"
+  printf "  k8s.leonid.sh ansible join_worker --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    printf "    Public IPv6 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    printf "    Internal IPv4 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_HOSTNAME"
+    printf "    Hostname\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_EXISTING_CTRL_PUBLIC_IPV6"
+    printf "    Existing control plane's public IPv6 address\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+k8s.leonid.sh_ansible_join_load_balancer_usage() {
+  printf "k8s.leonid.sh ansible join_load_balancer - Join a load balancer node\n\n"
+
+  printf "%s\n" "Usage:"
+  printf "  k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n"
+  printf "  k8s.leonid.sh ansible join_load_balancer --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    printf "    Public IPv6 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    printf "    Internal IPv4 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_HOSTNAME"
+    printf "    Hostname\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_EXISTING_CTRL_PUBLIC_IPV6"
+    printf "    Existing control plane's public IPv6 address\n"
+    echo
+
+    # :argument.usage
+    printf "  %s\n" "ARG_WORKER_INTERNAL_IPV4..."
+    printf "    Additional worker node IP(s) for HAProxy\n"
+    echo
+
+  fi
+}
+
 # :command.normalize_input
 # :command.normalize_input_function
 normalize_input() {
@@ -226,6 +432,7 @@ k8s.leonid.sh_terraform_init_command() {
 
   # /root/k8s.leonid.sh/bashly/terraform_init_command.sh
   cd cloud_resources
+
   terraform init
 }
 
@@ -234,6 +441,7 @@ k8s.leonid.sh_terraform_plan_command() {
 
   # /root/k8s.leonid.sh/bashly/terraform_plan_command.sh
   cd cloud_resources
+
   terraform plan
 }
 
@@ -242,6 +450,7 @@ k8s.leonid.sh_terraform_apply_command() {
 
   # /root/k8s.leonid.sh/bashly/terraform_apply_command.sh
   cd cloud_resources
+
   terraform apply
 }
 
@@ -250,7 +459,56 @@ k8s.leonid.sh_terraform_destroy_command() {
 
   # /root/k8s.leonid.sh/bashly/terraform_destroy_command.sh
   cd cloud_resources
+
   terraform destroy
+}
+
+# :command.function
+k8s.leonid.sh_ansible_init_control_plane_command() {
+
+  # /root/k8s.leonid.sh/bashly/ansible_init_control_plane_command.sh
+  inspect_args
+  ansible-playbook playbooks/init_control_plane.yaml \
+    --private-key "~/.ssh/k8s.leonid.sh" \
+    -e "public_ipv6=$arg_public_ipv6 internal_ipv4=$arg_internal_ipv4 hostname=$arg_hostname"
+
+}
+
+# :command.function
+k8s.leonid.sh_ansible_join_ctrl_command() {
+
+  # /root/k8s.leonid.sh/bashly/ansible_join_ctrl_command.sh
+  inspect_args
+  ansible-playbook playbooks/join_ctrl.yaml \
+    --private-key "~/.ssh/k8s.leonid.sh" \
+    -e "public_ipv6=$arg_public_ipv6 internal_ipv4=$arg_internal_ipv4 hostname=$arg_hostname existing_ctrl_public_ipv6=$arg_existing_ctrl_public_ipv6"
+
+}
+
+# :command.function
+k8s.leonid.sh_ansible_join_worker_command() {
+
+  # /root/k8s.leonid.sh/bashly/ansible_join_worker_command.sh
+  inspect_args
+  ansible-playbook playbooks/join_worker.yaml \
+    --private-key "~/.ssh/k8s.leonid.sh" \
+    -e "public_ipv6=$arg_public_ipv6 internal_ipv4=$arg_internal_ipv4 hostname=$arg_hostname existing_ctrl_public_ipv6=$arg_existing_ctrl_public_ipv6"
+
+}
+
+# :command.function
+k8s.leonid.sh_ansible_join_load_balancer_command() {
+
+  # /root/k8s.leonid.sh/bashly/ansible_join_load_balancer_command.sh
+  inspect_args
+  ansible-playbook playbooks/join_load_balancer.yaml \
+    --private-key "~/.ssh/k8s.leonid.sh" \
+    -e "public_ipv6=$arg_public_ipv6 \
+        internal_ipv4=$arg_internal_ipv4 \
+        hostname=$arg_hostname \
+        existing_ctrl_public_ipv6=$arg_existing_ctrl_public_ipv6 \
+        worker_internal_ipv4='${args_arg_worker_internal_ipv4[*]}'"
+
 }
 
 # :command.parse_requirements
@@ -287,6 +545,13 @@ parse_requirements() {
       action="terraform"
       shift
       k8s.leonid.sh_terraform_parse_requirements "$@"
+      shift $#
+      ;;
+
+    ansible)
+      action="ansible"
+      shift
+      k8s.leonid.sh_ansible_parse_requirements "$@"
       shift $#
       ;;
 
@@ -595,6 +860,439 @@ k8s.leonid.sh_terraform_destroy_parse_requirements() {
 
 }
 
+# :command.parse_requirements
+k8s.leonid.sh_ansible_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        k8s.leonid.sh_ansible_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action=${1:-}
+
+  case $action in
+    -*) ;;
+
+    init_control_plane)
+      action="init_control_plane"
+      shift
+      k8s.leonid.sh_ansible_init_control_plane_parse_requirements "$@"
+      shift $#
+      ;;
+
+    join_ctrl)
+      action="join_ctrl"
+      shift
+      k8s.leonid.sh_ansible_join_ctrl_parse_requirements "$@"
+      shift $#
+      ;;
+
+    join_worker)
+      action="join_worker"
+      shift
+      k8s.leonid.sh_ansible_join_worker_parse_requirements "$@"
+      shift $#
+      ;;
+
+    join_load_balancer)
+      action="join_load_balancer"
+      shift
+      k8s.leonid.sh_ansible_join_load_balancer_parse_requirements "$@"
+      shift $#
+      ;;
+
+    # :command.command_fallback
+    "")
+      k8s.leonid.sh_ansible_usage >&2
+      exit 1
+      ;;
+
+    *)
+      printf "invalid command: %s\n" "$action" >&2
+      exit 1
+      ;;
+
+  esac
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
+k8s.leonid.sh_ansible_init_control_plane_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        k8s.leonid.sh_ansible_init_control_plane_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="ansible init_control_plane"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+          args['arg_public_ipv6']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+          args['arg_internal_ipv4']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_hostname']+x} ]]; then
+          args['arg_hostname']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible init_control_plane ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 [ARG_HOSTNAME]\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible init_control_plane ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 [ARG_HOSTNAME]\n" >&2
+
+    exit 1
+  fi
+
+  # :command.default_assignments
+  [[ -n ${args['arg_hostname']:-} ]] || args['arg_hostname']="ctrl-001"
+
+}
+
+# :command.parse_requirements
+k8s.leonid.sh_ansible_join_ctrl_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        k8s.leonid.sh_ansible_join_ctrl_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="ansible join_ctrl"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+          args['arg_public_ipv6']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+          args['arg_internal_ipv4']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_hostname']+x} ]]; then
+          args['arg_hostname']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
+          args['arg_existing_ctrl_public_ipv6']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_hostname']+x} ]]; then
+    printf "missing required argument: ARG_HOSTNAME\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_EXISTING_CTRL_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+k8s.leonid.sh_ansible_join_worker_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        k8s.leonid.sh_ansible_join_worker_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="ansible join_worker"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+          args['arg_public_ipv6']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+          args['arg_internal_ipv4']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_hostname']+x} ]]; then
+          args['arg_hostname']=$1
+          shift
+        # :argument.case
+        elif [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
+          args['arg_existing_ctrl_public_ipv6']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_hostname']+x} ]]; then
+    printf "missing required argument: ARG_HOSTNAME\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_EXISTING_CTRL_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
+
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+k8s.leonid.sh_ansible_join_load_balancer_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        k8s.leonid.sh_ansible_join_load_balancer_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="ansible join_load_balancer"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_repeatable
+        # :argument.case_repeatable
+        escaped="$(printf '%q' "$1")"
+        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+          args['arg_public_ipv6']="$1"
+
+        # :argument.case_repeatable
+        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+          args['arg_internal_ipv4']="$1"
+
+        # :argument.case_repeatable
+        elif [[ -z ${args['arg_hostname']+x} ]]; then
+          args['arg_hostname']="$1"
+
+        # :argument.case_repeatable
+        elif [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
+          args['arg_existing_ctrl_public_ipv6']="$1"
+
+        # :argument.case_repeatable
+        elif [[ -z ${args['arg_worker_internal_ipv4']+x} ]]; then
+          args['arg_worker_internal_ipv4']="$escaped"
+        else
+          args['arg_worker_internal_ipv4']="${args['arg_worker_internal_ipv4']} $escaped"
+
+        fi
+        shift
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
+    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_hostname']+x} ]]; then
+    printf "missing required argument: ARG_HOSTNAME\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
+
+    exit 1
+  fi
+
+  if [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
+    printf "missing required argument: ARG_EXISTING_CTRL_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
+
+    exit 1
+  fi
+
+}
+
 # :command.initialize
 initialize() {
   version="0.1.0"
@@ -620,6 +1318,11 @@ run() {
     "terraform plan") k8s.leonid.sh_terraform_plan_command ;;
     "terraform apply") k8s.leonid.sh_terraform_apply_command ;;
     "terraform destroy") k8s.leonid.sh_terraform_destroy_command ;;
+    "ansible") k8s.leonid.sh_ansible_command ;;
+    "ansible init_control_plane") k8s.leonid.sh_ansible_init_control_plane_command ;;
+    "ansible join_ctrl") k8s.leonid.sh_ansible_join_ctrl_command ;;
+    "ansible join_worker") k8s.leonid.sh_ansible_join_worker_command ;;
+    "ansible join_load_balancer") k8s.leonid.sh_ansible_join_load_balancer_command ;;
   esac
 }
 

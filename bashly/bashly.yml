@@ -8,12 +8,78 @@ commands:
     commands:
       - name: init
         help: Initialize the Terraform working directory
-
       - name: plan
         help: Generate and show an execution plan
-
       - name: apply
         help: Build or change infrastructure
-
       - name: destroy
         help: Destroy Terraform-managed infrastructure
+
+  - name: ansible
+    help: Ansible playbooks
+    commands:
+      - name: init_control_plane
+        help: Initialize the first Kubernetes control plane node
+        args:
+          - name: arg_public_ipv6
+            required: true
+            help: "Public IPv6 address"
+          - name: arg_internal_ipv4
+            required: true
+            help: "Internal IPv4 address"
+          - name: arg_hostname
+            required: false
+            default: "ctrl-001"
+            help: "Hostname (default: ctrl-001)"
+
+      - name: join_ctrl
+        help: Join an additional control plane node
+        args:
+          - name: arg_public_ipv6
+            required: true
+            help: "Public IPv6 address"
+          - name: arg_internal_ipv4
+            required: true
+            help: "Internal IPv4 address"
+          - name: arg_hostname
+            required: true
+            help: "Hostname"
+          - name: arg_existing_ctrl_public_ipv6
+            required: true
+            help: "Existing control plane's public IPv6 address"
+
+      - name: join_worker
+        help: Join a worker node
+        args:
+          - name: arg_public_ipv6
+            required: true
+            help: "Public IPv6 address"
+          - name: arg_internal_ipv4
+            required: true
+            help: "Internal IPv4 address"
+          - name: arg_hostname
+            required: true
+            help: "Hostname"
+          - name: arg_existing_ctrl_public_ipv6
+            required: true
+            help: "Existing control plane's public IPv6 address"
+
+      - name: join_load_balancer
+        help: Join a load balancer node
+        args:
+          - name: arg_public_ipv6
+            required: true
+            help: "Public IPv6 address"
+          - name: arg_internal_ipv4
+            required: true
+            help: "Internal IPv4 address"
+          - name: arg_hostname
+            required: true
+            help: "Hostname"
+          - name: arg_existing_ctrl_public_ipv6
+            required: true
+            help: "Existing control plane's public IPv6 address"
+          - name: arg_worker_internal_ipv4
+            repeatable: true
+            required: false
+            help: "Additional worker node IP(s) for HAProxy"

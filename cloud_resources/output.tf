@@ -1,19 +1,23 @@
-output "cpl_ipv6" {
-  value       = hcloud_server.cpl_node_1.ipv6_address
-  description = "The public IPv6 address of the control plane node"
+output "lb-001_ipv6" {
+  value = hcloud_server.lb-001.ipv6_address
 }
 
-output cpl_internal_ipv4 {
-  value       = var.cpl_internal_ipv4
-  description = "The private IPv4 address of the control plane node"
+output lb-001_internal_ipv4 {
+  value = var.lb-001_internal_ipv4
 }
 
-output "worker_ipv6" {
-  value       = hcloud_server.worker_node_1.ipv6_address
-  description = "The public IPv6 address of the worker node"
+output "ctrl-001_ipv6" {
+  value = hcloud_server.ctrl-001.ipv6_address
 }
 
-output worker_internal_ipv4 {
-  value       = var.worker_internal_ipv4
-  description = "The private IPv4 address of the worker node"
+output ctrl-001_internal_ipv4 {
+  value = var.ctrl-001_internal_ipv4
+}
+
+output "worker-001_ipv6" {
+  value = hcloud_server.worker-001.ipv6_address
+}
+
+output worker-001_internal_ipv4 {
+  value = var.worker-001_internal_ipv4
 }

@@ -5,6 +5,14 @@ terraform {
       version = "~> 1.45"
     }
   }
+
+  backend "remote" {
+    organization = "matyushinleonid"
+
+    workspaces {
+      name = "k8s_leonid_sh"
+    }
+  }
 }
 
 variable "hcloud_token" {

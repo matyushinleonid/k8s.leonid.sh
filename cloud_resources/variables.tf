@@ -13,12 +13,17 @@ variable "subnet_cidr" {
   default = "10.0.1.0/24"
 }
 
-variable "cpl_internal_ipv4" {
+variable "lb-001_internal_ipv4" {
+  type    = string
+  default = "10.0.1.4"
+}
+
+variable "ctrl-001_internal_ipv4" {
   type    = string
   default = "10.0.1.5"
 }
 
-variable "worker_internal_ipv4" {
+variable "worker-001_internal_ipv4" {
   type    = string
   default = "10.0.1.6"
 }
@@ -33,12 +38,11 @@ variable "image" {
   default = "ubuntu-24.04"
 }
 
-variable "home_location" {
-  type    = string
-  default = "nbg1"
-}
-
 variable "datacenter" {
   type    = string
   default = "nbg1-dc3"
+}
+
+variable "common_ssh_public_key" {
+  type = string
 }

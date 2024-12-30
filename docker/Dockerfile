@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     ca-certificates \
     lsb-release \
-    ruby-full
+    ruby-full \
+    tree \
+    nano
 
 # Install Terraform
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \
@@ -36,4 +38,12 @@ RUN mkdir -p -m 755 /etc/apt/keyrings && \
 # Install Helm
 RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-CMD ["bash"]
+WORKDIR /root/k8s.leonid.sh
+
+COPY setup_terraformrc.sh /usr/local/bin/setup_terraformrc.sh
+RUN chmod +x /usr/local/bin/setup_terraformrc.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD ["sleep", "infinity"]

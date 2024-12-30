@@ -1,0 +1,19 @@
+name: k8s.leonid.sh
+help: k8s.leonid.sh tools
+version: 0.1.0
+
+commands:
+  - name: terraform
+    help: Terraform commands
+    commands:
+      - name: init
+        help: Initialize the Terraform working directory
+
+      - name: plan
+        help: Generate and show an execution plan
+
+      - name: apply
+        help: Build or change infrastructure
+
+      - name: destroy
+        help: Destroy Terraform-managed infrastructure

@@ -4,11 +4,12 @@ services:
     image: k8s.leonid.sh:latest
     container_name: k8s
     build:
-      context: .
+      context: ./docker
       dockerfile: Dockerfile
+    environment:
+      - TERRAFORM_CLOUD_TOKEN=${TERRAFORM_CLOUD_TOKEN}
+      - BASHLY_SOURCE_DIR=/root/k8s.leonid.sh/bashly
     volumes:
       - ~/.ssh:/root/.ssh
-      - ~/.hetzner:/root/.hetzner
       - ~/.kube:/root/.kube
       - ./:/root/k8s.leonid.sh
-    command: sleep infinity

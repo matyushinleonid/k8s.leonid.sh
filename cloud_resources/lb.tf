@@ -20,7 +20,7 @@ resource "hcloud_server" "lb-001" {
   network {
     network_id = hcloud_network.k8s_net.id
     ip         = var.lb-001_internal_ipv4
-    alias_ips = []
+    alias_ips  = []
   }
 
   public_net {

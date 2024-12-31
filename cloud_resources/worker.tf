@@ -13,7 +13,7 @@ resource "hcloud_firewall" "worker" {
     direction   = "in"
     protocol    = "tcp"
     port        = "10256"
-    source_ips = [var.subnet_cidr]
+    source_ips  = [var.subnet_cidr]
     description = "kube-proxy"
   }
 
@@ -21,7 +21,7 @@ resource "hcloud_firewall" "worker" {
     direction   = "in"
     protocol    = "tcp"
     port        = "30000-32767"
-    source_ips = [var.subnet_cidr]
+    source_ips  = [var.subnet_cidr]
     description = "NodePort services"
   }
 
@@ -29,7 +29,7 @@ resource "hcloud_firewall" "worker" {
     direction   = "in"
     protocol    = "udp"
     port        = "30000-32767"
-    source_ips = [var.subnet_cidr]
+    source_ips  = [var.subnet_cidr]
     description = "NodePort services"
   }
 }
@@ -44,7 +44,7 @@ resource "hcloud_server" "worker-001" {
   network {
     network_id = hcloud_network.k8s_net.id
     ip         = var.worker-001_internal_ipv4
-    alias_ips = []
+    alias_ips  = []
   }
 
   public_net {

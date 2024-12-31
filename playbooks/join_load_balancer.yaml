@@ -50,6 +50,11 @@
       vars:
         apt_kubernetes_version: "{{ apt_kubernetes_version }}"
 
+    - name: Check if already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: lb_already_joined
+
     - name: Join cluster as load balancer node
       command: >
         {{ base_join_cmd }}
@@ -57,11 +62,15 @@
         --apiserver-advertise-address={{ new_node_internal_ip }}
       register: kubeadm_join
       ignore_errors: yes
+      when: not lb_already_joined.stat.exists
 
     - name: Fail if join failed
       fail:
         msg: "Load balancer join failed."
-      when: kubeadm_join.rc != 0
+      when:
+        - not lb_already_joined.stat.exists
+        - kubeadm_join is defined
+        - kubeadm_join.rc != 0
 
     - name: Install HAProxy
       apt:
@@ -88,6 +97,7 @@
         path: /etc/haproxy/haproxy.cfg
         insertafter: '^  http-check expect status 404'
         line: "    server node{{ item.0 }} {{ item.1 }}:32616 check"
+        regexp: "^\\s*server\\s+node{{ item.0 }}\\s+{{ item.1 }}:32616\\s+check"
       loop: "{{ lb_worker_ips|list|enumerate }}"
       when: lb_worker_ips|length > 0
 

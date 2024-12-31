@@ -212,7 +212,7 @@ k8s.leonid.sh_ansible_init_control_plane_usage() {
   printf "k8s.leonid.sh ansible init_control_plane - Initialize the first Kubernetes control plane node\n\n"
 
   printf "%s\n" "Usage:"
-  printf "  k8s.leonid.sh ansible init_control_plane ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 [ARG_HOSTNAME]\n"
+  printf "  k8s.leonid.sh ansible init_control_plane [OPTIONS]\n"
   printf "  k8s.leonid.sh ansible init_control_plane --help | -h\n"
   echo
 
@@ -220,28 +220,26 @@ k8s.leonid.sh_ansible_init_control_plane_usage() {
   if [[ -n "$long_usage" ]]; then
     printf "%s\n" "Options:"
 
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--public-ipv6 PUBLIC_IPV6 (required)"
     printf "    Public IPv6 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    # :flag.usage
+    printf "  %s\n" "--internal-ipv4 INTERNAL_IPV4 (required)"
     printf "    Internal IPv4 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_HOSTNAME"
+    # :flag.usage
+    printf "  %s\n" "--hostname HOSTNAME"
     printf "    Hostname (default: ctrl-001)\n"
     printf "    %s\n" "Default: ctrl-001"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
     echo
 
   fi
@@ -252,7 +250,7 @@ k8s.leonid.sh_ansible_join_ctrl_usage() {
   printf "k8s.leonid.sh ansible join_ctrl - Join an additional control plane node\n\n"
 
   printf "%s\n" "Usage:"
-  printf "  k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n"
+  printf "  k8s.leonid.sh ansible join_ctrl [OPTIONS]\n"
   printf "  k8s.leonid.sh ansible join_ctrl --help | -h\n"
   echo
 
@@ -260,32 +258,30 @@ k8s.leonid.sh_ansible_join_ctrl_usage() {
   if [[ -n "$long_usage" ]]; then
     printf "%s\n" "Options:"
 
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--public-ipv6 PUBLIC_IPV6 (required)"
     printf "    Public IPv6 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    # :flag.usage
+    printf "  %s\n" "--internal-ipv4 INTERNAL_IPV4 (required)"
     printf "    Internal IPv4 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_HOSTNAME"
+    # :flag.usage
+    printf "  %s\n" "--hostname HOSTNAME (required)"
     printf "    Hostname\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_EXISTING_CTRL_PUBLIC_IPV6"
+    # :flag.usage
+    printf "  %s\n" "--existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6 (required)"
     printf "    Existing control plane's public IPv6 address\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
     echo
 
   fi
@@ -296,7 +292,7 @@ k8s.leonid.sh_ansible_join_worker_usage() {
   printf "k8s.leonid.sh ansible join_worker - Join a worker node\n\n"
 
   printf "%s\n" "Usage:"
-  printf "  k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n"
+  printf "  k8s.leonid.sh ansible join_worker [OPTIONS]\n"
   printf "  k8s.leonid.sh ansible join_worker --help | -h\n"
   echo
 
@@ -304,32 +300,30 @@ k8s.leonid.sh_ansible_join_worker_usage() {
   if [[ -n "$long_usage" ]]; then
     printf "%s\n" "Options:"
 
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--public-ipv6 PUBLIC_IPV6 (required)"
     printf "    Public IPv6 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    # :flag.usage
+    printf "  %s\n" "--internal-ipv4 INTERNAL_IPV4 (required)"
     printf "    Internal IPv4 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_HOSTNAME"
+    # :flag.usage
+    printf "  %s\n" "--hostname HOSTNAME (required)"
     printf "    Hostname\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_EXISTING_CTRL_PUBLIC_IPV6"
+    # :flag.usage
+    printf "  %s\n" "--existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6 (required)"
     printf "    Existing control plane's public IPv6 address\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
     echo
 
   fi
@@ -340,7 +334,7 @@ k8s.leonid.sh_ansible_join_load_balancer_usage() {
   printf "k8s.leonid.sh ansible join_load_balancer - Join a load balancer node\n\n"
 
   printf "%s\n" "Usage:"
-  printf "  k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n"
+  printf "  k8s.leonid.sh ansible join_load_balancer [OPTIONS]\n"
   printf "  k8s.leonid.sh ansible join_load_balancer --help | -h\n"
   echo
 
@@ -348,37 +342,35 @@ k8s.leonid.sh_ansible_join_load_balancer_usage() {
   if [[ -n "$long_usage" ]]; then
     printf "%s\n" "Options:"
 
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "ARG_PUBLIC_IPV6"
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--public-ipv6 PUBLIC_IPV6 (required)"
     printf "    Public IPv6 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_INTERNAL_IPV4"
+    # :flag.usage
+    printf "  %s\n" "--internal-ipv4 INTERNAL_IPV4 (required)"
     printf "    Internal IPv4 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_HOSTNAME"
+    # :flag.usage
+    printf "  %s\n" "--hostname HOSTNAME (required)"
     printf "    Hostname\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_EXISTING_CTRL_PUBLIC_IPV6"
+    # :flag.usage
+    printf "  %s\n" "--existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6 (required)"
     printf "    Existing control plane's public IPv6 address\n"
     echo
 
-    # :argument.usage
-    printf "  %s\n" "ARG_WORKER_INTERNAL_IPV4..."
+    # :flag.usage
+    printf "  %s\n" "--worker-internal-ipv4 WORKER_INTERNAL_IPV4 (repeatable)"
     printf "    Additional worker node IP(s) for HAProxy\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
     echo
 
   fi
@@ -498,9 +490,22 @@ k8s.leonid.sh_ansible_init_control_plane_command() {
 
   # /root/k8s.leonid.sh/bashly/ansible_init_control_plane_command.sh
   inspect_args
+
+  public_ipv6="${args['--public-ipv6']}"
+  internal_ipv4="${args['--internal-ipv4']}"
+  hostname="${args['--hostname']}"
+
+  echo "Debugging Arguments:"
+  echo "Public IPv6: $public_ipv6"
+  echo "Internal IPv4: $internal_ipv4"
+  echo "Hostname: $hostname"
+
   ansible-playbook playbooks/init_control_plane.yaml \
     --private-key "~/.ssh/k8s.leonid.sh" \
-    -e "public_ipv6=$arg_public_ipv6 internal_ipv4=$arg_internal_ipv4 hostname=$arg_hostname"
+    -e "public_ipv6=$public_ipv6 \
+        internal_ipv4=$internal_ipv4 \
+        hostname=$hostname \
+        ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
 
 }
 
@@ -509,9 +514,25 @@ k8s.leonid.sh_ansible_join_ctrl_command() {
 
   # /root/k8s.leonid.sh/bashly/ansible_join_ctrl_command.sh
   inspect_args
+
+  public_ipv6="${args['--public-ipv6']}"
+  internal_ipv4="${args['--internal-ipv4']}"
+  hostname="${args['--hostname']}"
+  existing_ctrl_public_ipv6="${args['--existing-ctrl-public-ipv6']}"
+
+  echo "Debugging Arguments:"
+  echo "Public IPv6: $public_ipv6"
+  echo "Internal IPv4: $internal_ipv4"
+  echo "Hostname: $hostname"
+  echo "Existing Control Plane IPv6: $existing_ctrl_public_ipv6"
+
   ansible-playbook playbooks/join_ctrl.yaml \
     --private-key "~/.ssh/k8s.leonid.sh" \
-    -e "public_ipv6=$arg_public_ipv6 internal_ipv4=$arg_internal_ipv4 hostname=$arg_hostname existing_ctrl_public_ipv6=$arg_existing_ctrl_public_ipv6"
+    -e "public_ipv6=$public_ipv6 \
+        internal_ipv4=$internal_ipv4 \
+        hostname=$hostname \
+        existing_ctrl_public_ipv6=$existing_ctrl_public_ipv6 \
+        ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
 
 }
 
@@ -520,9 +541,25 @@ k8s.leonid.sh_ansible_join_worker_command() {
 
   # /root/k8s.leonid.sh/bashly/ansible_join_worker_command.sh
   inspect_args
+
+  public_ipv6="${args['--public-ipv6']}"
+  internal_ipv4="${args['--internal-ipv4']}"
+  hostname="${args['--hostname']}"
+  existing_ctrl_public_ipv6="${args['--existing-ctrl-public-ipv6']}"
+
+  echo "Debugging Arguments:"
+  echo "Public IPv6: $public_ipv6"
+  echo "Internal IPv4: $internal_ipv4"
+  echo "Hostname: $hostname"
+  echo "Existing Control Plane IPv6: $existing_ctrl_public_ipv6"
+
   ansible-playbook playbooks/join_worker.yaml \
     --private-key "~/.ssh/k8s.leonid.sh" \
-    -e "public_ipv6=$arg_public_ipv6 internal_ipv4=$arg_internal_ipv4 hostname=$arg_hostname existing_ctrl_public_ipv6=$arg_existing_ctrl_public_ipv6"
+    -e "public_ipv6=$public_ipv6 \
+        internal_ipv4=$internal_ipv4 \
+        hostname=$hostname \
+        existing_ctrl_public_ipv6=$existing_ctrl_public_ipv6 \
+        ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
 
 }
 
@@ -531,13 +568,28 @@ k8s.leonid.sh_ansible_join_load_balancer_command() {
 
   # /root/k8s.leonid.sh/bashly/ansible_join_load_balancer_command.sh
   inspect_args
+
+  public_ipv6="${args['--public-ipv6']}"
+  internal_ipv4="${args['--internal-ipv4']}"
+  hostname="${args['--hostname']}"
+  existing_ctrl_public_ipv6="${args['--existing-ctrl-public-ipv6']}"
+  worker_internal_ipv4="${args['--worker-internal-ipv4']}"
+
+  echo "Debugging Arguments:"
+  echo "Public IPv6: $public_ipv6"
+  echo "Internal IPv4: $internal_ipv4"
+  echo "Hostname: $hostname"
+  echo "Existing Control Plane IPv6: $existing_ctrl_public_ipv6"
+  echo "Worker IP(s) for HAProxy: $worker_internal_ipv4"
+
   ansible-playbook playbooks/join_load_balancer.yaml \
     --private-key "~/.ssh/k8s.leonid.sh" \
-    -e "public_ipv6=$arg_public_ipv6 \
-        internal_ipv4=$arg_internal_ipv4 \
-        hostname=$arg_hostname \
-        existing_ctrl_public_ipv6=$arg_existing_ctrl_public_ipv6 \
-        worker_internal_ipv4='${args_arg_worker_internal_ipv4[*]}'"
+    -e "public_ipv6=$public_ipv6 \
+        internal_ipv4=$internal_ipv4 \
+        hostname=$hostname \
+        existing_ctrl_public_ipv6=$existing_ctrl_public_ipv6 \
+        worker_internal_ipv4='$worker_internal_ipv4' \
+        ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'"
 
 }
 
@@ -1057,6 +1109,47 @@ k8s.leonid.sh_ansible_init_control_plane_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--public-ipv6 requires an argument: --public-ipv6 PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --internal-ipv4)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--internal-ipv4']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--internal-ipv4 requires an argument: --internal-ipv4 INTERNAL_IPV4" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --hostname)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--hostname']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--hostname requires an argument: --hostname HOSTNAME" >&2
+          exit 1
+        fi
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2
@@ -1066,43 +1159,26 @@ k8s.leonid.sh_ansible_init_control_plane_parse_requirements() {
       *)
         # :command.parse_requirements_case
         # :command.parse_requirements_case_simple
-        # :argument.case
-        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-          args['arg_public_ipv6']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-          args['arg_internal_ipv4']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_hostname']+x} ]]; then
-          args['arg_hostname']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
 
         ;;
 
     esac
   done
 
-  # :command.required_args_filter
-  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible init_control_plane ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 [ARG_HOSTNAME]\n" >&2
-
+  # :command.required_flags_filter
+  if [[ -z ${args['--public-ipv6']+x} ]]; then
+    printf "missing required flag: --public-ipv6 PUBLIC_IPV6\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible init_control_plane ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 [ARG_HOSTNAME]\n" >&2
-
+  if [[ -z ${args['--internal-ipv4']+x} ]]; then
+    printf "missing required flag: --internal-ipv4 INTERNAL_IPV4\n" >&2
     exit 1
   fi
 
   # :command.default_assignments
-  [[ -n ${args['arg_hostname']:-} ]] || args['arg_hostname']="ctrl-001"
+  [[ -n ${args['--hostname']:-} ]] || args['--hostname']="ctrl-001"
 
 }
 
@@ -1132,6 +1208,61 @@ k8s.leonid.sh_ansible_join_ctrl_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--public-ipv6 requires an argument: --public-ipv6 PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --internal-ipv4)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--internal-ipv4']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--internal-ipv4 requires an argument: --internal-ipv4 INTERNAL_IPV4" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --hostname)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--hostname']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--hostname requires an argument: --hostname HOSTNAME" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --existing-ctrl-public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--existing-ctrl-public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--existing-ctrl-public-ipv6 requires an argument: --existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2
@@ -1141,54 +1272,29 @@ k8s.leonid.sh_ansible_join_ctrl_parse_requirements() {
       *)
         # :command.parse_requirements_case
         # :command.parse_requirements_case_simple
-        # :argument.case
-        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-          args['arg_public_ipv6']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-          args['arg_internal_ipv4']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_hostname']+x} ]]; then
-          args['arg_hostname']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
-          args['arg_existing_ctrl_public_ipv6']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
 
         ;;
 
     esac
   done
 
-  # :command.required_args_filter
-  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  # :command.required_flags_filter
+  if [[ -z ${args['--public-ipv6']+x} ]]; then
+    printf "missing required flag: --public-ipv6 PUBLIC_IPV6\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  if [[ -z ${args['--internal-ipv4']+x} ]]; then
+    printf "missing required flag: --internal-ipv4 INTERNAL_IPV4\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_hostname']+x} ]]; then
-    printf "missing required argument: ARG_HOSTNAME\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  if [[ -z ${args['--hostname']+x} ]]; then
+    printf "missing required flag: --hostname HOSTNAME\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_EXISTING_CTRL_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_ctrl ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  if [[ -z ${args['--existing-ctrl-public-ipv6']+x} ]]; then
+    printf "missing required flag: --existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6\n" >&2
     exit 1
   fi
 
@@ -1220,6 +1326,61 @@ k8s.leonid.sh_ansible_join_worker_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--public-ipv6 requires an argument: --public-ipv6 PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --internal-ipv4)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--internal-ipv4']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--internal-ipv4 requires an argument: --internal-ipv4 INTERNAL_IPV4" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --hostname)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--hostname']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--hostname requires an argument: --hostname HOSTNAME" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --existing-ctrl-public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--existing-ctrl-public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--existing-ctrl-public-ipv6 requires an argument: --existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2
@@ -1229,54 +1390,29 @@ k8s.leonid.sh_ansible_join_worker_parse_requirements() {
       *)
         # :command.parse_requirements_case
         # :command.parse_requirements_case_simple
-        # :argument.case
-        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-          args['arg_public_ipv6']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-          args['arg_internal_ipv4']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_hostname']+x} ]]; then
-          args['arg_hostname']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
-          args['arg_existing_ctrl_public_ipv6']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
 
         ;;
 
     esac
   done
 
-  # :command.required_args_filter
-  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  # :command.required_flags_filter
+  if [[ -z ${args['--public-ipv6']+x} ]]; then
+    printf "missing required flag: --public-ipv6 PUBLIC_IPV6\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  if [[ -z ${args['--internal-ipv4']+x} ]]; then
+    printf "missing required flag: --internal-ipv4 INTERNAL_IPV4\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_hostname']+x} ]]; then
-    printf "missing required argument: ARG_HOSTNAME\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  if [[ -z ${args['--hostname']+x} ]]; then
+    printf "missing required flag: --hostname HOSTNAME\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_EXISTING_CTRL_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_worker ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6\n" >&2
-
+  if [[ -z ${args['--existing-ctrl-public-ipv6']+x} ]]; then
+    printf "missing required flag: --existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6\n" >&2
     exit 1
   fi
 
@@ -1308,6 +1444,80 @@ k8s.leonid.sh_ansible_join_load_balancer_parse_requirements() {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case "$key" in
+      # :flag.case
+      --public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--public-ipv6 requires an argument: --public-ipv6 PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --internal-ipv4)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--internal-ipv4']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--internal-ipv4 requires an argument: --internal-ipv4 INTERNAL_IPV4" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --hostname)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--hostname']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--hostname requires an argument: --hostname HOSTNAME" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --existing-ctrl-public-ipv6)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--existing-ctrl-public-ipv6']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--existing-ctrl-public-ipv6 requires an argument: --existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --worker-internal-ipv4)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          escaped="$(printf '%q' "$2")"
+          if [[ -z ${args['--worker-internal-ipv4']+x} ]]; then
+            args['--worker-internal-ipv4']="$escaped"
+          else
+            args['--worker-internal-ipv4']="${args['--worker-internal-ipv4']} $escaped"
+          fi
+          shift
+          shift
+        else
+          printf "%s\n" "--worker-internal-ipv4 requires an argument: --worker-internal-ipv4 WORKER_INTERNAL_IPV4" >&2
+          exit 1
+        fi
+        ;;
 
       -?*)
         printf "invalid option: %s\n" "$key" >&2
@@ -1316,60 +1526,30 @@ k8s.leonid.sh_ansible_join_load_balancer_parse_requirements() {
 
       *)
         # :command.parse_requirements_case
-        # :command.parse_requirements_case_repeatable
-        # :argument.case_repeatable
-        escaped="$(printf '%q' "$1")"
-        if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-          args['arg_public_ipv6']="$1"
-
-        # :argument.case_repeatable
-        elif [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-          args['arg_internal_ipv4']="$1"
-
-        # :argument.case_repeatable
-        elif [[ -z ${args['arg_hostname']+x} ]]; then
-          args['arg_hostname']="$1"
-
-        # :argument.case_repeatable
-        elif [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
-          args['arg_existing_ctrl_public_ipv6']="$1"
-
-        # :argument.case_repeatable
-        elif [[ -z ${args['arg_worker_internal_ipv4']+x} ]]; then
-          args['arg_worker_internal_ipv4']="$escaped"
-        else
-          args['arg_worker_internal_ipv4']="${args['arg_worker_internal_ipv4']} $escaped"
-
-        fi
-        shift
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
 
         ;;
 
     esac
   done
 
-  # :command.required_args_filter
-  if [[ -z ${args['arg_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
-
+  # :command.required_flags_filter
+  if [[ -z ${args['--public-ipv6']+x} ]]; then
+    printf "missing required flag: --public-ipv6 PUBLIC_IPV6\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_internal_ipv4']+x} ]]; then
-    printf "missing required argument: ARG_INTERNAL_IPV4\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
-
+  if [[ -z ${args['--internal-ipv4']+x} ]]; then
+    printf "missing required flag: --internal-ipv4 INTERNAL_IPV4\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_hostname']+x} ]]; then
-    printf "missing required argument: ARG_HOSTNAME\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
-
+  if [[ -z ${args['--hostname']+x} ]]; then
+    printf "missing required flag: --hostname HOSTNAME\n" >&2
     exit 1
   fi
-
-  if [[ -z ${args['arg_existing_ctrl_public_ipv6']+x} ]]; then
-    printf "missing required argument: ARG_EXISTING_CTRL_PUBLIC_IPV6\nusage: k8s.leonid.sh ansible join_load_balancer ARG_PUBLIC_IPV6 ARG_INTERNAL_IPV4 ARG_HOSTNAME ARG_EXISTING_CTRL_PUBLIC_IPV6 [ARG_WORKER_INTERNAL_IPV4...]\n" >&2
-
+  if [[ -z ${args['--existing-ctrl-public-ipv6']+x} ]]; then
+    printf "missing required flag: --existing-ctrl-public-ipv6 EXISTING_CTRL_PUBLIC_IPV6\n" >&2
     exit 1
   fi
 

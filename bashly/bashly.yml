@@ -14,6 +14,8 @@ commands:
         help: Build or change infrastructure
       - name: destroy
         help: Destroy Terraform-managed infrastructure
+      - name: output
+        help: Show output values
 
   - name: ansible
     help: Ansible playbooks

@@ -59,6 +59,7 @@ k8s.leonid.sh_terraform_usage() {
   printf "  %s   Generate and show an execution plan\n" "plan   "
   printf "  %s   Build or change infrastructure\n" "apply  "
   printf "  %s   Destroy Terraform-managed infrastructure\n" "destroy"
+  printf "  %s   Show output values\n" "output "
   echo
 
   # :command.long_usage
@@ -143,6 +144,27 @@ k8s.leonid.sh_terraform_destroy_usage() {
   printf "%s\n" "Usage:"
   printf "  k8s.leonid.sh terraform destroy\n"
   printf "  k8s.leonid.sh terraform destroy --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    printf "%s\n" "Options:"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+k8s.leonid.sh_terraform_output_usage() {
+  printf "k8s.leonid.sh terraform output - Show output values\n\n"
+
+  printf "%s\n" "Usage:"
+  printf "  k8s.leonid.sh terraform output\n"
+  printf "  k8s.leonid.sh terraform output --help | -h\n"
   echo
 
   # :command.long_usage
@@ -464,6 +486,14 @@ k8s.leonid.sh_terraform_destroy_command() {
 }
 
 # :command.function
+k8s.leonid.sh_terraform_output_command() {
+
+  # /root/k8s.leonid.sh/bashly/terraform_output_command.sh
+  cd cloud_resources
+  terraform output
+}
+
+# :command.function
 k8s.leonid.sh_ansible_init_control_plane_command() {
 
   # /root/k8s.leonid.sh/bashly/ansible_init_control_plane_command.sh
@@ -641,6 +671,13 @@ k8s.leonid.sh_terraform_parse_requirements() {
       action="destroy"
       shift
       k8s.leonid.sh_terraform_destroy_parse_requirements "$@"
+      shift $#
+      ;;
+
+    output)
+      action="output"
+      shift
+      k8s.leonid.sh_terraform_output_parse_requirements "$@"
       shift $#
       ;;
 
@@ -836,6 +873,51 @@ k8s.leonid.sh_terraform_destroy_parse_requirements() {
 
   # :command.command_filter
   action="terraform destroy"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
+k8s.leonid.sh_terraform_output_parse_requirements() {
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        k8s.leonid.sh_terraform_output_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="terraform output"
 
   # :command.parse_requirements_while
   while [[ $# -gt 0 ]]; do
@@ -1318,6 +1400,7 @@ run() {
     "terraform plan") k8s.leonid.sh_terraform_plan_command ;;
     "terraform apply") k8s.leonid.sh_terraform_apply_command ;;
     "terraform destroy") k8s.leonid.sh_terraform_destroy_command ;;
+    "terraform output") k8s.leonid.sh_terraform_output_command ;;
     "ansible") k8s.leonid.sh_ansible_command ;;
     "ansible init_control_plane") k8s.leonid.sh_ansible_init_control_plane_command ;;
     "ansible join_ctrl") k8s.leonid.sh_ansible_join_ctrl_command ;;

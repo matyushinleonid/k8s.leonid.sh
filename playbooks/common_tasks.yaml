@@ -1,0 +1,156 @@
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+    autoremove: yes
+    force: yes
+#
+#- name: Install required packages
+#  apt:
+#    name:
+#      - curl
+#      - apt-transport-https
+#      - git
+#      - wget
+#      - software-properties-common
+#      - lsb-release
+#      - ca-certificates
+#      - socat
+#    state: present
+#    update_cache: yes
+#
+#- name: Disable swap
+#  command: swapoff -a
+#  ignore_errors: yes
+#
+#- name: Ensure swap is disabled permanently
+#  lineinfile:
+#    path: /etc/fstab
+#    regexp: '^\S+\s+swap\s+'
+#    line: '#\0'
+#    backup: yes
+#
+#- name: Enable and load required kernel modules
+#  block:
+#    - name: Load overlay module
+#      modprobe:
+#        name: overlay
+#        state: present
+#    - name: Load br_netfilter module
+#      modprobe:
+#        name: br_netfilter
+#        state: present
+#    - name: Ensure modules are loaded on boot
+#      copy:
+#        dest: /etc/modules-load.d/k8s.conf
+#        content: |
+#          overlay
+#          br_netfilter
+#
+#- name: Set sysctl parameters for Kubernetes networking
+#  sysctl:
+#    name: "{{ item.name }}"
+#    value: "{{ item.value }}"
+#    state: present
+#    reload: yes
+#  loop:
+#    - { name: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+#    - { name: "net.bridge.bridge-nf-call-iptables",  value: "1" }
+#    - { name: "net.ipv4.ip_forward",                  value: "1" }
+#    - { name: "net.ipv6.conf.default.forwarding",     value: "1" }
+#
+#- name: Ensure /etc/apt/keyrings directory exists
+#  file:
+#    path: /etc/apt/keyrings
+#    state: directory
+#    mode: '0755'
+#
+#- name: Add Docker GPG key
+#  apt_key:
+#    url: https://download.docker.com/linux/ubuntu/gpg
+#    state: present
+#    keyring: /etc/apt/keyrings/docker.gpg
+#
+#- name: Add Docker APT repository
+#  apt_repository:
+#    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu noble stable"
+#    filename: docker
+#    state: present
+#
+#- name: Update apt cache after adding Docker repo
+#  apt:
+#    update_cache: yes
+#
+#- name: Install containerd.io
+#  apt:
+#    name: containerd.io
+#    state: present
+#    update_cache: yes
+#
+#- name: Configure containerd
+#  block:
+#    - name: Generate containerd configuration
+#      command: containerd config default
+#      register: containerd_config
+#      changed_when: false
+#    - name: Create containerd config directory
+#      file:
+#        path: /etc/containerd
+#        state: directory
+#        mode: '0755'
+#    - name: Write containerd configuration
+#      copy:
+#        dest: /etc/containerd/config.toml
+#        content: "{{ containerd_config.stdout }}"
+#        owner: root
+#        group: root
+#        mode: '0644'
+#    - name: Set SystemdCgroup to true in containerd config
+#      replace:
+#        path: /etc/containerd/config.toml
+#        regexp: 'SystemdCgroup = false'
+#        replace: 'SystemdCgroup = true'
+#    - name: Restart containerd service
+#      systemd:
+#        name: containerd
+#        state: restarted
+#        enabled: yes
+#
+#- name: Add Kubernetes APT repository
+#  block:
+#    - name: Download Kubernetes apt key to temporary file
+#      get_url:
+#        url: https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key
+#        dest: /tmp/kubernetes-release.key
+#    - name: Convert Kubernetes key to GPG format
+#      command: gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/kubernetes-release.key
+#      args:
+#        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+#    - name: Remove temporary Kubernetes key file
+#      file:
+#        path: /tmp/kubernetes-release.key
+#        state: absent
+#    - name: Add Kubernetes APT repository
+#      apt_repository:
+#        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /"
+#        filename: kubernetes
+#        state: present
+#    - name: Update apt cache after adding Kubernetes repo
+#      apt:
+#        update_cache: yes
+#
+#- name: Install Kubernetes packages
+#  apt:
+#    name:
+#      - kubelet=1.30.6-1.1
+#      - kubeadm=1.30.6-1.1
+#      - kubectl=1.30.6-1.1
+#    state: present
+#    update_cache: yes
+#    allow_downgrades: yes
+
+- name: Enable and start kubelet service
+  systemd:
+    name: kubelet
+    enabled: yes
+    state: started

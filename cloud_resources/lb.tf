@@ -1,5 +1,5 @@
 resource "hcloud_firewall" "load_balancer" {
-  name = "k8s.leonid.sh load balancer firewall"
+  name = "load balancer firewall"
 
   rule {
     direction   = "in"
@@ -24,7 +24,7 @@ resource "hcloud_server" "lb-001" {
   }
 
   public_net {
-    ipv4_enabled = false
+    ipv4_enabled = true
     ipv6_enabled = true
   }
 

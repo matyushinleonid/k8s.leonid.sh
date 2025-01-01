@@ -1,0 +1,2 @@
+cd cloud_resources
+terraform output

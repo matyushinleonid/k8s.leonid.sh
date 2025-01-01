@@ -40,6 +40,8 @@ RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-he
 
 WORKDIR /root/k8s.leonid.sh
 
+COPY setup_ssh_keys.sh /usr/local/bin/setup_ssh_keys.sh
+RUN chmod +x /usr/local/bin/setup_ssh_keys.sh
 COPY setup_terraformrc.sh /usr/local/bin/setup_terraformrc.sh
 RUN chmod +x /usr/local/bin/setup_terraformrc.sh
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

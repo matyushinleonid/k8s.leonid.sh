@@ -1,0 +1,70 @@
+---
+- name: Join an additional control plane node (no static inventory)
+  hosts: localhost
+  gather_facts: false
+  become: false
+
+  vars:
+    existing_ctrl_public_ipv6: "{{ existing_ctrl_public_ipv6 }}"
+    public_ipv6: "{{ public_ipv6 }}"
+    internal_ipv4: "{{ internal_ipv4 }}"
+    hostname: "{{ hostname }}"
+
+  tasks:
+    - name: Add existing control plane to ephemeral inventory
+      add_host:
+        name: existing_cp
+        ansible_host: "{{ existing_ctrl_public_ipv6 }}"
+        ansible_user: root
+        ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
+
+    - name: Add new control-plane node to ephemeral inventory
+      add_host:
+        name: new_ctrl
+        ansible_host: "{{ public_ipv6 }}"
+        ansible_user: root
+        ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
+
+    - name: Get base join command from existing control plane
+      command: kubeadm token create --print-join-command --ttl 0
+      register: join_cmd_raw
+      delegate_to: existing_cp
+
+    - name: Upload certs (so we can do control-plane join)
+      command: kubeadm init phase upload-certs --upload-certs
+      register: cert_out
+      delegate_to: existing_cp
+
+    - name: Extract the certificate key
+      set_fact:
+        cert_key: "{{ (cert_out.stdout_lines | last) | trim }}"
+
+- name: Configure the new control-plane node
+  hosts: new_ctrl
+  gather_facts: false
+  become: true
+
+  vars:
+    new_node_hostname: "{{ hostvars['localhost'].hostname }}"
+    new_node_internal_ip: "{{ hostvars['localhost'].internal_ipv4 }}"
+    base_join_cmd: "{{ hostvars['localhost'].join_cmd_raw.stdout }}"
+    certificate_key: "{{ hostvars['localhost'].cert_key }}"
+
+  tasks:
+    - name: Include common tasks
+      import_tasks: common_tasks.yaml
+
+    - name: Join as an additional control plane
+      command: >
+        {{ base_join_cmd }}
+        --control-plane
+        --certificate-key {{ certificate_key }}
+        --node-name={{ new_node_hostname }}
+        --apiserver-advertise-address={{ new_node_internal_ip }}
+      register: kubeadm_join
+      ignore_errors: yes
+
+    - name: Fail if join failed
+      fail:
+        msg: "Join control plane failed."
+      when: kubeadm_join.rc != 0

@@ -13,7 +13,7 @@ resource "hcloud_firewall" "ctrl" {
     direction   = "in"
     protocol    = "tcp"
     port        = "2379-2380"
-    source_ips = [var.subnet_cidr]
+    source_ips  = [var.subnet_cidr]
     description = "etcd"
   }
 
@@ -29,7 +29,7 @@ resource "hcloud_firewall" "ctrl" {
     direction   = "in"
     protocol    = "tcp"
     port        = "10259"
-    source_ips = [var.subnet_cidr]
+    source_ips  = [var.subnet_cidr]
     description = "kube-scheduler"
   }
 
@@ -37,7 +37,7 @@ resource "hcloud_firewall" "ctrl" {
     direction   = "in"
     protocol    = "tcp"
     port        = "10257"
-    source_ips = [var.subnet_cidr]
+    source_ips  = [var.subnet_cidr]
     description = "kube-controller-manager"
   }
 }
@@ -52,7 +52,7 @@ resource "hcloud_server" "ctrl-001" {
   network {
     network_id = hcloud_network.k8s_net.id
     ip         = var.ctrl-001_internal_ipv4
-    alias_ips = []
+    alias_ips  = []
   }
 
   public_net {

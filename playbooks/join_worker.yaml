@@ -9,7 +9,6 @@
     public_ipv6: "{{ public_ipv6 }}"
     internal_ipv4: "{{ internal_ipv4 }}"
     hostname: "{{ hostname }}"
-    apt_kubernetes_version: "1.30.6-0"
 
   tasks:
     - name: Add existing control plane to ephemeral inventory
@@ -40,13 +39,10 @@
     new_node_hostname: "{{ hostvars['localhost'].hostname }}"
     new_node_internal_ip: "{{ hostvars['localhost'].internal_ipv4 }}"
     base_join_cmd: "{{ hostvars['localhost'].join_cmd_raw.stdout }}"
-    apt_kubernetes_version: "{{ hostvars['localhost'].apt_kubernetes_version }}"
 
   tasks:
     - name: Include common tasks
       import_tasks: common_tasks.yaml
-      vars:
-        apt_kubernetes_version: "{{ apt_kubernetes_version }}"
 
     - name: Join cluster
       command: >

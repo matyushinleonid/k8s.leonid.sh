@@ -8,7 +8,6 @@
     public_ipv6: "{{ public_ipv6 }}"
     internal_ipv4: "{{ internal_ipv4 }}"
     hostname: "{{ hostname | default('ctrl-001') }}"
-    apt_kubernetes_version: "1.30.6-0"
 
   tasks:
     - name: Add new control-plane node to in-memory inventory
@@ -24,7 +23,6 @@
   become: true
 
   vars:
-    apt_kubernetes_version: "{{ hostvars['localhost'].apt_kubernetes_version }}"
     node_hostname: "{{ hostvars['localhost'].hostname }}"
     node_public_ipv6: "{{ hostvars['localhost'].public_ipv6 }}"
     node_internal_ipv4: "{{ hostvars['localhost'].internal_ipv4 }}"
@@ -32,8 +30,6 @@
   tasks:
     - name: Include common tasks
       import_tasks: common_tasks.yaml
-      vars:
-        apt_kubernetes_version: "{{ apt_kubernetes_version }}"
 
     - name: kubeadm init
       command: >

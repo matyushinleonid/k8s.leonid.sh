@@ -9,7 +9,6 @@
     public_ipv6: "{{ public_ipv6 }}"
     internal_ipv4: "{{ internal_ipv4 }}"
     hostname: "{{ hostname }}"
-    apt_kubernetes_version: "1.30.6-0"
     worker_ips: "{{ worker_internal_ipv4 | default([]) }}"
 
   tasks:
@@ -41,14 +40,11 @@
     new_node_hostname: "{{ hostvars['localhost'].hostname }}"
     new_node_internal_ip: "{{ hostvars['localhost'].internal_ipv4 }}"
     base_join_cmd: "{{ hostvars['localhost'].join_cmd_raw.stdout }}"
-    apt_kubernetes_version: "{{ hostvars['localhost'].apt_kubernetes_version }}"
     lb_worker_ips: "{{ hostvars['localhost'].worker_ips }}"
 
   tasks:
     - name: Include common tasks
       import_tasks: common_tasks.yaml
-      vars:
-        apt_kubernetes_version: "{{ apt_kubernetes_version }}"
 
     - name: Check if already joined
       stat:
@@ -96,10 +92,12 @@
       lineinfile:
         path: /etc/haproxy/haproxy.cfg
         insertafter: '^  http-check expect status 404'
-        line: "    server node{{ item.0 }} {{ item.1 }}:32616 check"
-        regexp: "^\\s*server\\s+node{{ item.0 }}\\s+{{ item.1 }}:32616\\s+check"
-      loop: "{{ lb_worker_ips|list|enumerate }}"
-      when: lb_worker_ips|length > 0
+        line: "    server node{{ myindex }} {{ item }}:32616 check"
+        regexp: "^\\s*server\\s+node{{ myindex }}\\s+{{ item }}:32616\\s+check"
+      loop: "{{ lb_worker_ips | list }}"
+      loop_control:
+        index_var: myindex
+      when: lb_worker_ips | length > 0
 
     - name: If no worker IPs provided, add a single placeholder
       lineinfile:

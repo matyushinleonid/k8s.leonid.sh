@@ -9,7 +9,14 @@
     public_ipv6: "{{ public_ipv6 }}"
     internal_ipv4: "{{ internal_ipv4 }}"
     hostname: "{{ hostname }}"
-    worker_ips: "{{ worker_internal_ipv4 | default([]) }}"
+    worker_ips: >-
+      {% if worker_internal_ipv4 is string %}
+      ["{{ worker_internal_ipv4 }}"]
+      {% elif worker_internal_ipv4 is iterable %}
+      {{ worker_internal_ipv4 }}
+      {% else %}
+      [] 
+      {% endif %}
 
   tasks:
     - name: Add existing control plane to ephemeral inventory
@@ -26,10 +33,14 @@
         ansible_user: root
         ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
 
-    - name: Get kubeadm join command from existing control plane
-      command: kubeadm token create --print-join-command --ttl 0
-      register: join_cmd_raw
-      delegate_to: existing_cp
+    - name: Parse worker_ips into a list
+      set_fact:
+        worker_ips_list: "{{ worker_ips | from_json }}"
+
+    - name: Generate HAProxy configuration locally
+      shell: ./scripts/prepare_haproxy_config.sh "{{ worker_ips_list | join(' ') }}"
+      register: haproxy_config
+      failed_when: "'Error:' in haproxy_config.stdout"
 
 - name: Configure the new load balancer node
   hosts: new_lb
@@ -40,7 +51,7 @@
     new_node_hostname: "{{ hostvars['localhost'].hostname }}"
     new_node_internal_ip: "{{ hostvars['localhost'].internal_ipv4 }}"
     base_join_cmd: "{{ hostvars['localhost'].join_cmd_raw.stdout }}"
-    lb_worker_ips: "{{ hostvars['localhost'].worker_ips }}"
+    lb_worker_ips: "{{ hostvars['localhost'].worker_ips_list }}"
 
   tasks:
     - name: Include common tasks
@@ -73,38 +84,18 @@
         name: haproxy
         state: present
 
-    - name: Configure HAProxy base
-      blockinfile:
-        path: /etc/haproxy/haproxy.cfg
-        insertafter: EOF
-        block: |
-          frontend http
-              bind *:80
-              bind :::80
-              default_backend k8s_nodes
+    - name: Overwrite HAProxy configuration
+      copy:
+        content: "{{ hostvars['localhost'].haproxy_config.stdout + '\n' }}"
+        dest: /etc/haproxy/haproxy.cfg
+        owner: root
+        group: root
+        mode: '0644'
 
-          backend k8s_nodes
-              balance roundrobin
-              option httpchk GET /
-              http-check expect status 404
-
-    - name: Add server lines for worker nodes
-      lineinfile:
-        path: /etc/haproxy/haproxy.cfg
-        insertafter: '^  http-check expect status 404'
-        line: "    server node{{ myindex }} {{ item }}:32616 check"
-        regexp: "^\\s*server\\s+node{{ myindex }}\\s+{{ item }}:32616\\s+check"
-      loop: "{{ lb_worker_ips | list }}"
-      loop_control:
-        index_var: myindex
-      when: lb_worker_ips | length > 0
-
-    - name: If no worker IPs provided, add a single placeholder
-      lineinfile:
-        path: /etc/haproxy/haproxy.cfg
-        insertafter: '^  http-check expect status 404'
-        line: "    # No worker IPs provided, please update me"
-      when: lb_worker_ips|length == 0
+    - name: Validate HAProxy configuration
+      shell: haproxy -c -f /etc/haproxy/haproxy.cfg
+      register: haproxy_validation
+      failed_when: haproxy_validation.rc != 0
 
     - name: Restart HAProxy
       systemd:

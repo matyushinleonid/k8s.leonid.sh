@@ -65,3 +65,35 @@ resource "hcloud_server" "worker-001" {
     hcloud_network_subnet.k8s_subnet
   ]
 }
+
+resource "hcloud_server" "worker-002" {
+  name               = "worker-002"
+  server_type        = "ccx13"
+  image              = var.image
+  datacenter         = var.datacenter
+  placement_group_id = hcloud_placement_group.common.id
+
+  network {
+    network_id = hcloud_network.k8s_net.id
+    ip         = var.worker-002_internal_ipv4
+    alias_ips  = []
+  }
+
+  public_net {
+    ipv4_enabled = false
+    ipv6_enabled = true
+  }
+
+  firewall_ids = [
+    hcloud_firewall.base.id,
+    hcloud_firewall.worker.id
+  ]
+
+  ssh_keys = [
+    hcloud_ssh_key.common.id
+  ]
+
+  depends_on = [
+    hcloud_network_subnet.k8s_subnet
+  ]
+}

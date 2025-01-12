@@ -26,13 +26,13 @@ output "ctrl-002_internal_ipv4" {
   value = var.ctrl-002_internal_ipv4
 }
 
-# output "ctrl-003_ipv6" {
-#   value = hcloud_server.ctrl-003.ipv6_address
-# }
-#
-# output "ctrl-003_internal_ipv4" {
-#   value = var.ctrl-003_internal_ipv4
-# }
+output "ctrl-003_ipv6" {
+  value = hcloud_server.ctrl-003.ipv6_address
+}
+
+output "ctrl-003_internal_ipv4" {
+  value = var.ctrl-003_internal_ipv4
+}
 
 output "worker-001_ipv6" {
   value = hcloud_server.worker-001.ipv6_address

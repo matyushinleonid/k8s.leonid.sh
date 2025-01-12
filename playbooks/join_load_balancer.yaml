@@ -33,6 +33,11 @@
         ansible_user: root
         ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
 
+    - name: Get kubeadm join command from existing control plane
+      command: kubeadm token create --print-join-command --ttl 0
+      register: join_cmd_raw
+      delegate_to: existing_cp
+
     - name: Parse worker_ips into a list
       set_fact:
         worker_ips_list: "{{ worker_ips | from_json }}"
@@ -101,3 +106,13 @@
       systemd:
         name: haproxy
         state: restarted
+
+- name: Taint the load balancer node locally
+  hosts: localhost
+  gather_facts: false
+  become: false
+
+  tasks:
+    - name: Taint the load balancer node
+      shell: |
+        kubectl taint nodes {{ hostname }} node-role.kubernetes.io/load-balancer=:NoSchedule

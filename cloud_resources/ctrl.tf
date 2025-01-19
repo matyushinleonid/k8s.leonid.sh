@@ -73,3 +73,67 @@ resource "hcloud_server" "ctrl-001" {
     hcloud_network_subnet.k8s_subnet
   ]
 }
+
+resource "hcloud_server" "ctrl-002" {
+  name               = "ctrl-002"
+  server_type        = var.server_type
+  image              = var.image
+  datacenter         = var.datacenter
+  placement_group_id = hcloud_placement_group.common.id
+
+  network {
+    network_id = hcloud_network.k8s_net.id
+    ip         = var.ctrl-002_internal_ipv4
+    alias_ips  = []
+  }
+
+  public_net {
+    ipv4_enabled = false
+    ipv6_enabled = true
+  }
+
+  firewall_ids = [
+    hcloud_firewall.base.id,
+    hcloud_firewall.ctrl.id
+  ]
+
+  ssh_keys = [
+    hcloud_ssh_key.common.id
+  ]
+
+  depends_on = [
+    hcloud_network_subnet.k8s_subnet
+  ]
+}
+
+resource "hcloud_server" "ctrl-003" {
+  name               = "ctrl-003"
+  server_type        = var.server_type
+  image              = var.image
+  datacenter         = var.datacenter
+  placement_group_id = hcloud_placement_group.common.id
+
+  network {
+    network_id = hcloud_network.k8s_net.id
+    ip         = var.ctrl-003_internal_ipv4
+    alias_ips  = []
+  }
+
+  public_net {
+    ipv4_enabled = false
+    ipv6_enabled = true
+  }
+
+  firewall_ids = [
+    hcloud_firewall.base.id,
+    hcloud_firewall.ctrl.id
+  ]
+
+  ssh_keys = [
+    hcloud_ssh_key.common.id
+  ]
+
+  depends_on = [
+    hcloud_network_subnet.k8s_subnet
+  ]
+}

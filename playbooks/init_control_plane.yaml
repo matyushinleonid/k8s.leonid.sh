@@ -37,7 +37,7 @@
         --control-plane-endpoint=k8s.leonid.sh:6443
         --apiserver-advertise-address={{ node_internal_ipv4 }}
         --apiserver-cert-extra-sans={{ node_public_ipv6 }}
-        --pod-network-cidr=192.168.0.0/16,fd00::/64
+        --pod-network-cidr=192.168.0.0/16,fd00::/48
         --service-cidr=10.96.0.0/16,fd01::/108
         --node-name={{ node_hostname }}
       args:

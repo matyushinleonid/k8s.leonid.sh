@@ -54,6 +54,11 @@
     - name: Include common tasks
       import_tasks: common_tasks.yaml
 
+    - name: Check if already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: ctrl_already_joined
+
     - name: Join as an additional control plane
       command: >
         {{ base_join_cmd }}
@@ -63,8 +68,11 @@
         --apiserver-advertise-address={{ new_node_internal_ip }}
       register: kubeadm_join
       ignore_errors: yes
+      when: not ctrl_already_joined.stat.exists
 
     - name: Fail if join failed
       fail:
         msg: "Join control plane failed."
-      when: kubeadm_join.rc != 0
+      when:
+        - not ctrl_already_joined.stat.exists
+        - kubeadm_join.rc != 0

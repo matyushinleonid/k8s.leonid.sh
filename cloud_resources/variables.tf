@@ -28,20 +28,20 @@ variable "ctrl-002_internal_ipv4" {
   default = "10.0.1.21"
 }
 
-variable "ctrl-003_internal_ipv4" {
-  type    = string
-  default = "10.0.1.22"
-}
+# variable "ctrl-003_internal_ipv4" {
+#   type    = string
+#   default = "10.0.1.22"
+# }
 
 variable "worker-001_internal_ipv4" {
   type    = string
   default = "10.0.1.30"
 }
 
-variable "worker-002_internal_ipv4" {
-  type    = string
-  default = "10.0.1.31"
-}
+# variable "worker-002_internal_ipv4" {
+#   type    = string
+#   default = "10.0.1.31"
+# }
 
 variable "server_type" {
   type    = string

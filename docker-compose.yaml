@@ -10,7 +10,7 @@ services:
     environment:
       - TERRAFORM_CLOUD_TOKEN=${TERRAFORM_CLOUD_TOKEN}
       - BASHLY_SOURCE_DIR=/root/k8s.leonid.sh/bashly
-      - KUBECONFIG=/root/.kube/hetzner.conf
+      - KUBECONFIG=/root/.kube/k8s.leonid.sh.conf
     volumes:
       - ~/.ssh:/root/.mounted_ssh # I hate Docker on Windows
       - ~/.kube:/root/.kube

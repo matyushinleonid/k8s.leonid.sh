@@ -60,14 +60,14 @@
     - name: Fetch admin.conf from the newly inited node
       fetch:
         src: /etc/kubernetes/admin.conf
-        dest: "{{ lookup('env','HOME') }}/.kube/hetzner.conf"
+        dest: "{{ lookup('env','HOME') }}/.kube/k8s.leonid.sh.conf"
         flat: yes
       run_once: true
 
     - name: Replace the API server address in local kubeconfig with public IPv6
       delegate_to: localhost
       replace:
-        path: "{{ lookup('env','HOME') }}/.kube/hetzner.conf"
+        path: "{{ lookup('env','HOME') }}/.kube/k8s.leonid.sh.conf"
         regexp: 'server: https?://.*:6443'
         replace: 'server: https://[{{ node_public_ipv6 }}]:6443'
       run_once: true
@@ -76,6 +76,6 @@
       debug:
         msg: >
           Kubernetes control plane has been initialized on {{ node_hostname }}.
-          Kubeconfig is saved to ~/.kube/hetzner.conf.
+          Kubeconfig is saved to ~/.kube/k8s.leonid.sh.conf.
           You can manually create a join token on {{ node_hostname }} if needed:
           "kubeadm token create --print-join-command --ttl 0"

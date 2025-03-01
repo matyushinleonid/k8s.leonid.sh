@@ -5,10 +5,8 @@
   become: false
 
   vars:
-    existing_ctrl_public_ipv6: "{{ existing_ctrl_public_ipv6 }}"
     public_ipv6: "{{ public_ipv6 }}"
     internal_ipv4: "{{ internal_ipv4 }}"
-    hostname: "{{ hostname }}"
     worker_ips: >-
       {% if worker_internal_ipv4 is string %}
       ["{{ worker_internal_ipv4 }}"]
@@ -19,24 +17,12 @@
       {% endif %}
 
   tasks:
-    - name: Add existing control plane to ephemeral inventory
-      add_host:
-        name: existing_cp
-        ansible_host: "{{ existing_ctrl_public_ipv6 }}"
-        ansible_user: root
-        ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
-
     - name: Add new load balancer node to ephemeral inventory
       add_host:
         name: new_lb
         ansible_host: "{{ public_ipv6 }}"
         ansible_user: root
         ansible_ssh_private_key_file: "~/.ssh/k8s.leonid.sh"
-
-    - name: Get kubeadm join command from existing control plane
-      command: kubeadm token create --print-join-command --ttl 0
-      register: join_cmd_raw
-      delegate_to: existing_cp
 
     - name: Parse worker_ips into a list
       set_fact:
@@ -53,50 +39,29 @@
   become: true
 
   vars:
-    new_node_hostname: "{{ hostvars['localhost'].hostname }}"
-    new_node_internal_ip: "{{ hostvars['localhost'].internal_ipv4 }}"
     new_node_ip: "{{ hostvars['localhost'].public_ipv6 }}"
-    base_join_cmd: "{{ hostvars['localhost'].join_cmd_raw.stdout }}"
-    lb_worker_ips: "{{ hostvars['localhost'].worker_ips_list }}"
 
   tasks:
-    - name: Include common tasks
-      import_tasks: common_tasks.yaml
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoremove: yes
+        force: yes
 
-    - name: Check if already joined
-      stat:
-        path: /etc/kubernetes/kubelet.conf
-      register: lb_already_joined
-
-    - name: Join cluster as load balancer node
-      command: >
-        {{ base_join_cmd }}
-        --node-name={{ new_node_hostname }}
-        --apiserver-advertise-address={{ new_node_internal_ip }}
-      register: kubeadm_join
-      ignore_errors: yes
-      when: not lb_already_joined.stat.exists
-
-    - name: Configure kubelet to use IPv6
-      lineinfile:
-        path: /etc/default/kubelet
-        line: 'KUBELET_EXTRA_ARGS="--node-ip={{ new_node_ip }}"'
-        create: yes
-      when: not lb_already_joined.stat.exists
-
-    - name: Restart kubelet to apply IPv6 configuration
-      systemd:
-        name: kubelet
-        state: restarted
-      when: not lb_already_joined.stat.exists
-
-    - name: Fail if join failed
-      fail:
-        msg: "Load balancer join failed."
-      when:
-        - not lb_already_joined.stat.exists
-        - kubeadm_join is defined
-        - kubeadm_join.rc != 0
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - git
+          - wget
+          - software-properties-common
+          - lsb-release
+          - ca-certificates
+          - socat
+        state: present
+        update_cache: yes
 
     - name: Install HAProxy
       apt:
@@ -120,13 +85,3 @@
       systemd:
         name: haproxy
         state: restarted
-
-- name: Taint the load balancer node locally
-  hosts: localhost
-  gather_facts: false
-  become: false
-
-  tasks:
-    - name: Taint the load balancer node
-      shell: |
-        kubectl taint nodes {{ hostname }} node-role.kubernetes.io/load-balancer=:NoSchedule

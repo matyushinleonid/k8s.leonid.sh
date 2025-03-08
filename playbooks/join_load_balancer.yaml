@@ -60,13 +60,9 @@
           - lsb-release
           - ca-certificates
           - socat
+          - haproxy
         state: present
         update_cache: yes
-
-    - name: Install HAProxy
-      apt:
-        name: haproxy
-        state: present
 
     - name: Overwrite HAProxy configuration
       copy:

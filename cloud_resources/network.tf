@@ -9,3 +9,9 @@ resource "hcloud_network_subnet" "k8s_subnet" {
   network_zone = var.zone
   ip_range     = var.subnet_cidr
 }
+
+resource "hcloud_network_route" "nat_route" {
+  network_id  = hcloud_network.k8s_net.id
+  destination = "0.0.0.0/0"
+  gateway     = var.lb-001_internal_ipv4
+}

@@ -154,3 +154,36 @@
     name: kubelet
     enabled: yes
     state: started
+
+- name: Append custom network configuration to /etc/systemd/network/10-enp7s0.network
+  blockinfile:
+    path: /etc/systemd/network/10-enp7s0.network
+    create: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: CUSTOM NETWORK CONFIG"
+    block: |
+      [Match]
+      Name=enp7s0
+
+      [Network]
+      DHCP=yes
+      Gateway=10.0.0.1
+
+- name: Append custom DNS configuration to /etc/systemd/resolved.conf
+  blockinfile:
+    path: /etc/systemd/resolved.conf
+    create: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: CUSTOM DNS CONFIG"
+    block: |
+      [Resolve]
+      DNS=185.12.64.2 185.12.64.1
+      FallbackDNS=8.8.8.8
+
+- name: Restart systemd-networkd service
+  systemd:
+    name: systemd-networkd
+    state: restarted
+
+- name: Restart systemd-resolved service
+  systemd:
+    name: systemd-resolved
+    state: restarted

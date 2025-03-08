@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     ruby-full \
     tree \
-    nano
+    nano \
+    dnsutils
 
 # Install Terraform
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \

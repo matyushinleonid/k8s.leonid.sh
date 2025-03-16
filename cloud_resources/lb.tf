@@ -40,4 +40,6 @@ resource "hcloud_server" "lb-001" {
   depends_on = [
     hcloud_network_subnet.k8s_subnet
   ]
+
+  user_data = file("${path.module}/user_data/lb.txt")
 }

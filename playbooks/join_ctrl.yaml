@@ -58,7 +58,7 @@
       lineinfile:
         path: /etc/default/kubelet
         regexp: '^KUBELET_EXTRA_ARGS='
-        line: "KUBELET_EXTRA_ARGS='--node-ip {{ public_ipv6 }}'"
+        line: "KUBELET_EXTRA_ARGS='--node-ip {{ new_node_internal_ip }}'"
         create: yes
         state: present
 

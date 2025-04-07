@@ -40,6 +40,14 @@ resource "hcloud_firewall" "ctrl" {
     source_ips  = [var.subnet_cidr]
     description = "kube-controller-manager"
   }
+
+  rule {
+    direction   = "in"
+    protocol    = "udp"
+    port        = "8472"
+    source_ips  = [var.subnet_cidr]
+    description = "VXLAN overlay"
+  }
 }
 
 resource "hcloud_server" "ctrl-001" {

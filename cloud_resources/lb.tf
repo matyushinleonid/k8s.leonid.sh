@@ -8,6 +8,14 @@ resource "hcloud_firewall" "load_balancer" {
     source_ips  = local.all_ips
     description = "Allow HTTP"
   }
+
+  rule {
+    direction   = "in"
+    protocol    = "tcp"
+    port        = "443"
+    source_ips  = local.all_ips
+    description = "Allow HTTPS"
+  }
 }
 
 resource "hcloud_server" "lb-001" {

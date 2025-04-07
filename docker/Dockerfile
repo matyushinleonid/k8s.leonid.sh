@@ -41,6 +41,9 @@ RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-he
 
 WORKDIR /root/k8s.leonid.sh
 
+RUN echo "alias k='kubectl'" >> ~/.bashrc
+RUN echo "KUBE_EDITOR='nano'" >> ~/.bashrc
+
 COPY setup_ssh_keys.sh /usr/local/bin/setup_ssh_keys.sh
 RUN chmod +x /usr/local/bin/setup_ssh_keys.sh
 COPY setup_terraformrc.sh /usr/local/bin/setup_terraformrc.sh

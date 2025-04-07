@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/matyushinleonid/k8s.leonid.sh.git
+    targetRevision: HEAD
+    path: argocd/apps/nginx
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx
+  syncPolicy: {}

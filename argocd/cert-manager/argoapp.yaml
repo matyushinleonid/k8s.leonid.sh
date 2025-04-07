@@ -5,14 +5,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
-    targetRevision: HEAD
-    path: argocd/cert-manager
-    helm:
-      valueFiles:
-        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
-  syncPolicy: {}
+  sources:
+    - repoURL: "https://charts.jetstack.io"
+      chart: cert-manager
+      targetRevision: "v1.17.0"
+      helm:
+        valueFiles:
+          - "$values/argocd/cert-manager/values.yaml"
+    - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
+      targetRevision: HEAD
+      ref: values

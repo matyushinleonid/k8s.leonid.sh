@@ -50,6 +50,7 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt
     konghq.com/protocols: https
     konghq.com/https-redirect-status-code: "301"
+    argocd.argoproj.io/ignore-healthcheck: "true"
 spec:
   ingressClassName: kong
   tls:

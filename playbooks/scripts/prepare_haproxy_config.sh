@@ -54,9 +54,15 @@ defaults
 frontend http
     bind *:80
     bind :::80
-    default_backend k8s_nodes
+    default_backend k8s_nodes_http
 
-backend k8s_nodes
+frontend https
+    bind *:443
+    bind :::443
+    mode tcp
+    default_backend k8s_nodes_https
+
+backend k8s_nodes_http
     balance roundrobin
     option httpchk GET /
     http-check expect status 404
@@ -68,6 +74,23 @@ for i in "${!worker_ips[@]}"; do
   # Validate IP format (basic validation for IPv4)
   if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
     echo "    server node$i $ip:32616 check"
+  else
+    echo "Warning: Skipping invalid IP: $ip" >&2
+  fi
+done
+
+cat <<'EOF'
+
+backend k8s_nodes_https
+    mode tcp
+    balance roundrobin
+EOF
+
+# Append worker servers for HTTPS backend (port 30620)
+for i in "${!worker_ips[@]}"; do
+  ip="${worker_ips[$i]}"
+  if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    echo "    server node$i $ip:30620 check"
   else
     echo "Warning: Skipping invalid IP: $ip" >&2
   fi

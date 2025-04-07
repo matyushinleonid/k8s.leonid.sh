@@ -32,6 +32,15 @@ resource "hcloud_firewall" "worker" {
     source_ips  = [var.subnet_cidr]
     description = "NodePort services"
   }
+
+  rule {
+    direction   = "in"
+    protocol    = "udp"
+    port        = "8472"
+    source_ips  = [var.subnet_cidr]
+    description = "VXLAN overlay"
+  }
+
 }
 
 resource "hcloud_server" "worker-001" {

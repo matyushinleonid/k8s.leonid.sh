@@ -35,7 +35,7 @@
       lineinfile:
         path: /etc/default/kubelet
         regexp: '^KUBELET_EXTRA_ARGS='
-        line: "KUBELET_EXTRA_ARGS='--node-ip {{ public_ipv6 }}'"
+        line: "KUBELET_EXTRA_ARGS='--node-ip {{ node_internal_ipv4 }}'"
         create: yes
         state: present
 
@@ -45,8 +45,8 @@
         --control-plane-endpoint=k8s.leonid.sh:6443
         --apiserver-advertise-address={{ node_internal_ipv4 }}
         --apiserver-cert-extra-sans={{ node_public_ipv6 }}
-        --pod-network-cidr=192.168.0.0/16,fd00::/48
-        --service-cidr=10.96.0.0/16,fd01::/108
+        --pod-network-cidr=192.168.0.0/16
+        --service-cidr=10.96.0.0/16
         --node-name={{ node_hostname }}
       args:
         creates: /etc/kubernetes/admin.conf

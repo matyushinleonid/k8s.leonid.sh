@@ -9,6 +9,8 @@ spec:
     repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
     targetRevision: HEAD
     path: argocd/nginx
+    directory:
+      exclude: '**/argoapp.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: nginx

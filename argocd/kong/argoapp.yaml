@@ -11,6 +11,7 @@ spec:
   sources:
     - repoURL: "https://charts.konghq.com"
       chart: kong
+      targetRevision: "3.9"
       helm:
         valueFiles:
           - "$values/argocd/kong/values.yaml"

@@ -11,6 +11,7 @@ spec:
   sources:
     - repoURL: "https://argoproj.github.io/argo-helm"
       chart: argo-cd
+      targetRevision: "v2.14.9"
       helm:
         valueFiles:
           - "$values/argocd/argocd/values.yaml"

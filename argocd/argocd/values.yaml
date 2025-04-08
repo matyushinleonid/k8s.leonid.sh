@@ -4,6 +4,23 @@ global:
 configs:
   params:
     server.insecure: true
+  cm:
+    resource.customizations: |
+      networking.k8s.io/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          hs.message = "Probably just fine"
+          return hs
+      admissionregistration.k8s.io/ValidatingWebhookConfiguration:
+        ignoreDifferences: |
+          jqPathExpressions:
+          - '.webhooks[].clientConfig.caBundle'
+      v1/Secret:
+        ignoreDifferences: |
+          jsonPointers:
+          - /data/tls.crt
+          - /data/tls.key
 
 server:
   ingress:

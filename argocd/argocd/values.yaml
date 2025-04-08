@@ -18,9 +18,9 @@ configs:
           - '.webhooks[].clientConfig.caBundle'
       v1/Secret:
         ignoreDifferences: |
-          jsonPointers:
-          - /data/tls.crt
-          - /data/tls.key
+          jqPathExpressions:
+          - '.data.tls.crt'
+          - '.data.tls.key'
 
 server:
   ingress:

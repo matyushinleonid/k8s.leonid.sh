@@ -13,4 +13,4 @@ spec:
       exclude: 'argoapp.yaml'
   destination:
     server: https://kubernetes.default.svc
-    namespace: nginx
+    namespace: kube-flannel

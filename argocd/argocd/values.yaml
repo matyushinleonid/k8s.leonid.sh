@@ -12,14 +12,6 @@ configs:
           hs.status = "Healthy"
           hs.message = "Probably just fine"
           return hs
-      admissionregistration.k8s.io/ValidatingWebhookConfiguration:
-        ignoreDifferences: |
-          jqPathExpressions:
-          - '.webhooks[].clientConfig.caBundle'
-      v1/Secret:
-        ignoreDifferences: |
-          jqPathExpressions:
-          - "if .data then .data |= del(.\"tls.crt\", .\"tls.key\") else . end"
 
 server:
   ingress:

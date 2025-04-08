@@ -18,3 +18,12 @@ spec:
     - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
       targetRevision: HEAD
       ref: values
+  ignoreDifferences:
+    - kind: Secret
+      jsonPointers:
+        - /data/tls.crt
+        - /data/tls.key
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      jqPathExpressions:
+        - ".webhooks[].clientConfig.caBundle"

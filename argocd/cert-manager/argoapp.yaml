@@ -18,3 +18,6 @@ spec:
     - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
       targetRevision: HEAD
       ref: values
+      path: argocd/cert-manager # Has to be specified so the raw manifests can be discovered
+      directory:
+        exclude: 'argoapp.yaml'

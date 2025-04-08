@@ -1,0 +1,19 @@
+global:
+  domain: argocd.leonid.sh
+
+configs:
+  params:
+    server.insecure: true
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: "kong"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt"
+      konghq.com/protocols: "https"
+      konghq.com/https-redirect-status-code: "301"
+    extraTls:
+      - hosts:
+          - argocd.leonid.sh
+        secretName: argocd-tls

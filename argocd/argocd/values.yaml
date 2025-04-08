@@ -19,8 +19,7 @@ configs:
       v1/Secret:
         ignoreDifferences: |
           jqPathExpressions:
-          - '.data.tls.crt'
-          - '.data.tls.key'
+          - "if .data then .data |= del(.\"tls.crt\", .\"tls.key\") else . end"
 
 server:
   ingress:

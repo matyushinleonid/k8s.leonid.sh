@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metrics-server
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metrics-server
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/metrics-server
+      chart: metrics-server
+      targetRevision: "3.12.2"
+      helm:
+        valueFiles:
+          - "$values/argocd/metrics-server/values.yaml"
+    - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
+      targetRevision: HEAD
+      ref: values

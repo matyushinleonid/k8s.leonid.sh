@@ -7,9 +7,10 @@ tenant:
     - name: pool-0
       servers: 3
       volumesPerServer: 2
+      size: 3Gi
       volumeClaimTemplate:
         spec:
-          storageClassName: local-storage
+          storageClassName: local-path
           accessModes:
             - ReadWriteOnce
           resources:

@@ -31,3 +31,7 @@ ingress:
       cert-manager.io/cluster-issuer: "letsencrypt"
     path: /
     pathType: Prefix
+    tls:
+      - hosts:
+          - minio.leonid.sh
+        secretName: minio-tenant-tls

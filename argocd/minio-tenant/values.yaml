@@ -6,7 +6,7 @@ tenant:
   pools:
     - name: pool-0
       servers: 3
-      volumesPerServer: 1
+      volumesPerServer: 2
       volumeClaimTemplate:
         spec:
           storageClassName: local-storage
@@ -14,7 +14,7 @@ tenant:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 6Gi
+              storage: 3Gi
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:

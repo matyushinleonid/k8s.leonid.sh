@@ -22,12 +22,10 @@ tenant:
   mountPath: /export
   certificate:
     requestAutoCert: true
-    certConfig:
-      duration: "8760h"
-      renewBefore: "360h"
 ingress:
   api:
     enabled: true
+    ingressClassName: kong
     host: "minio.leonid.sh"
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt"

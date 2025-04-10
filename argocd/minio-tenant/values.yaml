@@ -1,13 +1,15 @@
 tenant:
   name: minio-tenant
   namespace: minio-tenant
-  credsSecret:
-    name: minio-tenant-creds
+  configuration:
+    name: myminio-env
+  configSecret:
+    existingSecret: true
   pools:
     - name: pool-0
       servers: 3
       volumesPerServer: 2
-      size: 3Gi
+      size: 10Gi
       storageClassName: local-path
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:

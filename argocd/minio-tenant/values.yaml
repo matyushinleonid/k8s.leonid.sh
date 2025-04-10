@@ -25,11 +25,11 @@ tenant:
     certConfig:
       duration: "8760h"
       renewBefore: "360h"
-  ingress:
-    api:
-      enabled: true
-      host: "minio.leonid.sh"
-      annotations:
-        cert-manager.io/cluster-issuer: "letsencrypt"
-      path: /
-      pathType: Prefix
+ingress:
+  api:
+    enabled: true
+    host: "minio.leonid.sh"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt"
+    path: /
+    pathType: Prefix

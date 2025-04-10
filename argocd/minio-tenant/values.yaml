@@ -21,7 +21,7 @@ tenant:
           effect: "NoSchedule"
   mountPath: /export
   certificate:
-    requestAutoCert: true
+    requestAutoCert: false
 ingress:
   api:
     enabled: true

@@ -3,8 +3,6 @@ tenant:
   namespace: minio-tenant
   configuration:
     name: myminio-env
-  configSecret:
-    existingSecret: true
   pools:
     - name: pool-0
       servers: 3

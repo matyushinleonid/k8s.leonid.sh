@@ -20,13 +20,16 @@ tenant:
           operator: "Exists"
           effect: "NoSchedule"
   mountPath: /export
-  requestAutoCert: true
-  certConfig:
-    duration: "8760h"
-    renewBefore: "360h"
-  expose:
-    enabled: true
-    ingress:
+  certificate:
+    requestAutoCert: true
+    certConfig:
+      duration: "8760h"
+      renewBefore: "360h"
+  ingress:
+    api:
+      enabled: true
       host: "minio.leonid.sh"
       annotations:
         cert-manager.io/cluster-issuer: "letsencrypt"
+      path: /
+      pathType: Prefix

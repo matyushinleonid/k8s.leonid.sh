@@ -8,14 +8,7 @@ tenant:
       servers: 3
       volumesPerServer: 2
       size: 3Gi
-      volumeClaimTemplate:
-        spec:
-          storageClassName: local-path
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 3Gi
+      storageClassName: local-path
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:

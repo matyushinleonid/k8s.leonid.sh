@@ -1,0 +1,10 @@
+apiVersion: minio.min.io/v2
+kind: Bucket
+metadata:
+  name: public
+  namespace: minio-tenant
+spec:
+  bucket: public
+  policy: none
+  tenantRef: minio-tenant
+  quota: 5Gi

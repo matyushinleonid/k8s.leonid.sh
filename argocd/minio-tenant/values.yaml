@@ -1,0 +1,37 @@
+tenant:
+  name: minio-tenant
+  namespace: minio-tenant
+  credsSecret:
+    name: minio-tenant-creds
+  pools:
+    - servers: 3
+      volumesPerServer: 1
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-storage
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 6Gi
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: minio
+            topologyKey: "kubernetes.io/hostname"
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+  mountPath: /export
+  requestAutoCert: true
+  certConfig:
+    duration: "8760h"
+    renewBefore: "360h"
+  expose:
+    enabled: true
+    ingress:
+      host: "minio.leonid.sh"
+      annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt"

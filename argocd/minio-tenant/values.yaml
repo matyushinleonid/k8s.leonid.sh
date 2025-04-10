@@ -4,7 +4,8 @@ tenant:
   credsSecret:
     name: minio-tenant-creds
   pools:
-    - servers: 3
+    - name: pool-0
+      servers: 3
       volumesPerServer: 1
       volumeClaimTemplate:
         spec:

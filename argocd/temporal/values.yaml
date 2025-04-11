@@ -19,17 +19,6 @@ server:
           database: "temporal_visibility"
           user: "postgres"
           existingSecret: temporal-postgres-creds
-  ingress:
-    enabled: true
-    className: kong
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt
-    hosts:
-      - api.temporal.leonid.sh
-    tls:
-      - secretName: temporal-tls
-        hosts:
-          - api.temporal.leonid.sh
 
 web:
   ingress:

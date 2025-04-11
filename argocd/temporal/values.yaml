@@ -31,6 +31,18 @@ server:
             serverName: temporal.leonid.sh
             rootCaFiles:
               - /etc/temporal/tls/tls.crt
+  frontend:
+    ingress:
+      enabled: true
+      className: kong
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - api.temporal.leonid.sh
+      tls:
+        - secretName: temporal-tls
+          hosts:
+            - api.temporal.leonid.sh
   additionalVolumes:
     - name: temporal-frontend-tls
       secret:

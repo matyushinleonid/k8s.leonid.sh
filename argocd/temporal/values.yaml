@@ -23,9 +23,7 @@ server:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:
-      - host: api.temporal.leonid.sh
-        paths:
-          - /
+      - api.temporal.leonid.sh
     tls:
       - secretName: temporal-tls
         hosts:
@@ -38,9 +36,7 @@ web:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:
-      - host: temporal.leonid.sh
-        paths:
-          - /
+      - temporal.leonid.sh
     tls:
       - secretName: temporal-tls
         hosts:

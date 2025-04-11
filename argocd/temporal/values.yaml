@@ -1,0 +1,65 @@
+server:
+  config:
+    persistence:
+      default:
+        driver: "sql"
+        sql:
+          driver: "postgres12"
+          host: "cloudnative-pg-cluster-rw.cloudnative-pg-cluster.svc.cluster.local"
+          port: 5432
+          database: "temporal"
+          existingSecret: temporal-postgres-creds
+      visibility:
+        driver: "sql"
+        sql:
+          driver: "postgres12"
+          host: "cloudnative-pg-cluster-rw.cloudnative-pg-cluster.svc.cluster.local"
+          port: 5432
+          database: "temporal_visibility"
+          existingSecret: temporal-postgres-creds
+  ingress:
+    enabled: true
+    className: kong
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    hosts:
+      - host: api.temporal.leonid.sh
+        paths:
+          - /
+    tls:
+      - secretName: temporal-tls
+        hosts:
+          - api.temporal.leonid.sh
+
+web:
+  ingress:
+    enabled: true
+    className: kong
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    hosts:
+      - host: temporal.leonid.sh
+        paths:
+          - /
+    tls:
+      - secretName: temporal-tls
+        hosts:
+          - temporal.leonid.sh
+
+admintools:
+  enabled: false
+
+cassandra:
+  enabled: false
+
+mysql:
+  enabled: false
+
+grafana:
+  enabled: false
+
+elasticsearch:
+  enabled: false
+
+prometheus:
+  enabled: false

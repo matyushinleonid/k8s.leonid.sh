@@ -19,17 +19,26 @@ server:
           database: "temporal_visibility"
           user: "postgres"
           existingSecret: temporal-postgres-creds
-  ingress:
-    enabled: true
-    className: kong
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt
-    hosts:
-      - api.temporal.leonid.sh
-    tls:
-      - secretName: temporal-tls
-        hosts:
-          - api.temporal.leonid.sh
+      tls:
+        frontend:
+          server:
+            certFile: /etc/temporal/tls/tls.crt
+            keyFile: /etc/temporal/tls/tls.key
+            requireClientAuth: true
+            clientCaFiles:
+              - /etc/temporal/tls/tls.crt
+          client:
+            serverName: temporal.leonid.sh
+            rootCaFiles:
+              - /etc/temporal/tls/tls.crt
+  additionalVolumes:
+    - name: temporal-frontend-tls
+      secret:
+        secretName: temporal-frontend-tls
+  additionalVolumeMounts:
+    - name: temporal-frontend-tls
+      mountPath: /etc/temporal/tls
+      readOnly: true
 
 web:
   ingress:

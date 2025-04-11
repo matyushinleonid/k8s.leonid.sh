@@ -19,6 +19,26 @@ server:
           database: "temporal_visibility"
           user: "postgres"
           existingSecret: temporal-postgres-creds
+      tls:
+        frontend:
+          server:
+            certFile: /etc/temporal/tls/tls.crt
+            keyFile: /etc/temporal/tls/tls.key
+            requireClientAuth: true
+            clientCaFiles:
+              - /etc/temporal/tls/tls.crt
+          client:
+            serverName: temporal.leonid.sh
+            rootCaFiles:
+              - /etc/temporal/tls/tls.crt
+  additionalVolumes:
+    - name: temporal-frontend-tls
+      secret:
+        secretName: temporal-frontend-tls
+  additionalVolumeMounts:
+    - name: temporal-frontend-tls
+      mountPath: /etc/temporal/tls
+      readOnly: true
 
 web:
   ingress:

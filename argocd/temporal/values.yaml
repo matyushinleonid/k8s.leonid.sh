@@ -8,6 +8,7 @@ server:
           host: "cloudnative-pg-cluster-rw.cloudnative-pg-cluster.svc.cluster.local"
           port: 5432
           database: "temporal"
+          user: "postgres"
           existingSecret: temporal-postgres-creds
       visibility:
         driver: "sql"
@@ -16,6 +17,7 @@ server:
           host: "cloudnative-pg-cluster-rw.cloudnative-pg-cluster.svc.cluster.local"
           port: 5432
           database: "temporal_visibility"
+          user: "postgres"
           existingSecret: temporal-postgres-creds
   ingress:
     enabled: true

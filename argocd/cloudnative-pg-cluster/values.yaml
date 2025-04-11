@@ -1,0 +1,10 @@
+cluster:
+  instances: 3
+  storage:
+    size: 2Gi
+    storageClass: "local-path"
+  affinity:
+    tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"

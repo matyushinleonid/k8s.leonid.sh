@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg-cluster
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cloudnative-pg-cluster
+  sources:
+    - repoURL: "https://cloudnative-pg.github.io/charts"
+      chart: cluster
+      targetRevision: "0.3.0"
+      helm:
+        valueFiles:
+          - "$values/argocd/cloudnative-pg-cluster/values.yaml"
+    - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
+      targetRevision: HEAD
+      ref: values

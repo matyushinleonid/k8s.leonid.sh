@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudnative-pg-operator
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cnpg-system
+  sources:
+    - repoURL: "https://cloudnative-pg.github.io/charts"
+      chart: cloudnative-pg
+      targetRevision: "0.23.2"
+      helm:
+        valueFiles:
+          - "$values/argocd/cloudnative-pg-operator/values.yaml"
+    - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
+      targetRevision: HEAD
+      ref: values

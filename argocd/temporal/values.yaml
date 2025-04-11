@@ -40,7 +40,7 @@ server:
       hosts:
         - api.temporal.leonid.sh
       tls:
-        - secretName: temporal-tls
+        - secretName: temporal-frontend-tls
           hosts:
             - api.temporal.leonid.sh
   additionalVolumes:

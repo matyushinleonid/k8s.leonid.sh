@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: dasein
-          image: matyushinleonid/dasein-ist-endlich-bot:sha256:e3b5e761846e4fe6a382bdc4bb1cb8bffab7460ead515b24f7e286c120f52b26
+          image: matyushinleonid/dasein-ist-endlich-bot:a2281def038080224062601559a72f476b25d429
           imagePullPolicy: IfNotPresent
           command: ["bot", "--config-path", "/configs/local.yaml"]
           envFrom:

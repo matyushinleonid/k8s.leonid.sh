@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dasein-config
+  namespace: dasein-ist-endlich-bot
+data:
+  local.yaml: |
+    check_if_user_allowed: false
+    allowed_users: []
+    questions:
+      - "Your Date of Birth?"
+      - "Your gender?"

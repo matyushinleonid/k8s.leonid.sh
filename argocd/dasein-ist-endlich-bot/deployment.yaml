@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dasein-deployment
+  namespace: dasein-ist-endlich-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dasein
+  template:
+    metadata:
+      labels:
+        app: dasein
+    spec:
+      containers:
+        - name: dasein
+          image: matyushinleonid/dasein-ist-endlich-bot:sha256:e3b5e761846e4fe6a382bdc4bb1cb8bffab7460ead515b24f7e286c120f52b26
+          imagePullPolicy: IfNotPresent
+          command: ["bot", "--config-path", "/configs/local.yaml"]
+          envFrom:
+            - secretRef:
+                name: dasein-secret
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs
+              readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: dasein-config
+            items:
+              - key: local.yaml
+                path: local.yaml

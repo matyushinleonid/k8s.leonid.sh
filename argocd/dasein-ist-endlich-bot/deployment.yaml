@@ -17,7 +17,7 @@ spec:
         - name: dasein
           image: matyushinleonid/dasein-ist-endlich-bot:a2281def038080224062601559a72f476b25d429
           imagePullPolicy: IfNotPresent
-          command: ["bot", "--config-path", "/configs/local.yaml"]
+          command: ["/app/dasein-ist-endlich-bot", "bot", "--config-path", "/configs/local.yaml"]
           envFrom:
             - secretRef:
                 name: dasein-secret

@@ -7,6 +7,37 @@ data:
   local.yaml: |
     check_if_user_allowed: false
     allowed_users: []
-    questions:
-      - "Your Date of Birth?"
-      - "Your gender?"
+    dasein_bot:
+      start: "Welcome to the Dasein ist endlich bot! Press /begin to start a new conversation."
+      about: "Dasein ist endlich bot by Leonid Matyushin. GitHub: https://github.com/matyushinleonid/dasein-ist-endlich-bot"
+      help: "Some help on how to use the bot"
+      default: "Your response history is empty. Press /begin to start a new conversation."
+      illegal: "The action you are trying to perform is not allowed. Press /help to get help."
+      questions:
+        - "Ваша дата рождения (в формате ДД.ММ.ГГГГ)"
+        - "Ваш пол"
+        - "Ваш рост (в см)"
+        - "Ваш вес (в кг)"
+        - "Курите ли вы?"
+    openai:
+      model: "gpt-4.0"
+      dummy: false
+      developer_message: >
+        Your goal is to estimate how many days the user have left
+        in this world and provide him with an explanation of how 
+        you got to this number (but without arithmetic operations).
+        Try to be as accurate as possible, even if the amount of data
+        is limited. You should respond in a language the user
+        have used in their answers. Let the user know the exact 
+        number of days they lived so far since they were born.
+    mongodb:
+      uri: "mongodb+srv://cluster0.8ehou5o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      username: "matyushinleonid"
+      database: "dasein_bot"
+      collection: "dasein_bot"
+      connect_timeout: 5
+    redis:
+      host: "redis"
+      port: 6379
+      db: 0
+      ttl: 60s

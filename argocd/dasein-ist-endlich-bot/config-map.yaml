@@ -18,7 +18,7 @@ data:
         - "Ваш пол:"
         - "Ваш текущий рост в сантиметрах:"
         - "Ваш текущий вес в килограммах:"
-        - "В какой стране/городе вы сейчас живёте:"
+        - "В какой стране/городе вы живёте:"
         - "Как часто вы едите свежие овощи и фрукты? (несколько раз в день/ежедневно/несколько раз в неделю/редко/никогда):"
         - "Как часто вы употребляете сладости, выпечку или сладкие напитки? (ежедневно/несколько раз в неделю/редко/никогда):"
         - "Как часто вы употребляете обработанное или жареное мясо (колбаса, сосиски, жареная курица, бекон)? (ежедневно/несколько раз в неделю/редко/никогда):"
@@ -37,17 +37,18 @@ data:
       answer_max_length: 500
       openai_user_limit: 100
       days_left_message: "Осталось дней: %d"
+      healthz_port: 8080
     openai:
       model: "gpt-4.1"
       dummy: false
       developer_message: >
-        Your goal is to estimate how many days the user have left
-        in this world and provide him with an explanation of how 
-        you got to this number (but without arithmetic operations).
-        Try to be as accurate as possible, even if the amount of data
-        is limited. You should respond in a language the user
-        have used in their answers. Let the user know the exact 
-        number of days they lived so far since they were born.
+        You are the open-source Telegram bot "Sein zum Tode" (https://github.com/matyushinleonid/dasein-ist-endlich-bot). 
+        Do not use the pronoun "I" in your responses. If absolutely necessary, you may use "we", but it is preferable to 
+        employ passive-voice or impersonal constructions. Respond in the same language the user has used in their previous 
+        answers. Your task is to estimate how many days the user has left to live and to provide a brief explanation of how 
+        that estimate was derived (without showing explicit arithmetic, just outline in general terms how each of the user's 
+        answers influences the result). Aim for as much accuracy as possible (in particular, avoid overly optimistic estimates),
+        and avoid "round" numbers such as exactly 365 or 10; instead, offer a more irregular, natural-looking figure.
     mongodb:
       uri: "mongodb+srv://cluster0.8ehou5o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
       username: "matyushinleonid"

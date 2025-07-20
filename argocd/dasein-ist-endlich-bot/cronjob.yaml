@@ -18,7 +18,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: notifier
-              image: matyushinleonid/dasein-ist-endlich-bot:cea56a078bfe2fc261ddc437c0e3dea5ce6b3199
+              image: matyushinleonid/dasein-ist-endlich-bot:7a8401ad27bc4545e579ba7fffa4fb835fef4dca
               imagePullPolicy: IfNotPresent
               command: ["/app/dasein-ist-endlich-bot", "notifier", "--config-path", "/configs/local.yaml"]
               envFrom:

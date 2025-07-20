@@ -15,9 +15,23 @@ spec:
     spec:
       containers:
         - name: dasein
-          image: matyushinleonid/dasein-ist-endlich-bot:cea56a078bfe2fc261ddc437c0e3dea5ce6b3199
+          image: matyushinleonid/dasein-ist-endlich-bot:7a8401ad27bc4545e579ba7fffa4fb835fef4dca
           imagePullPolicy: IfNotPresent
           command: ["/app/dasein-ist-endlich-bot", "listener", "--config-path", "/configs/local.yaml"]
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
           envFrom:
             - secretRef:
                 name: dasein-secret

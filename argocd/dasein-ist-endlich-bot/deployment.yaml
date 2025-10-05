@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: dasein
-          image: matyushinleonid/dasein-ist-endlich-bot:7a8401ad27bc4545e579ba7fffa4fb835fef4dca
+          image: matyushinleonid/dasein-ist-endlich-bot:cce7621554e89b62b6f2b15d054392e72fc53e26
           imagePullPolicy: IfNotPresent
           command: ["/app/dasein-ist-endlich-bot", "listener", "--config-path", "/configs/local.yaml"]
           ports:

@@ -8,11 +8,22 @@ data:
     check_if_user_allowed: false
     allowed_users: []
     dasein_bot:
-      start: "Добро пожаловать в дазайн бот! Нажмите /help для получения помощи в использовании бота."
-      about: "Dasein ist endlich bot by Leonid Matyushin. [GitHub](https://github.com/matyushinleonid/dasein-ist-endlich-bot). Мы открыты к вашим пулл реквестам"
-      help: "Нажмите /begin чтобы начать заполнение анкеты. На основании ваших ответов бот будет оценивать, сколько дней вам осталось жить. Бот будет задавать вам вопросы о вашем здоровье и образе жизни. Если вы не хотите отвечать на какой-то вопрос - отправьте пустое сообщение. Для управления частотой оповещений нижмите /notification."
+      start: "Добро пожаловать! Нажмите /help для получения справки по использованию бота."
+      about: "Dasein ist endlich bot by Leonid Matyushin. [GitHub](https://github.com/matyushinleonid/dasein-ist-endlich-bot). Мы открыты к вашим пулл реквестам!"
+      help: | 
+         Сама по себе тема смерти сегодня в обществе табуирована (например, так считает Ф. Арьес). Данный проект предназначен для того,
+         чтобы помочь пользователю пережить перспективу смерти как явления, которое произойдёт и - более того - *уже происходит* непосредственно
+         с ним. Пользователю предлагается ответить на ряд вопросов о своём образе жизни, после чего будет осуществлена примерная оценка
+         оставшейся её продолжительности средствами LLM. Разумеется, сам по себе результат вычисления оставшихся дней не претендуют на 
+         какую-то особую точность. Основную ценность предеставляет еждедневно уменьшающееся число оставшихся дней, которое бот будет 
+         регулярно присылать пользователю.  
+         
+         Нажмите /begin чтобы начать заполнение анкеты. (будет задано около 20 вопросов, ответы на них не хранятся на наших северах
+         персистентно из соображений приватности). Если вы не хотите отвечать на какой-то вопрос - отправьте пустое сообщение. Для 
+         управления частотой оповещений нижмите /notification. Для скорейшего достижения эффекта (а именно - изменения отношения к жизни) мы 
+         рекомендуем оставить ежедневные нотификации.
       default: "Ваша история ответов на вопросы анкеты пуста. Нажмите /begin чтобы начать заполнение анкеты."
-      illegal: "Данное действие не разрешено. Нажмите /help для получения помощи в использовании бота."
+      illegal: "Данное действие не разрешено. Нажмите /help для получения справки по использованию бота."
       questions:
         - "Ваша дата рождения (ДД.MM.ГГГГ):"
         - "Ваш пол:"
@@ -25,8 +36,7 @@ data:
         - "Как часто вы едите фаст-фуд или сильно обработанную пищу? (ежедневно/несколько раз в неделю/редко/никогда):"
         - "Как часто вы занимаетесь умеренной/интенсивной физической активностью (быстрая ходьба, велосипед, плавание, бег, тяжёлая атлетика, командные виды спорта, ...)? Уточните вид активности и частоту (например: велосипед, 2 раза в неделю по 30 минут):"
         - "Курите ли вы? Уточните тип вещества и частоту (например: табак, 1 пачка в день / раньше курил табак, бросил 3 года назад):"
-        - "Употребляете ли вы алкогольные напитки? Уточните частоту и количество (например: вино, 2 бокала в неделю / пиво, 3 бутылки ежедневно):"
-        - "Употребляете ли вы регулярно другие психоактивные вещества (например, психостимуляторы)? Уточните вещество и частоту употребления:"
+        - "Употребляете ли вы алкогольные напитки (или иные психоактивные вещества)? Уточните частоту и количество (например: вино, 2 бокала в неделю / пиво, 3 бутылки ежедневно):"
         - "Есть ли у вас хронические заболевания, диагностированные врачом? Перечислите кратко, если есть:"
         - "Были ли у ваших ближайших родственников (родители, бабушки-дедушки, братья и сёстры) серьёзные заболевания (например, диабет, онкология, сердечно-сосудистые заболевания)? Уточните кратко заболевание и родственника:"
         - "Были ли в вашей семье случаи долголетия (родственники, жившие дольше 90 лет)? Уточните родственника и возраст:"
@@ -45,10 +55,12 @@ data:
         You are the open-source Telegram bot "Sein zum Tode" (https://github.com/matyushinleonid/dasein-ist-endlich-bot). 
         Do not use the pronoun "I" in your responses. If absolutely necessary, you may use "we", but it is preferable to 
         employ passive-voice or impersonal constructions. Respond in the same language the user has used in their previous 
-        answers. Your task is to estimate how many days the user has left to live and to provide a brief explanation of how 
-        that estimate was derived (without showing explicit arithmetic, just outline in general terms how each of the user's 
-        answers influences the result). Aim for as much accuracy as possible (in particular, avoid overly optimistic estimates),
-        and avoid "round" numbers such as exactly 365 or 10; instead, offer a more irregular, natural-looking figure.
+        answers. Your task is to estimate how many days the user has left to live ("days_left" field) and to provide a 
+        brief explanation ("description" field) of how that estimate was derived (without showing explicit arithmetic, 
+        just outline in general terms how each of the user's answers influences the result). Aim for as much accuracy as 
+        possible (in particular, avoid overly optimistic estimates), and avoid "round" numbers such as exactly 365 or 10;
+        instead, offer a more irregular, natural-looking figure. The number of days remaining for the user should be converted
+        to years and presented at the end of your explanation.
     mongodb:
       uri: "mongodb+srv://cluster0.8ehou5o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
       username: "matyushinleonid"

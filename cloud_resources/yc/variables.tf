@@ -33,6 +33,21 @@ variable "domain" {
   default = "leonid.sh"
 }
 
+variable "prometheus_workspace_id" {
+  type    = string
+  default = "monkfdekjpg063d6i61u"
+}
+
 locals {
   ssh_keys = "ubuntu:${file(var.ssh_key_path)}"
+}
+
+variable "argocd_admin_lockbox_secret_id" {
+  type    = string
+  default = "e6q7r4bj2ik149jarhq5"
+}
+
+variable "argocd_github_lockbox_secret_id" {
+  type    = string
+  default = "e6q864he4ggl6se9gng5"
 }

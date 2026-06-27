@@ -1,0 +1,83 @@
+module "kube" {
+  source = "github.com/terraform-yc-modules/terraform-yc-kubernetes.git"
+
+  cluster_name = var.base_name
+
+  network_id              = yandex_vpc_network.k8s_network.id
+  network_policy_provider = ""
+  enable_cilium_policy    = false
+
+  master_locations = [
+    {
+      zone      = var.zone
+      subnet_id = yandex_vpc_subnet.k8s_subnet.id
+    }
+  ]
+
+  master_maintenance_windows = [
+    {
+      day        = "monday"
+      start_time = "03:00"
+      duration   = "3h"
+    }
+  ]
+
+  master_logging = {
+    folder_id    = var.folder_id
+    log_group_id = null
+  }
+
+  node_groups = {
+    "${var.base_name}-ng-01" = {
+      description = "Kubernetes nodes group 01"
+
+      fixed_scale = {
+        size = 2
+      }
+
+      platform_id   = "standard-v3"
+      node_cores    = 2
+      node_memory   = 8
+      core_fraction = 100
+
+      disk_type = "network-ssd"
+      disk_size = 64
+
+      node_labels = {
+        role = "group-01"
+      }
+
+
+      node_locations = [
+        {
+          zone      = var.zone
+          subnet_id = yandex_vpc_subnet.k8s_subnet.id
+        }
+      ]
+
+      maintenance_day        = "monday"
+      maintenance_start_time = "06:00"
+      maintenance_duration   = "3h"
+    }
+  }
+
+  service_account_name = var.base_name
+  node_account_name    = "${var.base_name}-nodes"
+  create_kms           = true
+  kms_key = {
+    name = var.base_name
+  }
+
+  public_access           = true
+  enable_default_rules    = true
+  enable_node_ssh_access  = true
+  enable_node_ports_rules = true
+  enable_outgoing_traffic = true
+  allowed_ips             = ["0.0.0.0/0"]
+  allowed_ips_ssh         = ["0.0.0.0/0"]
+
+  enable_oslogin_or_ssh_keys = {
+    enable-oslogin = "false"
+    ssh-keys       = local.ssh_keys
+  }
+}

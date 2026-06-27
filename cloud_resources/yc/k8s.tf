@@ -1,50 +1,83 @@
-resource "yandex_kubernetes_cluster" "k8s_cluster" {
-  name = var.cluster_name
+module "kube" {
+  source = "github.com/terraform-yc-modules/terraform-yc-kubernetes.git"
 
-  folder_id  = var.folder_id
-  network_id = yandex_vpc_network.k8s_network.id
+  cluster_name = var.base_name
 
-  service_account_id      = yandex_iam_service_account.k8s_sa.id
-  node_service_account_id = yandex_iam_service_account.k8s_sa.id
+  network_id              = yandex_vpc_network.k8s_network.id
+  network_policy_provider = ""
+  enable_cilium_policy    = false
 
-  release_channel = var.release_channel
+  master_locations = [
+    {
+      zone      = var.zone
+      subnet_id = yandex_vpc_subnet.k8s_subnet.id
+    }
+  ]
 
-  dynamic "master" {
-    for_each = [1]
+  master_maintenance_windows = [
+    {
+      day        = "monday"
+      start_time = "03:00"
+      duration   = "3h"
+    }
+  ]
 
-    content {
-      version = var.kubernetes_version
+  master_logging = {
+    folder_id    = var.folder_id
+    log_group_id = null
+  }
 
-      public_ip = var.enable_public_ip_for_master
+  node_groups = {
+    "${var.base_name}-ng-01" = {
+      description = "Kubernetes nodes group 01"
 
-      master_location {
-        zone      = yandex_vpc_subnet.k8s_subnet.zone
-        subnet_id = yandex_vpc_subnet.k8s_subnet.id
+      fixed_scale = {
+        size = 2
       }
 
-      security_group_ids = [
-        yandex_vpc_security_group.k8s_sg.id
+      platform_id   = "standard-v3"
+      node_cores    = 2
+      node_memory   = 8
+      core_fraction = 100
+
+      disk_type = "network-ssd"
+      disk_size = 64
+
+      node_labels = {
+        role = "group-01"
+      }
+
+
+      node_locations = [
+        {
+          zone      = var.zone
+          subnet_id = yandex_vpc_subnet.k8s_subnet.id
+        }
       ]
 
-      maintenance_policy {
-        auto_upgrade = true
-
-        maintenance_window {
-          start_time = "03:00"
-          duration   = "3h"
-        }
-      }
+      maintenance_day        = "monday"
+      maintenance_start_time = "06:00"
+      maintenance_duration   = "3h"
     }
   }
 
-  kms_provider {
-    key_id = yandex_kms_symmetric_key.k8s_kms_key.id
+  service_account_name = var.base_name
+  node_account_name    = "${var.base_name}-nodes"
+  create_kms           = true
+  kms_key = {
+    name = var.base_name
   }
 
-  depends_on = [
-    yandex_resourcemanager_folder_iam_member.k8s_clusters_agent,
-    yandex_resourcemanager_folder_iam_member.vpc_public_admin,
-    yandex_resourcemanager_folder_iam_member.container_registry_images_puller,
-    yandex_resourcemanager_folder_iam_member.kms_encrypter_decrypter
-  ]
+  public_access           = true
+  enable_default_rules    = true
+  enable_node_ssh_access  = true
+  enable_node_ports_rules = true
+  enable_outgoing_traffic = true
+  allowed_ips             = ["0.0.0.0/0"]
+  allowed_ips_ssh         = ["0.0.0.0/0"]
+
+  enable_oslogin_or_ssh_keys = {
+    enable-oslogin = "false"
+    ssh-keys       = local.ssh_keys
+  }
 }

@@ -17,3 +17,7 @@ output "cluster_external_v4_endpoint" {
 output "cluster_internal_v4_endpoint" {
   value = module.kube.internal_v4_endpoint
 }
+
+output "ingress_nginx_public_ip" {
+  value = module.apps.ingress_nginx_public_ip
+}

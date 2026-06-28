@@ -27,6 +27,21 @@ module "kube" {
     log_group_id = null
   }
 
+  node_groups_defaults = {
+    template_name = "{instance_group.name}-{instance.zone_id}-{instance.index}"
+    platform_id   = "standard-v3"
+    node_cores    = 4
+    node_memory   = 8
+    node_gpus     = 0
+    core_fraction = 100
+    disk_type     = "network-ssd"
+    disk_size     = 64
+    preemptible   = false
+    nat           = false
+    ipv4          = true
+    ipv6          = false
+  }
+
   node_groups = {
     "${var.base_name}-ng-01" = {
       description = "Kubernetes nodes group 01"

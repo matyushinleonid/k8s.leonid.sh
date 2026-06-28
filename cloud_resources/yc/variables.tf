@@ -23,6 +23,16 @@ variable "ssh_key_path" {
   default = "~/.ssh/k8s.leonid.sh.pub"
 }
 
+variable "email_address" {
+  type    = string
+  default = "matyushinleonid@users.noreply.github.com"
+}
+
+variable "domain" {
+  type    = string
+  default = "leonid.sh"
+}
+
 locals {
   ssh_keys = "ubuntu:${file(var.ssh_key_path)}"
 }

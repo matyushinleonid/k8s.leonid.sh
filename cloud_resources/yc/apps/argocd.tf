@@ -9,7 +9,7 @@ resource "helm_release" "argocd" {
   values = [
     yamlencode({
       global = {
-        domain = "argocd.leonid.sh"
+        domain = "argocd.${var.domain}"
       }
 
       configs = {
@@ -31,12 +31,12 @@ resource "helm_release" "argocd" {
             "nginx.ingress.kubernetes.io/backend-protocol"   = "HTTP"
           }
 
-          hosts = ["argocd.leonid.sh"]
+          hosts = ["argocd.${var.domain}"]
 
           tls = [
             {
               secretName = "argocd-server-tls"
-              hosts      = ["argocd.leonid.sh"]
+              hosts      = ["argocd.${var.domain}"]
             }
           ]
         }

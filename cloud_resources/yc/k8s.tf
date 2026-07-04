@@ -28,7 +28,7 @@ module "kube" {
   }
 
   node_groups_defaults = {
-    template_name = "{instance_group.name}-{instance.zone_id}-{instance.index}"
+    template_name = "{instance_group.id}-{instance.zone_id}-{instance.index}"
     platform_id   = "standard-v3"
     node_cores    = 4
     node_memory   = 8
@@ -59,7 +59,7 @@ module "kube" {
       disk_size = 64
 
       node_labels = {
-        role = "group-01"
+        node_group = "ng-01"
       }
 
 

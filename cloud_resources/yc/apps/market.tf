@@ -79,8 +79,9 @@ resource "yandex_iam_service_account_key" "prometheus" {
 }
 
 resource "yandex_logging_group" "k8s" {
-  folder_id = var.folder_id
-  name      = "${var.base_name}-k8s"
+  folder_id        = var.folder_id
+  name             = "${var.base_name}-k8s"
+  retention_period = "365h"
 }
 
 resource "yandex_vpc_address" "ingress_nginx" {
@@ -180,22 +181,39 @@ module "addons" {
   }
 
 
-  install_fluentbit = true
-  fluentbit = {
-    namespace            = "fluent-bit"
-    log_group_id         = yandex_logging_group.k8s.id
-    service_account_key  = local.fluentbit_sa_key_json
-    export_to_s3_enabled = false
-  }
-
-
-  install_prometheus = true
-  prometheus = {
-    namespace               = "prometheus"
-    prometheus_workspace_id = var.prometheus_workspace_id
-    api_key_value           = yandex_iam_service_account_api_key.prometheus.secret_key
-  }
+  # install_fluentbit = true
+  # fluentbit = {
+  #   namespace            = "fluent-bit"
+  #   log_group_id         = yandex_logging_group.k8s.id
+  #   service_account_key  = local.fluentbit_sa_key_json
+  #   export_to_s3_enabled = false
+  # }
 }
+
+# resource "helm_release" "prometheus" {
+#   depends_on = [module.addons]
+#
+#   name       = "prometheus"
+#   repository = "oci://cr.yandex/yc-marketplace/yandex-cloud/prometheus"
+#   chart      = "kube-prometheus-stack"
+#   version    = "72.6.2-1"
+#   namespace  = "prometheus"
+#   create_namespace = true
+#
+#   values = [
+#     yamlencode({
+#       prometheusWorkspaceId = var.prometheus_workspace_id
+#       iam_api_key_value_generated = {
+#         secretAccessKey = yandex_iam_service_account_api_key.prometheus.secret_key
+#       }
+#       global = {
+#       scrape_interval     = "30s"
+#       scrape_timeout      = "10s"
+#       evaluation_interval = "30s"
+#     }
+#     })
+#   ]
+# }
 
 resource "kubernetes_secret_v1" "yc_lockbox_auth" {
   metadata {

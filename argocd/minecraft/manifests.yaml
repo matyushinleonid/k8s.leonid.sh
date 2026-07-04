@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minecraft
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: yc-network-ssd-retain-expand
+provisioner: disk-csi-driver.mks.ycloud.io
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: network-ssd
+  csi.storage.k8s.io/fstype: ext4
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: papermc-secret
+  namespace: minecraft
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: yc-lockbox
+    kind: ClusterSecretStore
+  target:
+    name: papermc-secret
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        RCON_PASSWORD: "{{ .rcon_password }}"
+  data:
+    - secretKey: rcon_password
+      remoteRef:
+        key: e6q7dr9jusl4saot0mkg
+        property: rcon-password
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: papermc-config
+  namespace: minecraft
+data:
+  EULA: "TRUE"
+
+  TYPE: "PAPER"
+  VERSION: "1.21.4"
+
+  ONLINE_MODE: "FALSE"
+
+  ENABLE_WHITELIST: "TRUE"
+  WHITELIST: "Petya Marginal"
+  OVERRIDE_WHITELIST: "TRUE"
+
+  ENABLE_RCON: "TRUE"
+  RCON_PORT: "25575"
+
+  MODRINTH_PROJECTS: "authmereloaded"
+
+  MEMORY: "2G"
+
+  MOTD: "Private Minecraft Server"
+  MODE: "survival"
+  DIFFICULTY: "normal"
+
+  SPAWN_PROTECTION: "0"
+  VIEW_DISTANCE: "10"
+  SIMULATION_DISTANCE: "10"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: papermc
+  namespace: minecraft
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: minecraft.leonid.sh
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: papermc
+  ports:
+    - name: minecraft
+      protocol: TCP
+      port: 25565
+      targetPort: 25565
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: papermc
+  namespace: minecraft
+spec:
+  serviceName: papermc
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: papermc
+
+  template:
+    metadata:
+      labels:
+        app: papermc
+
+    spec:
+      terminationGracePeriodSeconds: 120
+
+      containers:
+        - name: minecraft
+          image: itzg/minecraft-server:latest
+          imagePullPolicy: Always
+
+          envFrom:
+            - configMapRef:
+                name: papermc-config
+            - secretRef:
+                name: papermc-secret
+
+          ports:
+            - name: minecraft
+              containerPort: 25565
+              protocol: TCP
+            - name: rcon
+              containerPort: 25575
+              protocol: TCP
+
+          volumeMounts:
+            - name: data
+              mountPath: /data
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "3Gi"
+            limits:
+              cpu: "2"
+              memory: "5Gi"
+
+          readinessProbe:
+            tcpSocket:
+              port: 25565
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 12
+
+          livenessProbe:
+            tcpSocket:
+              port: 25565
+            initialDelaySeconds: 180
+            periodSeconds: 30
+            failureThreshold: 5
+
+          stdin: true
+          tty: true
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: yc-network-ssd-retain-expand
+        resources:
+          requests:
+            storage: 30Gi

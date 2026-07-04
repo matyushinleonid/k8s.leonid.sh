@@ -47,12 +47,11 @@ metadata:
   name: nginx-ingress
   namespace: nginx
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-    konghq.com/protocols: https
-    konghq.com/https-redirect-status-code: "301"
+    cert-manager.io/cluster-issuer: yc-clusterissuer
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     argocd.argoproj.io/ignore-healthcheck: "true"
 spec:
-  ingressClassName: kong
+  ingressClassName: nginx
   tls:
     - hosts:
         - nginx.leonid.sh

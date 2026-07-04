@@ -1,6 +1,0 @@
-proxy:
-  type: NodePort
-  http:
-    nodePort: 32616
-  tls:
-    nodePort: 30620

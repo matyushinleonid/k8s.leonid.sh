@@ -34,9 +34,6 @@ variable "cluster_sa_id" {
   type = string
 }
 
-variable "prometheus_workspace_id" {
-  type = string
-}
 variable "argocd_admin_lockbox_secret_id" {
   type = string
 }

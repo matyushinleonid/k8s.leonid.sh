@@ -33,11 +33,6 @@ variable "domain" {
   default = "leonid.sh"
 }
 
-variable "prometheus_workspace_id" {
-  type    = string
-  default = "monkfdekjpg063d6i61u"
-}
-
 locals {
   ssh_keys = "ubuntu:${file(var.ssh_key_path)}"
 }

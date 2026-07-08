@@ -44,3 +44,7 @@ variable "argocd_admin_lockbox_secret_id" {
 variable "argocd_github_lockbox_secret_id" {
   type = string
 }
+
+variable "grafana_admin_lockbox_secret_id" {
+  type = string
+}

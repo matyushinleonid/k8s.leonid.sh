@@ -51,3 +51,8 @@ variable "argocd_github_lockbox_secret_id" {
   type    = string
   default = "e6q864he4ggl6se9gng5"
 }
+
+variable "grafana_admin_lockbox_secret_id" {
+  type    = string
+  default = "e6qib21hrudo8gun0h48"
+}

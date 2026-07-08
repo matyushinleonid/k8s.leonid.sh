@@ -13,16 +13,6 @@ resource "yandex_iam_service_account" "external_secrets" {
   name      = "${var.base_name}-external-secrets"
 }
 
-resource "yandex_iam_service_account" "fluentbit" {
-  folder_id = var.folder_id
-  name      = "${var.base_name}-fluentbit"
-}
-
-resource "yandex_iam_service_account" "prometheus" {
-  folder_id = var.folder_id
-  name      = "${var.base_name}-prometheus"
-}
-
 resource "yandex_resourcemanager_folder_iam_member" "cert_manager_dns_editor" {
   folder_id = var.folder_id
   role      = "dns.editor"
@@ -46,18 +36,6 @@ resource "yandex_resourcemanager_folder_iam_member" "external_secrets_lockbox_pa
   member    = "serviceAccount:${yandex_iam_service_account.external_secrets.id}"
 }
 
-resource "yandex_resourcemanager_folder_iam_member" "fluentbit_logging_writer" {
-  folder_id = var.folder_id
-  role      = "logging.writer"
-  member    = "serviceAccount:${yandex_iam_service_account.fluentbit.id}"
-}
-
-resource "yandex_resourcemanager_folder_iam_member" "prometheus_monitoring_editor" {
-  folder_id = var.folder_id
-  role      = "monitoring.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.prometheus.id}"
-}
-
 resource "yandex_iam_service_account_key" "cert_manager" {
   service_account_id = yandex_iam_service_account.cert_manager.id
 }
@@ -70,32 +48,11 @@ resource "yandex_iam_service_account_key" "external_secrets" {
   service_account_id = yandex_iam_service_account.external_secrets.id
 }
 
-resource "yandex_iam_service_account_key" "fluentbit" {
-  service_account_id = yandex_iam_service_account.fluentbit.id
-}
-
-resource "yandex_iam_service_account_key" "prometheus" {
-  service_account_id = yandex_iam_service_account.prometheus.id
-}
-
 resource "yandex_logging_group" "k8s" {
   folder_id        = var.folder_id
   name             = "${var.base_name}-k8s"
   retention_period = "365h"
 }
-
-resource "yandex_vpc_address" "ingress_nginx" {
-  name = "${var.base_name}-ingress-nginx"
-
-  external_ipv4_address {
-    zone_id = var.zone
-  }
-}
-
-resource "yandex_iam_service_account_api_key" "prometheus" {
-  service_account_id = yandex_iam_service_account.prometheus.id
-}
-
 
 locals {
   cert_manager_sa_key_json = sensitive(jsonencode({
@@ -124,15 +81,6 @@ locals {
     public_key         = yandex_iam_service_account_key.external_secrets.public_key
     private_key        = yandex_iam_service_account_key.external_secrets.private_key
   }))
-
-  fluentbit_sa_key_json = sensitive(jsonencode({
-    id                 = yandex_iam_service_account_key.fluentbit.id
-    service_account_id = yandex_iam_service_account.fluentbit.id
-    created_at         = yandex_iam_service_account_key.fluentbit.created_at
-    key_algorithm      = yandex_iam_service_account_key.fluentbit.key_algorithm
-    public_key         = yandex_iam_service_account_key.fluentbit.public_key
-    private_key        = yandex_iam_service_account_key.fluentbit.private_key
-  }))
 }
 
 module "addons" {
@@ -149,6 +97,7 @@ module "addons" {
   install_cert_manager = true
   cert_manager = {
     namespace           = "cert-manager"
+    version             = "1.0.9"
     folder_id           = var.folder_id
     email_address       = var.email_address
     service_account_key = local.cert_manager_sa_key_json
@@ -166,54 +115,11 @@ module "addons" {
 
   install_external_secrets = true
   external_secrets = {
-    namespace           = "external-secrets"
+    namespace = "external-secrets"
+    # version             = "0.16.2"
     service_account_key = local.external_secrets_sa_key_json
   }
-
-
-  install_ingress_nginx = true
-  ingress_nginx = {
-    namespace                       = "ingress-nginx"
-    replica_count                   = 2
-    service_loadbalancer_ip         = yandex_vpc_address.ingress_nginx.external_ipv4_address[0].address
-    service_external_traffic_policy = "Cluster"
-    service_session_affinity        = "None"
-  }
-
-
-  # install_fluentbit = true
-  # fluentbit = {
-  #   namespace            = "fluent-bit"
-  #   log_group_id         = yandex_logging_group.k8s.id
-  #   service_account_key  = local.fluentbit_sa_key_json
-  #   export_to_s3_enabled = false
-  # }
 }
-
-# resource "helm_release" "prometheus" {
-#   depends_on = [module.addons]
-#
-#   name       = "prometheus"
-#   repository = "oci://cr.yandex/yc-marketplace/yandex-cloud/prometheus"
-#   chart      = "kube-prometheus-stack"
-#   version    = "72.6.2-1"
-#   namespace  = "prometheus"
-#   create_namespace = true
-#
-#   values = [
-#     yamlencode({
-#       prometheusWorkspaceId = var.prometheus_workspace_id
-#       iam_api_key_value_generated = {
-#         secretAccessKey = yandex_iam_service_account_api_key.prometheus.secret_key
-#       }
-#       global = {
-#       scrape_interval     = "30s"
-#       scrape_timeout      = "10s"
-#       evaluation_interval = "30s"
-#     }
-#     })
-#   ]
-# }
 
 resource "kubernetes_secret_v1" "yc_lockbox_auth" {
   metadata {

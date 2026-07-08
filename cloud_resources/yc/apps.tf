@@ -14,4 +14,5 @@ module "apps" {
   prometheus_workspace_id         = var.prometheus_workspace_id
   argocd_admin_lockbox_secret_id  = var.argocd_admin_lockbox_secret_id
   argocd_github_lockbox_secret_id = var.argocd_github_lockbox_secret_id
+  grafana_admin_lockbox_secret_id = var.grafana_admin_lockbox_secret_id
 }

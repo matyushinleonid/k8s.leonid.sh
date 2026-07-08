@@ -49,7 +49,7 @@ metadata:
 data:
   EULA: "TRUE"
   TYPE: "PAPER"
-  VERSION: 26.1.2
+  VERSION: "26.1.2"
   ONLINE_MODE: "FALSE"
   ENABLE_WHITELIST: "TRUE"
   ENABLE_RCON: "TRUE"
@@ -63,7 +63,7 @@ data:
   SPAWN_PROTECTION: "0"
   VIEW_DISTANCE: "10"
   SIMULATION_DISTANCE: "8"
-  STOP_SERVER_ANNOUNCE_DELAY: 30
+  STOP_SERVER_ANNOUNCE_DELAY: "30"
   MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky"
 
 ---

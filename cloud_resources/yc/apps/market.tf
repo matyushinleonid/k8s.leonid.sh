@@ -115,7 +115,7 @@ module "addons" {
 
   install_external_secrets = true
   external_secrets = {
-    namespace           = "external-secrets"
+    namespace = "external-secrets"
     # version             = "0.16.2"
     service_account_key = local.external_secrets_sa_key_json
   }

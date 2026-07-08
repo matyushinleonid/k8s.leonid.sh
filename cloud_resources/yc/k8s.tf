@@ -44,7 +44,6 @@ module "kube" {
 
   node_groups = {
     "${var.base_name}-ng-01" = {
-      description = "Kubernetes nodes group 01"
 
       fixed_scale = {
         size = 2
@@ -61,7 +60,6 @@ module "kube" {
       node_labels = {
         node_group = "ng-01"
       }
-
 
       node_locations = [
         {

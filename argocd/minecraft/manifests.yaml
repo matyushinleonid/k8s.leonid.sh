@@ -48,30 +48,23 @@ metadata:
   namespace: minecraft
 data:
   EULA: "TRUE"
-
   TYPE: "PAPER"
-  VERSION: "1.21.4"
-
+  VERSION: 26.1.2
   ONLINE_MODE: "FALSE"
-
   ENABLE_WHITELIST: "TRUE"
-  WHITELIST: "Petya Marginal"
-  OVERRIDE_WHITELIST: "TRUE"
-
   ENABLE_RCON: "TRUE"
   RCON_PORT: "25575"
-
-  MODRINTH_PROJECTS: "authmereloaded"
-
   MEMORY: "2G"
-
-  MOTD: "Private Minecraft Server"
+  MOTD: "&4No entry for soyjaks"
+  ICON: "https://storage.yandexcloud.net/leonid.sh/minecraft/server-icon.png"
+  OVERRIDE_ICON: "TRUE"
   MODE: "survival"
-  DIFFICULTY: "normal"
-
+  DIFFICULTY: "hard"
   SPAWN_PROTECTION: "0"
   VIEW_DISTANCE: "10"
-  SIMULATION_DISTANCE: "10"
+  SIMULATION_DISTANCE: "8"
+  STOP_SERVER_ANNOUNCE_DELAY: 30
+  MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky"
 
 ---
 apiVersion: v1
@@ -116,7 +109,7 @@ spec:
 
       containers:
         - name: minecraft
-          image: itzg/minecraft-server:latest
+          image: itzg/minecraft-server:2026.7.0
           imagePullPolicy: Always
 
           envFrom:
@@ -139,19 +132,18 @@ spec:
 
           resources:
             requests:
-              cpu: "500m"
+              cpu: "1"
               memory: "3Gi"
             limits:
               cpu: "2"
               memory: "5Gi"
 
           readinessProbe:
-            tcpSocket:
-              port: 25565
+            exec:
+              command: [ "mc-health" ]
             initialDelaySeconds: 60
             periodSeconds: 10
-            failureThreshold: 12
-
+            failureThreshold: 20
           livenessProbe:
             tcpSocket:
               port: 25565

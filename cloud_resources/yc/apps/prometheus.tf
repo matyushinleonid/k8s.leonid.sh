@@ -1,7 +1,7 @@
 resource "helm_release" "kube_prometheus_stack" {
   name             = "kube-prometheus-stack"
   namespace        = "monitoring"
-  create_namespace = true
+  create_namespace = false
 
   repository = "https://prometheus-community.github.io/helm-charts"
   chart      = "kube-prometheus-stack"
@@ -43,7 +43,7 @@ resource "helm_release" "kube_prometheus_stack" {
           {
             name      = "Loki"
             type      = "loki"
-            url       = "http://loki-stack:3100" # check
+            url       = "http://loki-stack:3100"
             access    = "proxy"
             isDefault = false
           }
@@ -78,6 +78,7 @@ resource "helm_release" "kube_prometheus_stack" {
   ]
 
   depends_on = [
+    kubectl_manifest.namespace_monitoring,
     helm_release.loki_stack,
     kubectl_manifest.grafana_admin_secret
   ]
@@ -135,7 +136,9 @@ resource "kubectl_manifest" "grafana_admin_secret" {
   })
 
   depends_on = [
+    kubectl_manifest.namespace_monitoring,
+    module.addons,
+    kubernetes_secret_v1.yc_lockbox_auth,
     kubectl_manifest.yc_lockbox_cluster_secret_store,
-    helm_release.loki_stack
   ]
 }

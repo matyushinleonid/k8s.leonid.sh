@@ -1,0 +1,49 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: temporal-postgres
+  namespace: temporal
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: yc-lockbox
+    kind: ClusterSecretStore
+  target:
+    name: temporal-postgres
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        password: "{{ .temporal_postgres_password }}"
+  data:
+    - secretKey: temporal_postgres_password
+      remoteRef:
+        key: e6qojcm2ke05j3v745t1
+        property: temporal-postgres-password
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: temporal-web-basic-auth
+  namespace: temporal
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: yc-lockbox
+    kind: ClusterSecretStore
+  target:
+    name: temporal-web-basic-auth
+    creationPolicy: Owner
+    template:
+      type: Opaque
+      data:
+        auth: "{{ .htpasswd }}"
+  data:
+    - secretKey: htpasswd
+      remoteRef:
+        key: e6qctn3nipag3gtda97u
+        property: temporal-web-htpasswd

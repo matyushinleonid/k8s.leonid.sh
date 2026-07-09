@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: temporal
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: temporal
+  sources:
+    - repoURL: "https://go.temporal.io/helm-charts"
+      chart: temporal
+      targetRevision: "1.5.0"
+      helm:
+        valueFiles:
+          - "$values/argocd/temporal/values.yaml"
+    - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
+      targetRevision: HEAD
+      ref: values
+    - repoURL: "git@github.com:matyushinleonid/k8s.leonid.sh.git"
+      targetRevision: HEAD
+      path: argocd/temporal
+      directory:
+        exclude: "{argoapp.yaml,values.yaml}"

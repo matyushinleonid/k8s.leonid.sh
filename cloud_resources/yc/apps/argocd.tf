@@ -91,6 +91,8 @@ resource "kubectl_manifest" "argocd_admin_secret" {
   })
 
   depends_on = [
+    module.addons,
+    kubernetes_secret_v1.yc_lockbox_auth,
     kubectl_manifest.yc_lockbox_cluster_secret_store,
     helm_release.argocd
   ]
@@ -149,6 +151,8 @@ resource "kubectl_manifest" "argocd_github_repo_creds" {
   })
 
   depends_on = [
+    module.addons,
+    kubernetes_secret_v1.yc_lockbox_auth,
     kubectl_manifest.yc_lockbox_cluster_secret_store,
     helm_release.argocd
   ]

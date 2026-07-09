@@ -2,7 +2,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: minecraft
-
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -15,7 +14,6 @@ parameters:
   csi.storage.k8s.io/fstype: ext4
 allowVolumeExpansion: true
 reclaimPolicy: Retain
-
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
@@ -39,7 +37,6 @@ spec:
       remoteRef:
         key: e6q7dr9jusl4saot0mkg
         property: rcon-password
-
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -55,7 +52,7 @@ data:
   ENABLE_RCON: "TRUE"
   RCON_PORT: "25575"
   MEMORY: "2G"
-  MOTD: "&4No entry for soyjaks"
+  MOTD: "\u00A7c\u00A7lNo entry for soyjaks"
   ICON: "https://storage.yandexcloud.net/leonid.sh/minecraft/server-icon.png"
   OVERRIDE_ICON: "TRUE"
   MODE: "survival"
@@ -65,7 +62,6 @@ data:
   SIMULATION_DISTANCE: "8"
   STOP_SERVER_ANNOUNCE_DELAY: "30"
   MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky"
-
 ---
 apiVersion: v1
 kind: Service
@@ -84,7 +80,6 @@ spec:
       protocol: TCP
       port: 25565
       targetPort: 25565
-
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -94,30 +89,24 @@ metadata:
 spec:
   serviceName: papermc
   replicas: 1
-
   selector:
     matchLabels:
       app: papermc
-
   template:
     metadata:
       labels:
         app: papermc
-
     spec:
       terminationGracePeriodSeconds: 120
-
       containers:
         - name: minecraft
           image: itzg/minecraft-server:2026.7.0
           imagePullPolicy: Always
-
           envFrom:
             - configMapRef:
                 name: papermc-config
             - secretRef:
                 name: papermc-secret
-
           ports:
             - name: minecraft
               containerPort: 25565
@@ -125,11 +114,9 @@ spec:
             - name: rcon
               containerPort: 25575
               protocol: TCP
-
           volumeMounts:
             - name: data
               mountPath: /data
-
           resources:
             requests:
               cpu: "1"
@@ -137,10 +124,9 @@ spec:
             limits:
               cpu: "2"
               memory: "5Gi"
-
           readinessProbe:
             exec:
-              command: [ "mc-health" ]
+              command: ["mc-health"]
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 20
@@ -150,10 +136,8 @@ spec:
             initialDelaySeconds: 180
             periodSeconds: 30
             failureThreshold: 5
-
           stdin: true
           tty: true
-
   volumeClaimTemplates:
     - metadata:
         name: data

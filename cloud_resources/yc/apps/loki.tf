@@ -1,7 +1,18 @@
+resource "kubectl_manifest" "namespace_monitoring" {
+  yaml_body = yamlencode({
+    apiVersion = "v1"
+    kind       = "Namespace"
+
+    metadata = {
+      name = "monitoring"
+    }
+  })
+}
+
 resource "helm_release" "loki_stack" {
   name             = "loki-stack"
   namespace        = "monitoring"
-  create_namespace = true
+  create_namespace = false
 
   repository = "https://grafana.github.io/helm-charts"
   chart      = "loki-stack"
@@ -37,5 +48,9 @@ resource "helm_release" "loki_stack" {
         }
       }
     })
+  ]
+
+  depends_on = [
+    kubectl_manifest.namespace_monitoring
   ]
 }

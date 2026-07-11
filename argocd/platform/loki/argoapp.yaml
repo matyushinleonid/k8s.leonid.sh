@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://grafana.github.io/helm-charts
+    chart: loki-stack
+    targetRevision: 2.10.2
+    helm:
+      values: |
+        loki:
+          enabled: true
+          persistence:
+            enabled: true
+            storageClassName: yc-network-hdd
+            size: 20Gi
+          config:
+            table_manager:
+              retention_deletes_enabled: true
+              retention_period: 336h
+        promtail:
+          enabled: true
+        grafana:
+          enabled: false
+          sidecar:
+            datasources:
+              enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

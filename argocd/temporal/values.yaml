@@ -64,7 +64,6 @@ server:
       limits:
         memory: 768Mi
     podDisruptionBudget:
-      enabled: true
       minAvailable: 1
   history:
     replicaCount: 2
@@ -75,7 +74,6 @@ server:
       limits:
         memory: 1Gi
     podDisruptionBudget:
-      enabled: true
       minAvailable: 1
   matching:
     replicaCount: 2
@@ -86,7 +84,6 @@ server:
       limits:
         memory: 768Mi
     podDisruptionBudget:
-      enabled: true
       minAvailable: 1
   worker:
     replicaCount: 2
@@ -97,24 +94,11 @@ server:
       limits:
         memory: 768Mi
     podDisruptionBudget:
-      enabled: true
       minAvailable: 1
 schema:
   useHelmHooks: true
   backoffLimit: 100
   ttlSecondsAfterFinished: 86400
-cassandra:
-  enabled: false
-mysql:
-  enabled: false
-postgresql:
-  enabled: false
-elasticsearch:
-  enabled: false
-prometheus:
-  enabled: false
-grafana:
-  enabled: false
 web:
   enabled: true
   replicaCount: 2
@@ -128,13 +112,12 @@ web:
     limits:
       memory: 512Mi
   podDisruptionBudget:
-    enabled: true
     minAvailable: 1
   ingress:
     enabled: true
     className: nginx
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+      cert-manager.io/cluster-issuer: yc-clusterissuer
       external-dns.alpha.kubernetes.io/hostname: temporal.leonid.sh
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"

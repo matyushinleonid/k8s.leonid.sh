@@ -1,0 +1,7 @@
+- name: Bootstrap Argo CD from cloud-only Terraform outputs
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - terraform_outputs
+    - kubeconfig
+    - argocd_bootstrap

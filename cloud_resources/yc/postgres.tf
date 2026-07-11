@@ -43,19 +43,16 @@ resource "yandex_dns_recordset" "pg_cname" {
   data    = [yandex_mdb_postgresql_cluster.postgres.host[0].fqdn]
 }
 
-data "yandex_lockbox_secret_version" "temporal_pg" {
+data "yandex_lockbox_secret_version_entry" "temporal_pg_password" {
   secret_id = "e6qojcm2ke05j3v745t1"
+  key       = "temporal_postgres_password"
 }
 
 resource "yandex_mdb_postgresql_user" "temporal" {
   cluster_id = yandex_mdb_postgresql_cluster.postgres.id
   name       = "temporal"
-  password   = data.yandex_lockbox_secret_version.temporal_pg.entries["temporal_postgres_password"]
+  password   = data.yandex_lockbox_secret_version_entry.temporal_pg_password.text_value
   conn_limit = 50
-
-  permission {
-    database_name = yandex_mdb_postgresql_database.temporal.name
-  }
 
   grants = ["mdb_admin"]
 }

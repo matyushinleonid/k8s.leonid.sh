@@ -1,4 +1,6 @@
 terraform {
+  required_version = ">= 1.6.3"
+
   required_providers {
     yandex = {
       source = "yandex-cloud/yandex"
@@ -10,7 +12,7 @@ terraform {
       s3 = "https://storage.yandexcloud.net"
     }
     bucket = "matyushinleonid"
-    region = "ru-central1-d"
+    region = "ru-central1"
     key    = "terraform/state.tfstate"
 
     skip_region_validation      = true

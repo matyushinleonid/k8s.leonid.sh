@@ -1,0 +1,14 @@
+- name: Ensure kubeconfig directory exists
+  ansible.builtin.file:
+    path: "{{ kubeconfig_path | dirname }}"
+    state: directory
+    mode: "0700"
+
+- name: Build yc profile arguments
+  ansible.builtin.set_fact:
+    yc_profile_args: "{{ ['--profile', yc_profile] if yc_profile | length > 0 else [] }}"
+
+- name: Refresh kubeconfig from managed Kubernetes cluster
+  ansible.builtin.command:
+    argv: "{{ [yc_command] + yc_profile_args + ['managed-kubernetes', 'cluster', 'get-credentials', '--id', tf.cluster_id, '--force', '--kubeconfig', kubeconfig_path] + (['--external'] if yc_get_credentials_external else ['--internal']) }}"
+  changed_when: true

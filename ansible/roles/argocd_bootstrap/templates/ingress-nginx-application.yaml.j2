@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-nginx
+  namespace: {{ argocd_namespace }}
+spec:
+  project: default
+  source:
+    repoURL: {{ ingress_nginx_chart_repository }}
+    chart: {{ ingress_nginx_chart_name }}
+    targetRevision: {{ ingress_nginx_chart_version }}
+    helm:
+      values: |
+        controller:
+          ingressClassResource:
+            name: nginx
+          replicaCount: 2
+          service:
+            loadBalancerIP: {{ tf.ingress_nginx_public_ip }}
+            externalTrafficPolicy: Cluster
+            sessionAffinity: None
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ingress-nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true

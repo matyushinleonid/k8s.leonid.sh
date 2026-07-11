@@ -1,0 +1,44 @@
+- name: Load Terraform outputs from JSON file
+  ansible.builtin.set_fact:
+    terraform_outputs_raw: "{{ lookup('ansible.builtin.file', tf_outputs_file) | from_json }}"
+  when: tf_outputs_file | length > 0
+
+- name: Read Terraform outputs from state
+  ansible.builtin.command:
+    argv:
+      - terraform
+      - output
+      - -json
+    chdir: "{{ terraform_project_dir }}"
+  register: terraform_output_cmd
+  changed_when: false
+  when: tf_outputs_file | length == 0
+
+- name: Parse Terraform output command result
+  ansible.builtin.set_fact:
+    terraform_outputs_raw: "{{ terraform_output_cmd.stdout | from_json }}"
+  when: tf_outputs_file | length == 0
+
+- name: Start flattened Terraform output map
+  ansible.builtin.set_fact:
+    tf: {}
+
+- name: Flatten Terraform outputs
+  ansible.builtin.set_fact:
+    tf: "{{ tf | combine({item.key: item.value.value}) }}"
+  loop: "{{ terraform_outputs_raw | dict2items }}"
+  no_log: "{{ item.value.sensitive | default(false) }}"
+
+- name: Validate required Terraform outputs
+  ansible.builtin.assert:
+    that:
+      - tf.cluster_id is defined
+      - tf.domain is defined
+      - tf.folder_id is defined
+      - tf.email_address is defined
+      - tf.ingress_nginx_public_ip is defined
+      - tf.cert_manager_service_account_key_json is defined
+      - tf.external_dns_service_account_key_json is defined
+      - tf.external_secrets_service_account_key_json is defined
+      - tf.argocd_admin_lockbox_secret_id is defined
+      - tf.argocd_github_lockbox_secret_id is defined

@@ -1,0 +1,32 @@
+terraform_project_dir: "{{ playbook_dir }}/../../cloud_resources/yc"
+tf_outputs_file: "{{ lookup('env', 'TF_OUTPUTS_FILE') | default('', true) }}"
+
+kubeconfig_path: "{{ lookup('env', 'KUBECONFIG') | default(playbook_dir + '/../.kube/k8s-leonid-sh.yaml', true) }}"
+yc_command: yc
+yc_profile: "{{ lookup('env', 'YC_PROFILE') | default('', true) }}"
+yc_get_credentials_external: true
+
+argocd_namespace: argocd
+argocd_chart_repo_name: argo
+argocd_chart_repository: https://argoproj.github.io/argo-helm
+argocd_chart_ref: argo/argo-cd
+argocd_chart_version: 9.7.1
+argocd_admin_password_mtime: "2025-01-01T00:00:00Z"
+
+argocd_repo_url: git@github.com:matyushinleonid/k8s.leonid.sh.git
+argocd_repo_creds_url: git@github.com:matyushinleonid
+argocd_target_revision: HEAD
+argocd_root_path: argocd
+
+cert_manager_chart_repository: cr.yandex/yc-marketplace/yandex-cloud/cert-manager-webhook-yandex
+cert_manager_chart_name: cert-manager-webhook-yandex
+cert_manager_chart_version: 1.0.9
+cert_manager_letsencrypt_server: https://acme-v02.api.letsencrypt.org/directory
+
+external_dns_chart_repository: cr.yandex/yc-marketplace/yandex-cloud/externaldns/chart
+external_dns_chart_name: externaldns
+external_dns_chart_version: 0.5.1-b
+
+ingress_nginx_chart_repository: https://kubernetes.github.io/ingress-nginx
+ingress_nginx_chart_name: ingress-nginx
+ingress_nginx_chart_version: 4.15.1

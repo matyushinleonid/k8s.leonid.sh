@@ -1,0 +1,7 @@
+- name: Refresh kubeconfig and bootstrap or update private Argo CD
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - terraform_outputs
+    - kubeconfig
+    - argocd_bootstrap

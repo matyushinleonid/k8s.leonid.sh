@@ -23,8 +23,7 @@ module "kube" {
   ]
 
   master_logging = {
-    folder_id    = var.folder_id
-    log_group_id = null
+    log_group_id = module.apps.k8s_logging_group_id
   }
 
   node_groups_defaults = {
@@ -68,9 +67,6 @@ module "kube" {
         }
       ]
 
-      maintenance_day        = "monday"
-      maintenance_start_time = "06:00"
-      maintenance_duration   = "3h"
     }
   }
 

@@ -10,27 +10,11 @@ variable "base_name" {
   type = string
 }
 
-variable "cluster_id" {
-  type = string
-}
-
 variable "email_address" {
   type = string
 }
 
 variable "domain" {
-  type = string
-}
-
-variable "cluster_host" {
-  type = string
-}
-
-variable "cluster_ca" {
-  type = string
-}
-
-variable "cluster_sa_id" {
   type = string
 }
 

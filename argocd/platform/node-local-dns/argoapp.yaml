@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-local-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-5"
+spec:
+  project: default
+  source:
+    repoURL: cr.yandex/yc-marketplace/yandex-cloud
+    chart: node-local-dns
+    targetRevision: 1.5.1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: node-local-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

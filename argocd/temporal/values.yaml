@@ -117,7 +117,7 @@ web:
     enabled: true
     className: nginx
     annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-prod
+      cert-manager.io/cluster-issuer: yc-clusterissuer
       external-dns.alpha.kubernetes.io/hostname: temporal.leonid.sh
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"

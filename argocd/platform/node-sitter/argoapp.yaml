@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-sitter
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: cr.yandex/yc-marketplace/yandex-cloud/node-sitter/node-sitter/chart
+    chart: node-sitter
+    targetRevision: 0.1.6
+    helm:
+      parameters:
+        - name: node_drainer_enabled
+          value: "true"
+        - name: toleration_name
+          value: preemptible
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: node-sitter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

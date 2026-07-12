@@ -1,5 +1,5 @@
 module "kube" {
-  source = "github.com/terraform-yc-modules/terraform-yc-kubernetes.git"
+  source = "git::https://github.com/terraform-yc-modules/terraform-yc-kubernetes.git?ref=5886ea6321f4eb1fecddc3c1e19e5d59a6b895d5"
 
   cluster_name = var.base_name
 
@@ -23,7 +23,7 @@ module "kube" {
   ]
 
   master_logging = {
-    log_group_id = module.apps.k8s_logging_group_id
+    log_group_id = yandex_logging_group.k8s.id
   }
 
   node_groups_defaults = {

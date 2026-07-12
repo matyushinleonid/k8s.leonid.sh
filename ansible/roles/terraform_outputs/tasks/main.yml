@@ -33,12 +33,5 @@
   ansible.builtin.assert:
     that:
       - tf.cluster_id is defined
-      - tf.domain is defined
-      - tf.folder_id is defined
-      - tf.email_address is defined
-      - tf.ingress_nginx_public_ip is defined
-      - tf.cert_manager_service_account_key_json is defined
-      - tf.external_dns_service_account_key_json is defined
       - tf.external_secrets_service_account_key_json is defined
-      - tf.argocd_admin_lockbox_secret_id is defined
       - tf.argocd_github_lockbox_secret_id is defined

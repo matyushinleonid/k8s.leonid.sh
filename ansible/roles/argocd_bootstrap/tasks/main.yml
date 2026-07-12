@@ -45,13 +45,8 @@
     chart_version: "{{ argocd_chart_version }}"
     wait: true
     wait_timeout: 10m
-    values:
-      configs:
-        params:
-          server.insecure: true
-      server:
-        extraArgs:
-          - --insecure
+    values_files:
+      - "{{ argocd_values_file }}"
 
 - name: Wait for Argo Application CRD
   kubernetes.core.k8s_info:
@@ -64,13 +59,6 @@
   retries: 30
   delay: 5
 
-- name: Read Argo admin password hash from Lockbox
-  ansible.builtin.command:
-    argv: "{{ [yc_command] + yc_profile_args + ['lockbox', 'payload', 'get', '--id', tf.argocd_admin_lockbox_secret_id, '--format', 'json'] }}"
-  register: argocd_admin_lockbox_payload
-  changed_when: false
-  no_log: true
-
 - name: Read Argo GitHub deploy key from Lockbox
   ansible.builtin.command:
     argv: "{{ [yc_command] + yc_profile_args + ['lockbox', 'payload', 'get', '--id', tf.argocd_github_lockbox_secret_id, '--format', 'json'] }}"
@@ -78,23 +66,9 @@
   changed_when: false
   no_log: true
 
-- name: Start Lockbox entry maps
+- name: Start GitHub Lockbox entry map
   ansible.builtin.set_fact:
-    argocd_admin_lockbox_entries: {}
     argocd_github_lockbox_entries: {}
-  no_log: true
-
-- name: Parse Argo admin Lockbox entries
-  ansible.builtin.set_fact:
-    argocd_admin_lockbox_entries: "{{ argocd_admin_lockbox_entries | combine({item.key: item_value}) }}"
-  loop: "{{ (argocd_admin_lockbox_payload.stdout | from_json).entries }}"
-  vars:
-    item_value: >-
-      {{ item.text_value if item.text_value is defined else
-         item.textValue if item.textValue is defined else
-         item.value if item.value is defined else
-         (item.binary_value | b64decode) if item.binary_value is defined else
-         (item.binaryValue | b64decode) if item.binaryValue is defined else '' }}
   no_log: true
 
 - name: Parse Argo GitHub Lockbox entries
@@ -110,22 +84,7 @@
          (item.binaryValue | b64decode) if item.binaryValue is defined else '' }}
   no_log: true
 
-- name: Configure Argo admin password
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}"
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: argocd-secret
-        namespace: "{{ argocd_namespace }}"
-      stringData:
-        admin.password: "{{ argocd_admin_lockbox_entries['admin-password-hash'] }}"
-        admin.passwordMtime: "{{ argocd_admin_password_mtime }}"
-  no_log: true
-
-- name: Configure Argo Git repository credentials
+- name: Seed Argo Git repository credentials for the first Git sync
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}"
     state: present
@@ -144,38 +103,64 @@
         sshPrivateKey: "{{ argocd_github_lockbox_entries['github-ssh-key'] }}"
   no_log: true
 
-- name: Apply bootstrap Applications with Terraform-derived values
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig_path }}"
-    state: present
-    definition: "{{ lookup('ansible.builtin.template', item) | from_yaml }}"
-  loop:
-    - cert-manager-application.yaml.j2
-    - external-dns-application.yaml.j2
-    - ingress-nginx-application.yaml.j2
-  no_log: true
-
-- name: Wait for prerequisite Applications
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ kubeconfig_path }}"
-    api_version: argoproj.io/v1alpha1
-    kind: Application
-    namespace: "{{ argocd_namespace }}"
-    name: "{{ item }}"
-  register: prerequisite_application
-  until: >-
-    prerequisite_application.resources | length > 0 and
-    (prerequisite_application.resources[0].status.sync.status | default('')) == 'Synced' and
-    (prerequisite_application.resources[0].status.health.status | default('')) == 'Healthy'
-  retries: 60
-  delay: 10
-  loop:
-    - cert-manager
-    - external-dns
-    - ingress-nginx
-
 - name: Apply root Argo Application
   kubernetes.core.k8s:
     kubeconfig: "{{ kubeconfig_path }}"
     state: present
     definition: "{{ lookup('ansible.builtin.template', 'root-application.yaml.j2') | from_yaml }}"
+
+- name: Set Argo CD namespace on bootstrap kubeconfig context
+  ansible.builtin.command:
+    argv:
+      - "{{ kubectl_command }}"
+      - --kubeconfig
+      - "{{ kubeconfig_path }}"
+      - config
+      - set-context
+      - --current
+      - "--namespace={{ argocd_namespace }}"
+  changed_when: true
+
+- name: Synchronize root Application from GitHub
+  ansible.builtin.command:
+    argv:
+      - "{{ argocd_command }}"
+      - app
+      - sync
+      - mothership
+      - --core
+      - --app-namespace
+      - "{{ argocd_namespace }}"
+      - --prune
+      - --timeout
+      - "{{ argocd_sync_timeout }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+    YC_CLI_INITIALIZATION_SILENCE: "true"
+  changed_when: true
+
+- name: Synchronize platform Applications explicitly
+  ansible.builtin.include_tasks: sync_application.yml
+  loop: "{{ argocd_platform_applications }}"
+  loop_control:
+    loop_var: argocd_application
+    label: "{{ argocd_application }}"
+
+- name: Verify root Application is synced and healthy
+  ansible.builtin.command:
+    argv:
+      - "{{ argocd_command }}"
+      - app
+      - wait
+      - mothership
+      - --core
+      - --app-namespace
+      - "{{ argocd_namespace }}"
+      - --sync
+      - --health
+      - --timeout
+      - "{{ argocd_sync_timeout }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+    YC_CLI_INITIALIZATION_SILENCE: "true"
+  changed_when: false

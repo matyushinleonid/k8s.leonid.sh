@@ -4,7 +4,7 @@ metadata:
   name: grafana-admin
   namespace: monitoring
 spec:
-  refreshInterval: 1m
+  refreshInterval: 15m
   secretStoreRef:
     name: yc-lockbox
     kind: ClusterSecretStore

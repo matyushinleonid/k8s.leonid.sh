@@ -21,7 +21,7 @@ metadata:
   name: papermc-secret
   namespace: minecraft
 spec:
-  refreshInterval: 1h
+  refreshInterval: 15m
   secretStoreRef:
     name: yc-lockbox
     kind: ClusterSecretStore

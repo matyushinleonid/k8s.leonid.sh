@@ -25,10 +25,3 @@ resource "yandex_vpc_route_table" "nat_route_table" {
     gateway_id         = yandex_vpc_gateway.nat_gateway.id
   }
 }
-
-resource "yandex_dns_zone" "local_dns" {
-  name             = "pg-internal-zone"
-  zone             = "local."
-  public           = false
-  private_networks = [yandex_vpc_network.k8s_network.id]
-}

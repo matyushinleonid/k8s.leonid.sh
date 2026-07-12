@@ -1,3 +1,14 @@
+resource "yandex_vpc_security_group" "postgres" {
+  name       = "${var.base_name}-postgres"
+  network_id = yandex_vpc_network.k8s_network.id
+
+  ingress {
+    protocol       = "TCP"
+    port           = 6432
+    v4_cidr_blocks = concat(var.subnet_cidr, [module.kube.cluster_ipv4_range])
+  }
+}
+
 resource "yandex_mdb_postgresql_cluster" "postgres" {
   name               = var.base_name
   network_id         = yandex_vpc_network.k8s_network.id
@@ -34,30 +45,6 @@ resource "yandex_mdb_postgresql_cluster" "postgres" {
     day  = "TUE"
     hour = 6
   }
-}
-
-resource "yandex_vpc_security_group" "postgres" {
-  name       = "${var.base_name}-postgres"
-  network_id = yandex_vpc_network.k8s_network.id
-
-  ingress {
-    protocol       = "TCP"
-    port           = 6432
-    v4_cidr_blocks = concat(var.subnet_cidr, [module.kube.cluster_ipv4_range])
-  }
-}
-
-resource "yandex_dns_recordset" "pg_cname" {
-  zone_id = yandex_dns_zone.local_dns.id
-  name    = "postgres.local."
-  type    = "CNAME"
-  ttl     = 600
-  data    = [yandex_mdb_postgresql_cluster.postgres.host[0].fqdn]
-}
-
-data "yandex_lockbox_secret_version_entry" "temporal_pg_password" {
-  secret_id = "e6qojcm2ke05j3v745t1"
-  key       = "temporal_postgres_password"
 }
 
 resource "yandex_mdb_postgresql_user" "temporal" {

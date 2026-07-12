@@ -23,10 +23,6 @@ variable "ssh_key_path" {
   default = "~/.ssh/k8s.leonid.sh.pub"
 }
 
-locals {
-  ssh_keys = "ubuntu:${file(var.ssh_key_path)}"
-}
-
 variable "argocd_github_lockbox_secret_id" {
   type    = string
   default = "e6q864he4ggl6se9gng5"

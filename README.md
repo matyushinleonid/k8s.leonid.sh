@@ -19,6 +19,7 @@ Fetch kubeconfig for the provisioned cluster with `yc`:
 ```sh
 yc managed-kubernetes cluster get-credentials \
   --id "$(terraform output -raw cluster_id)" \
+  --kubeconfig ~/.kube/k8s.leonid.sh.conf \
   --external \
   --force
 ```

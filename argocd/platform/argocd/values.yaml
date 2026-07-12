@@ -12,6 +12,7 @@ ingress:
   clusterIssuer: yc-clusterissuer
 
 externalSecrets:
+  refreshInterval: 1m
   admin:
     lockboxSecretId: e6q7r4bj2ik149jarhq5
   github:

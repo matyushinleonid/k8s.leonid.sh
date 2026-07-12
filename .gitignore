@@ -13,3 +13,6 @@ override.tf.json
 *_override.tf.json
 .terraform/
 *.lock.hcl
+*.retry
+ansible/.kube/
+ansible/.terraform-outputs.json

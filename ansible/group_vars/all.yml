@@ -5,28 +5,32 @@ kubeconfig_path: "{{ lookup('env', 'KUBECONFIG') | default(playbook_dir + '/../.
 yc_command: yc
 yc_profile: "{{ lookup('env', 'YC_PROFILE') | default('', true) }}"
 yc_get_credentials_external: true
+kubectl_command: kubectl
 
 argocd_namespace: argocd
 argocd_chart_repo_name: argo
 argocd_chart_repository: https://argoproj.github.io/argo-helm
 argocd_chart_ref: argo/argo-cd
 argocd_chart_version: 9.7.1
-argocd_admin_password_mtime: "2025-01-01T00:00:00Z"
+argocd_values_file: "{{ playbook_dir }}/../../argocd/platform/argocd/values.yaml"
 
 argocd_repo_url: git@github.com:matyushinleonid/k8s.leonid.sh.git
 argocd_repo_creds_url: git@github.com:matyushinleonid
 argocd_target_revision: HEAD
 argocd_root_path: argocd
-
-cert_manager_chart_repository: cr.yandex/yc-marketplace/yandex-cloud/cert-manager-webhook-yandex
-cert_manager_chart_name: cert-manager-webhook-yandex
-cert_manager_chart_version: 1.0.9
-cert_manager_letsencrypt_server: https://acme-v02.api.letsencrypt.org/directory
-
-external_dns_chart_repository: cr.yandex/yc-marketplace/yandex-cloud/externaldns/chart
-external_dns_chart_name: externaldns
-external_dns_chart_version: 0.5.1-b
-
-ingress_nginx_chart_repository: https://kubernetes.github.io/ingress-nginx
-ingress_nginx_chart_name: ingress-nginx
-ingress_nginx_chart_version: 4.15.1
+argocd_command: argocd
+argocd_sync_timeout: 600
+argocd_sync_retry_limit: 5
+argocd_sync_retry_backoff_duration: 5s
+argocd_sync_retry_backoff_factor: 2
+argocd_sync_retry_backoff_max_duration: 1m
+argocd_platform_applications:
+  - external-secrets
+  - node-local-dns
+  - node-sitter
+  - ingress-nginx
+  - cert-manager
+  - external-dns
+  - argocd
+  - loki-stack
+  - kube-prometheus-stack

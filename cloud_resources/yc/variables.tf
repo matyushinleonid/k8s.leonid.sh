@@ -23,31 +23,11 @@ variable "ssh_key_path" {
   default = "~/.ssh/k8s.leonid.sh.pub"
 }
 
-variable "email_address" {
-  type    = string
-  default = "matyushinleonid@users.noreply.github.com"
-}
-
-variable "domain" {
-  type    = string
-  default = "leonid.sh"
-}
-
 locals {
   ssh_keys = "ubuntu:${file(var.ssh_key_path)}"
-}
-
-variable "argocd_admin_lockbox_secret_id" {
-  type    = string
-  default = "e6q7r4bj2ik149jarhq5"
 }
 
 variable "argocd_github_lockbox_secret_id" {
   type    = string
   default = "e6q864he4ggl6se9gng5"
-}
-
-variable "grafana_admin_lockbox_secret_id" {
-  type    = string
-  default = "e6qib21hrudo8gun0h48"
 }

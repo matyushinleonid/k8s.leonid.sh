@@ -1,0 +1,60 @@
+- name: "Synchronize {{ argocd_application }} Application"
+  ansible.builtin.command:
+    argv:
+      - "{{ argocd_command }}"
+      - app
+      - sync
+      - "{{ argocd_application }}"
+      - --core
+      - --app-namespace
+      - "{{ argocd_namespace }}"
+      - --prune
+      - --timeout
+      - "{{ argocd_sync_timeout }}"
+      - --retry-limit
+      - "{{ argocd_sync_retry_limit }}"
+      - --retry-backoff-duration
+      - "{{ argocd_sync_retry_backoff_duration }}"
+      - --retry-backoff-factor
+      - "{{ argocd_sync_retry_backoff_factor }}"
+      - --retry-backoff-max-duration
+      - "{{ argocd_sync_retry_backoff_max_duration }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+    YC_CLI_INITIALIZATION_SILENCE: "true"
+  changed_when: true
+
+- name: Wait for Yandex Lockbox ClusterSecretStore
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: external-secrets.io/v1beta1
+    kind: ClusterSecretStore
+    name: yc-lockbox
+  register: yc_lockbox_store
+  until: >-
+    yc_lockbox_store.resources | length > 0 and
+    (yc_lockbox_store.resources[0].status.conditions | default([]) |
+    selectattr('type', 'equalto', 'Ready') |
+    selectattr('status', 'equalto', 'True') | list | length) > 0
+  retries: 60
+  delay: 5
+  when: argocd_application == 'external-secrets'
+
+- name: "Wait for {{ argocd_application }} Application to become synced and healthy"
+  ansible.builtin.command:
+    argv:
+      - "{{ argocd_command }}"
+      - app
+      - wait
+      - "{{ argocd_application }}"
+      - --core
+      - --app-namespace
+      - "{{ argocd_namespace }}"
+      - --sync
+      - --health
+      - --timeout
+      - "{{ argocd_sync_timeout }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+    YC_CLI_INITIALIZATION_SILENCE: "true"
+  changed_when: false

@@ -79,4 +79,8 @@ resource "yandex_mdb_postgresql_database" "temporal_visibility" {
   cluster_id = yandex_mdb_postgresql_cluster.postgres.id
   name       = "temporal_visibility"
   owner      = yandex_mdb_postgresql_user.temporal.name
+
+  extension {
+    name = "btree_gin"
+  }
 }

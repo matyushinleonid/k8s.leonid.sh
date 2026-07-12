@@ -22,11 +22,18 @@ spec:
     server: https://kubernetes.default.svc
     namespace: external-dns
   ignoreDifferences:
-    - group: ""
-      kind: Secret
+    - kind: Secret
       name: external-dns-externaldns
       jsonPointers:
         - /data/iamkeyfile.json
+    - group: external-secrets.io
+      kind: ExternalSecret
+      name: external-dns-yandex-credentials
+      jqPathExpressions:
+        - .spec.data[].remoteRef.conversionStrategy
+        - .spec.data[].remoteRef.decodingStrategy
+        - .spec.data[].remoteRef.metadataPolicy
+        - .spec.target.deletionPolicy
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

@@ -1,3 +1,9 @@
+resource "yandex_logging_group" "k8s" {
+  folder_id        = var.folder_id
+  name             = "${var.base_name}-k8s"
+  retention_period = "365h"
+}
+
 module "kube" {
   source = "git::https://github.com/terraform-yc-modules/terraform-yc-kubernetes.git?ref=5886ea6321f4eb1fecddc3c1e19e5d59a6b895d5"
 

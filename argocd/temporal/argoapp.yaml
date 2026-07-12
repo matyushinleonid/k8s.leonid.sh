@@ -23,3 +23,7 @@ spec:
       path: argocd/temporal
       directory:
         exclude: "{argoapp.yaml,values.yaml}"
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

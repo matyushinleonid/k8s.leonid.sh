@@ -96,7 +96,7 @@ server:
     podDisruptionBudget:
       minAvailable: 1
 schema:
-  useHelmHooks: true
+  useHelmHooks: false
   backoffLimit: 100
   ttlSecondsAfterFinished: 86400
 web:

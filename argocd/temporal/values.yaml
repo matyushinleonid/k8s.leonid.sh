@@ -15,7 +15,7 @@ server:
             pluginName: postgres12
             driverName: postgres12
             databaseName: temporal
-            connectAddr: "postgres.local:5432"
+            connectAddr: "postgres.local:6432"
             connectProtocol: tcp
             user: temporal
             existingSecret: temporal-postgres
@@ -30,7 +30,7 @@ server:
             pluginName: postgres12
             driverName: postgres12
             databaseName: temporal_visibility
-            connectAddr: "postgres.local:5432"
+            connectAddr: "postgres.local:6432"
             connectProtocol: tcp
             user: temporal
             existingSecret: temporal-postgres

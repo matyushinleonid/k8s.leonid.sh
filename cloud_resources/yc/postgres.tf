@@ -41,10 +41,9 @@ resource "yandex_vpc_security_group" "postgres" {
   network_id = yandex_vpc_network.k8s_network.id
 
   ingress {
-    description    = "PostgreSQL from the Kubernetes subnet"
     protocol       = "TCP"
-    port           = 5432
-    v4_cidr_blocks = var.subnet_cidr
+    port           = 6432
+    v4_cidr_blocks = concat(var.subnet_cidr, [module.kube.cluster_ipv4_range])
   }
 }
 

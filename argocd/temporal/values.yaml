@@ -99,8 +99,13 @@ schema:
   useHelmHooks: false
   jobAnnotations:
     argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-options: Force=true,Replace=true
   backoffLimit: 100
   ttlSecondsAfterFinished: 86400
+shims:
+  # Compatibility shims are only required for Temporal 1.29 and older.
+  dockerize: false
+  elasticsearchTool: false
 web:
   enabled: true
   replicaCount: 2

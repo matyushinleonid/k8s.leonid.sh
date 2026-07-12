@@ -18,8 +18,9 @@ spec:
             storageClassName: yc-network-hdd
             size: 20Gi
           config:
-            table_manager:
-              retention_deletes_enabled: true
+            compactor:
+              retention_enabled: true
+            limits_config:
               retention_period: 336h
         promtail:
           enabled: true

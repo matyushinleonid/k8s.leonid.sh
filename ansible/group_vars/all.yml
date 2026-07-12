@@ -34,3 +34,4 @@ argocd_platform_applications:
   - argocd
   - loki-stack
   - kube-prometheus-stack
+  - opentelemetry-collector

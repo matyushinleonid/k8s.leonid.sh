@@ -1,0 +1,82 @@
+mode: daemonset
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+presets:
+  kubeletMetrics:
+    enabled: true
+
+alternateConfig:
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
+  receivers:
+    kubeletstats:
+      collection_interval: 30s
+      auth_type: serviceAccount
+      endpoint: ${env:K8S_NODE_IP}:10250
+      insecure_skip_verify: true
+      metric_groups:
+        - volume
+      metrics:
+        k8s.pod.volume.usage:
+          enabled: true
+  processors:
+    memory_limiter:
+      check_interval: 5s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+    batch: {}
+  exporters:
+    prometheus:
+      endpoint: ${env:MY_POD_IP}:8889
+      translation_strategy: UnderscoreEscapingWithoutSuffixes
+      resource_to_telemetry_conversion:
+        enabled: true
+  service:
+    extensions:
+      - health_check
+    pipelines:
+      metrics:
+        receivers:
+          - kubeletstats
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - prometheus
+
+ports:
+  otlp:
+    enabled: false
+  otlp-http:
+    enabled: false
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+  metrics:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+
+podMonitor:
+  enabled: true
+  metricsEndpoints:
+    - port: metrics
+      interval: 30s
+  extraLabels:
+    release: kube-prometheus-stack
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

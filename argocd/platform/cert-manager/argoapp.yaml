@@ -22,11 +22,22 @@ spec:
     server: https://kubernetes.default.svc
     namespace: cert-manager
   ignoreDifferences:
-    - group: ""
-      kind: Secret
+    - kind: Secret
       name: cm-sa-creds
       jsonPointers:
         - /data/key.json
+    - group: cert-manager.io
+      kind: Certificate
+      jsonPointers:
+        - /spec/duration
+    - group: external-secrets.io
+      kind: ExternalSecret
+      name: cert-manager-yandex-credentials
+      jqPathExpressions:
+        - .spec.data[].remoteRef.conversionStrategy
+        - .spec.data[].remoteRef.decodingStrategy
+        - .spec.data[].remoteRef.metadataPolicy
+        - .spec.target.deletionPolicy
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

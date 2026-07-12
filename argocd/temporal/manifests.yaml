@@ -3,8 +3,10 @@ kind: ExternalSecret
 metadata:
   name: temporal-postgres
   namespace: temporal
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
-  refreshInterval: 1h
+  refreshInterval: 1m
   secretStoreRef:
     name: yc-lockbox
     kind: ClusterSecretStore
@@ -19,15 +21,17 @@ spec:
     - secretKey: temporal_postgres_password
       remoteRef:
         key: e6qojcm2ke05j3v745t1
-        property: temporal-postgres-password
+        property: temporal_postgres_password
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: temporal-web-basic-auth
   namespace: temporal
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
-  refreshInterval: 1h
+  refreshInterval: 1m
   secretStoreRef:
     name: yc-lockbox
     kind: ClusterSecretStore

@@ -1,0 +1,10 @@
+controller:
+  ingressClassResource:
+    name: nginx
+  replicaCount: 2
+  service:
+    # Tung Tung Tung Sahur
+    # terraform -chdir=cloud_resources/yc output -raw ingress_nginx_public_ip
+    loadBalancerIP: "158.160.181.49"
+    externalTrafficPolicy: Cluster
+    sessionAffinity: None

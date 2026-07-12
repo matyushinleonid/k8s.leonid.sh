@@ -3,8 +3,6 @@ kind: ExternalSecret
 metadata:
   name: temporal-postgres
   namespace: temporal
-  annotations:
-    argocd.argoproj.io/sync-wave: "-10"
 spec:
   refreshInterval: 1h
   secretStoreRef:
@@ -28,8 +26,6 @@ kind: ExternalSecret
 metadata:
   name: temporal-web-basic-auth
   namespace: temporal
-  annotations:
-    argocd.argoproj.io/sync-wave: "-10"
 spec:
   refreshInterval: 1h
   secretStoreRef:

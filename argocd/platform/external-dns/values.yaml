@@ -1,0 +1,9 @@
+config:
+  folder_id: b1g3o4ahe2b4o5od724t
+  auth:
+    json: "{}"
+
+externalSecret:
+  # Tung Tung Tung Sahur
+  # terraform -chdir=cloud_resources/yc output -raw external_dns_lockbox_secret_id
+  lockboxSecretId: "e6q0cchekvi1jp92kbg8"

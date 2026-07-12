@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cert-manager-external-secrets
+description: ExternalSecret resources for the Yandex cert-manager chart
+type: application
+version: 0.1.0

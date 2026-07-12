@@ -44,7 +44,7 @@ server:
       visibility:
         state: "disabled"
     namespaces:
-      create: true
+      create: false
       namespace:
         - name: default
           retention: 3d
@@ -97,6 +97,8 @@ server:
       minAvailable: 1
 schema:
   useHelmHooks: false
+  jobAnnotations:
+    argocd.argoproj.io/sync-wave: "-1"
   backoffLimit: 100
   ttlSecondsAfterFinished: 86400
 web:

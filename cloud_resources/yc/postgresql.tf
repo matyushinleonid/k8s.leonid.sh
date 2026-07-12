@@ -51,7 +51,7 @@ resource "yandex_mdb_postgresql_user" "temporal" {
   cluster_id = yandex_mdb_postgresql_cluster.postgres.id
   name       = "temporal"
   password   = data.yandex_lockbox_secret_version_entry.temporal_pg_password.text_value
-  conn_limit = 50
+  conn_limit = 200
 
   grants = ["mdb_admin"]
 }

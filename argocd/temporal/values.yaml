@@ -20,8 +20,8 @@ server:
             user: temporal
             existingSecret: temporal-postgres
             secretKey: password
-            maxConns: 20
-            maxIdleConns: 20
+            maxConns: 10
+            maxIdleConns: 10
             maxConnLifetime: "1h"
         visibility:
           sql:
@@ -35,8 +35,8 @@ server:
             user: temporal
             existingSecret: temporal-postgres
             secretKey: password
-            maxConns: 10
-            maxIdleConns: 10
+            maxConns: 5
+            maxIdleConns: 5
             maxConnLifetime: "1h"
     archival:
       history:
@@ -103,7 +103,6 @@ schema:
   backoffLimit: 100
   ttlSecondsAfterFinished: 86400
 shims:
-  # Compatibility shims are only required for Temporal 1.29 and older.
   dockerize: false
   elasticsearchTool: false
 web:

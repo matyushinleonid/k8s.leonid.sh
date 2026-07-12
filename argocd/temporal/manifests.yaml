@@ -4,7 +4,7 @@ metadata:
   name: temporal-postgres
   namespace: temporal
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   refreshInterval: 1m
   secretStoreRef:
@@ -29,7 +29,7 @@ metadata:
   name: temporal-web-basic-auth
   namespace: temporal
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "-2"
 spec:
   refreshInterval: 1m
   secretStoreRef:
@@ -47,3 +47,36 @@ spec:
       remoteRef:
         key: e6qctn3nipag3gtda97u
         property: temporal-web-htpasswd
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: temporal-default-namespace
+  namespace: temporal
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 20
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: namespace-setup
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/name: temporal
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: create-default-namespace
+          image: temporalio/admin-tools:1.31.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - >-
+              temporal operator namespace describe -n default ||
+              temporal operator namespace create -n default --retention 3d
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: temporal-frontend.temporal.svc:7233

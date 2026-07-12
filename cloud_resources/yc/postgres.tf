@@ -1,8 +1,9 @@
 resource "yandex_mdb_postgresql_cluster" "postgres" {
-  name        = var.base_name
-  network_id  = yandex_vpc_network.k8s_network.id
-  environment = "PRODUCTION"
-  folder_id   = var.folder_id
+  name               = var.base_name
+  network_id         = yandex_vpc_network.k8s_network.id
+  environment        = "PRODUCTION"
+  folder_id          = var.folder_id
+  security_group_ids = [yandex_vpc_security_group.postgres.id]
 
   host {
     zone             = var.zone
@@ -35,6 +36,18 @@ resource "yandex_mdb_postgresql_cluster" "postgres" {
   }
 }
 
+resource "yandex_vpc_security_group" "postgres" {
+  name       = "${var.base_name}-postgres"
+  network_id = yandex_vpc_network.k8s_network.id
+
+  ingress {
+    description    = "PostgreSQL from the Kubernetes subnet"
+    protocol       = "TCP"
+    port           = 5432
+    v4_cidr_blocks = var.subnet_cidr
+  }
+}
+
 resource "yandex_dns_recordset" "pg_cname" {
   zone_id = yandex_dns_zone.local_dns.id
   name    = "postgres.local."
@@ -60,5 +73,11 @@ resource "yandex_mdb_postgresql_user" "temporal" {
 resource "yandex_mdb_postgresql_database" "temporal" {
   cluster_id = yandex_mdb_postgresql_cluster.postgres.id
   name       = "temporal"
+  owner      = yandex_mdb_postgresql_user.temporal.name
+}
+
+resource "yandex_mdb_postgresql_database" "temporal_visibility" {
+  cluster_id = yandex_mdb_postgresql_cluster.postgres.id
+  name       = "temporal_visibility"
   owner      = yandex_mdb_postgresql_user.temporal.name
 }

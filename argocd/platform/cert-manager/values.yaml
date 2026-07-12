@@ -7,7 +7,7 @@ config:
     json: "{}"
 
 externalSecret:
-  refreshInterval: 1m
+  refreshInterval: 15m
   # Tung Tung Tung Sahur
   # terraform -chdir=cloud_resources/yc output -raw cert_manager_lockbox_secret_id
-  lockboxSecretId: "e6qdofhusoue0fn3dqan"
+  lockboxSecretId: "e6q8kku5hthejkjsp59e"

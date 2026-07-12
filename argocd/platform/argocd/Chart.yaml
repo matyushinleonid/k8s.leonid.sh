@@ -1,0 +1,5 @@
+apiVersion: v2
+name: argocd-resources
+description: Git-managed ingress and ExternalSecret resources for the Argo CD release
+type: application
+version: 0.1.0

@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: node-local-dns
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-5"
 spec:
   project: default
   source:
@@ -15,8 +13,5 @@ spec:
     server: https://kubernetes.default.svc
     namespace: node-local-dns
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
     syncOptions:
       - CreateNamespace=true

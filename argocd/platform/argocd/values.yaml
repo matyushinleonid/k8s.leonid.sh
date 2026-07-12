@@ -1,0 +1,19 @@
+configs:
+  params:
+    server.insecure: true
+server:
+  extraArgs:
+    - --insecure
+
+ingress:
+  enabled: true
+  host: argocd.leonid.sh
+  ingressClassName: nginx
+  clusterIssuer: yc-clusterissuer
+
+externalSecrets:
+  admin:
+    lockboxSecretId: e6q7r4bj2ik149jarhq5
+  github:
+    lockboxSecretId: e6q864he4ggl6se9gng5
+    repoCredentialsUrl: git@github.com:matyushinleonid

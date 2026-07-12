@@ -1,0 +1,12 @@
+config:
+  folder_id: b1g3o4ahe2b4o5od724t
+  email: matyushinleonid@users.noreply.github.com
+  server: https://acme-v02.api.letsencrypt.org/directory
+  # The marketplace chart requires this field but External Secrets owns the payload.
+  auth:
+    json: "{}"
+
+externalSecret:
+  # Tung Tung Tung Sahur
+  # terraform -chdir=cloud_resources/yc output -raw cert_manager_lockbox_secret_id
+  lockboxSecretId: "e6qdofhusoue0fn3dqan"

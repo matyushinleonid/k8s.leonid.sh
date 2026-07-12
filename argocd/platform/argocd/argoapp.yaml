@@ -1,30 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometheus-stack
+  name: argocd
   namespace: argocd
 spec:
   project: default
   sources:
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 87.10.0
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: 9.7.1
       helm:
         valueFiles:
-          - $values/argocd/platform/monitoring/values.yaml
+          - $values/argocd/platform/argocd/values.yaml
     - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
       targetRevision: HEAD
       ref: values
     - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
       targetRevision: HEAD
-      path: argocd/platform/monitoring
-      directory:
-        exclude: "{argoapp.yaml,values.yaml}"
+      path: argocd/platform/argocd
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: argocd
   syncPolicy:
     syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
       - SkipDryRunOnMissingResource=true

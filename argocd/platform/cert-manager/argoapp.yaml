@@ -1,30 +1,35 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kube-prometheus-stack
+  name: cert-manager
   namespace: argocd
 spec:
   project: default
   sources:
-    - repoURL: https://prometheus-community.github.io/helm-charts
-      chart: kube-prometheus-stack
-      targetRevision: 87.10.0
+    - repoURL: cr.yandex/yc-marketplace/yandex-cloud/cert-manager-webhook-yandex
+      chart: cert-manager-webhook-yandex
+      targetRevision: 1.0.9
       helm:
         valueFiles:
-          - $values/argocd/platform/monitoring/values.yaml
+          - $values/argocd/platform/cert-manager/values.yaml
     - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
       targetRevision: HEAD
       ref: values
     - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
       targetRevision: HEAD
-      path: argocd/platform/monitoring
-      directory:
-        exclude: "{argoapp.yaml,values.yaml}"
+      path: argocd/platform/cert-manager
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: cert-manager
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: cm-sa-creds
+      jsonPointers:
+        - /data/key.json
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
       - ServerSideApply=true
       - SkipDryRunOnMissingResource=true

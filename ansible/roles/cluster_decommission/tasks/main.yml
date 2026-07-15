@@ -1,0 +1,321 @@
+- name: Require explicit decommission confirmation
+  ansible.builtin.assert:
+    that:
+      - decommission_confirmation == 'DESTROY'
+    fail_msg: >-
+      This playbook deletes Argo CD workloads, DNS records, PVCs, and their
+      cloud disks. Re-run it with -e decommission_confirmation=DESTROY.
+
+- name: Build yc profile arguments
+  ansible.builtin.set_fact:
+    yc_profile_args: "{{ ['--profile', yc_profile] if yc_profile | length > 0 else [] }}"
+
+- name: Set Argo CD namespace on decommission kubeconfig context
+  ansible.builtin.command:
+    argv:
+      - "{{ kubectl_command }}"
+      - --kubeconfig
+      - "{{ kubeconfig_path }}"
+      - config
+      - set-context
+      - --current
+      - "--namespace={{ argocd_namespace }}"
+  changed_when: true
+
+- name: Read persistent volume claims selected for deletion
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: monitoring
+    name: "{{ item }}"
+  loop: "{{ decommission_storage_pvc_names }}"
+  register: decommission_pvc_info
+
+- name: Remember persistent volume names
+  ansible.builtin.set_fact:
+    decommission_storage_pv_names: >-
+      {{ decommission_pvc_info.results |
+         map(attribute='resources') | flatten |
+         map(attribute='spec.volumeName') | select('defined') | list }}
+
+- name: Read persistent volumes selected for deletion
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: v1
+    kind: PersistentVolume
+    name: "{{ item }}"
+  loop: "{{ decommission_storage_pv_names }}"
+  register: decommission_pv_info
+
+- name: Remember CSI disk IDs
+  ansible.builtin.set_fact:
+    decommission_storage_disk_ids: >-
+      {{ decommission_pv_info.results | default([]) |
+         map(attribute='resources') | flatten |
+         map(attribute='spec.csi.volumeHandle') | select('defined') | list }}
+
+- name: Verify ExternalDNS is available for final reconciliation
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: apps/v1
+    kind: Deployment
+    namespace: external-dns
+    name: external-dns-externaldns
+  register: decommission_external_dns
+
+- name: Assert ExternalDNS has an available replica
+  ansible.builtin.assert:
+    that:
+      - decommission_external_dns.resources | length == 1
+      - decommission_external_dns.resources[0].status.availableReplicas | default(0) | int > 0
+    fail_msg: >-
+      ExternalDNS must be running before decommission so it can remove the DNS
+      records it owns. Restore it, then run this playbook again.
+
+- name: Read root Argo CD Application
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+    name: mothership
+  register: decommission_root_application
+
+- name: Delete root Application without cascading to child Applications
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+    name: mothership
+    state: absent
+    wait: true
+    wait_timeout: "{{ decommission_timeout }}"
+    delete_options:
+      propagation_policy: Orphan
+  when: decommission_root_application.resources | length > 0
+
+- name: Read Services that can be ExternalDNS sources
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: v1
+    kind: Service
+  register: decommission_services
+
+- name: Delete Services with an ExternalDNS hostname
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: v1
+    kind: Service
+    namespace: "{{ item.metadata.namespace }}"
+    name: "{{ item.metadata.name }}"
+    state: absent
+    wait: true
+    wait_timeout: "{{ decommission_timeout }}"
+  register: decommission_service_delete
+  loop: "{{ decommission_services.resources }}"
+  loop_control:
+    label: "{{ item.metadata.namespace }}/{{ item.metadata.name }}"
+  when: >-
+    'external-dns.alpha.kubernetes.io/hostname' in
+    (item.metadata.annotations | default({}))
+
+- name: Delete every Ingress while ExternalDNS is still running
+  ansible.builtin.command:
+    argv:
+      - "{{ kubectl_command }}"
+      - --kubeconfig
+      - "{{ kubeconfig_path }}"
+      - delete
+      - ingress
+      - --all
+      - --all-namespaces
+      - --ignore-not-found=true
+      - --wait=true
+  register: decommission_ingress_delete
+  changed_when: "'deleted' in decommission_ingress_delete.stdout"
+
+- name: Restart ExternalDNS to trigger an immediate reconciliation
+  ansible.builtin.command:
+    argv:
+      - "{{ kubectl_command }}"
+      - --kubeconfig
+      - "{{ kubeconfig_path }}"
+      - rollout
+      - restart
+      - deployment/external-dns-externaldns
+      - --namespace
+      - external-dns
+  changed_when: true
+  when: >-
+    (decommission_service_delete.changed | default(false)) or
+    (decommission_ingress_delete.changed | default(false))
+
+- name: Wait for ExternalDNS rollout
+  ansible.builtin.command:
+    argv:
+      - "{{ kubectl_command }}"
+      - --kubeconfig
+      - "{{ kubeconfig_path }}"
+      - rollout
+      - status
+      - deployment/external-dns-externaldns
+      - --namespace
+      - external-dns
+      - "--timeout={{ decommission_timeout }}s"
+  changed_when: false
+  when: >-
+    (decommission_service_delete.changed | default(false)) or
+    (decommission_ingress_delete.changed | default(false))
+
+- name: Wait for ExternalDNS to finish reconciling deleted records
+  ansible.builtin.command:
+    argv:
+      - "{{ kubectl_command }}"
+      - --kubeconfig
+      - "{{ kubeconfig_path }}"
+      - logs
+      - deployment/external-dns-externaldns
+      - --namespace
+      - external-dns
+      - --since=5m
+  register: decommission_external_dns_logs
+  changed_when: false
+  until: >-
+    ('Del records:' in decommission_external_dns_logs.stdout) or
+    ('All records are already up to date' in decommission_external_dns_logs.stdout)
+  retries: "{{ decommission_dns_reconcile_retries }}"
+  delay: "{{ decommission_dns_reconcile_delay }}"
+  when: >-
+    (decommission_service_delete.changed | default(false)) or
+    (decommission_ingress_delete.changed | default(false))
+
+- name: Read child Argo CD Applications
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+  register: decommission_child_applications
+
+- name: Select Applications for cascading deletion
+  ansible.builtin.set_fact:
+    decommission_application_names: >-
+      {{ decommission_child_applications.resources |
+         map(attribute='metadata.name') |
+         difference(decommission_preserved_applications) | list }}
+
+- name: Delete workload and platform Applications with their resources
+  ansible.builtin.command:
+    argv: >-
+      {{ [argocd_command, 'app', 'delete'] + decommission_application_names +
+         ['--core', '--app-namespace', argocd_namespace, '--cascade',
+          '--propagation-policy', 'foreground', '--yes'] }}
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+    YC_CLI_INITIALIZATION_SILENCE: "true"
+  changed_when: true
+  when: decommission_application_names | length > 0
+
+- name: Wait for workload and platform Applications to be deleted
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+    name: "{{ item }}"
+  loop: "{{ decommission_application_names }}"
+  register: decommission_deleted_application
+  until: decommission_deleted_application.resources | length == 0
+  retries: "{{ (decommission_timeout | int // 5) | int }}"
+  delay: 5
+
+- name: Delete Loki and Prometheus persistent volume claims
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: v1
+    kind: PersistentVolumeClaim
+    namespace: monitoring
+    name: "{{ item }}"
+    state: absent
+    wait: true
+    wait_timeout: "{{ decommission_timeout }}"
+  loop: "{{ decommission_storage_pvc_names }}"
+
+- name: Delete persistent volume objects after their claims are gone
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: v1
+    kind: PersistentVolume
+    name: "{{ item }}"
+    state: absent
+    wait: true
+    wait_timeout: "{{ decommission_timeout }}"
+  loop: "{{ decommission_storage_pv_names }}"
+
+- name: Check whether CSI disks still exist in Yandex Cloud
+  ansible.builtin.command:
+    argv: "{{ [yc_command] + yc_profile_args + ['compute', 'disk', 'get', '--id', item] }}"
+  loop: "{{ decommission_storage_disk_ids }}"
+  register: decommission_cloud_disks
+  changed_when: false
+  failed_when: false
+
+- name: Delete CSI disks left behind by the storage provisioner
+  ansible.builtin.command:
+    argv: >-
+      {{ [yc_command] + yc_profile_args +
+         ['compute', 'disk', 'delete', '--id', item.item] }}
+  loop: "{{ decommission_cloud_disks.results | default([]) }}"
+  when: item.rc == 0
+  changed_when: true
+
+- name: Read ExternalDNS Application
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+    name: external-dns
+  register: decommission_external_dns_application
+
+- name: Delete ExternalDNS Application after DNS cleanup
+  ansible.builtin.command:
+    argv:
+      - "{{ argocd_command }}"
+      - app
+      - delete
+      - external-dns
+      - --core
+      - --app-namespace
+      - "{{ argocd_namespace }}"
+      - --cascade
+      - --propagation-policy
+      - foreground
+      - --yes
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+    YC_CLI_INITIALIZATION_SILENCE: "true"
+  changed_when: true
+  when: decommission_external_dns_application.resources | length > 0
+
+- name: Wait for ExternalDNS Application to be deleted
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+    name: external-dns
+  register: decommission_deleted_external_dns_application
+  until: decommission_deleted_external_dns_application.resources | length == 0
+  retries: "{{ (decommission_timeout | int // 5) | int }}"
+  delay: 5
+  when: decommission_external_dns_application.resources | length > 0
+
+- name: Report resources preserved until Terraform destroys the cluster
+  ansible.builtin.debug:
+    msg: >-
+      DNS records and dynamic storage are cleaned up. The Argo CD and
+      External Secrets control planes remain in the cluster so Terraform can
+      destroy the cluster normally.

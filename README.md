@@ -61,3 +61,15 @@ ansible-playbook playbooks/bootstrap.yml
 ```
 
 Ansible runs `terraform output -json` in `cloud_resources/yc` and reads the required values from the configured remote Terraform state. It uses them to fetch kubeconfig, seed the External Secrets and Git bootstrap credentials, install Argo CD, and sync the platform applications.
+
+## Destroy the environment
+
+Run the decommission playbook while the Kubernetes cluster and ExternalDNS are still available. It removes the Argo CD workloads, ExternalDNS-managed records, and the dynamically provisioned Loki and Prometheus disks.
+
+```sh
+cd ansible
+ansible-playbook playbooks/decommission.yml -e decommission_confirmation=DESTROY
+
+cd ../cloud_resources/yc
+terraform destroy
+```

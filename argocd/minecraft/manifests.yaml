@@ -51,15 +51,16 @@ data:
   ENABLE_WHITELIST: "TRUE"
   ENABLE_RCON: "TRUE"
   RCON_PORT: "25575"
-  MEMORY: "3G"
-  MOTD: "\u00A7c\u00A7lNo entry for soyjaks"
+  INIT_MEMORY: "2G"
+  MAX_MEMORY: "4G"
+  MOTD: "\u00A7c\u00A7l«Киркой по голове»\u00A7r\nСервер имени Михаила Горшенёва"
   ICON: "https://storage.yandexcloud.net/leonid.sh/minecraft/server-icon.png"
   OVERRIDE_ICON: "TRUE"
   MODE: "survival"
   DIFFICULTY: "hard"
   SPAWN_PROTECTION: "0"
-  VIEW_DISTANCE: "10"
-  SIMULATION_DISTANCE: "8"
+  VIEW_DISTANCE: "14"
+  SIMULATION_DISTANCE: "9"
   STOP_SERVER_ANNOUNCE_DELAY: "30"
   MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky"
 ---
@@ -117,7 +118,7 @@ spec:
           resources:
             requests:
               cpu: "500m"
-              memory: "3Gi"
+              memory: "2Gi"
             limits:
               cpu: "2"
               memory: "5Gi"
@@ -144,4 +145,4 @@ spec:
         storageClassName: yc-network-ssd-retain-expand
         resources:
           requests:
-            storage: 30Gi
+            storage: 10Gi

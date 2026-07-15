@@ -14,7 +14,7 @@ controller:
   service:
     # Tung Tung Tung Sahur
     # terraform -chdir=cloud_resources/yc output -raw ingress_nginx_public_ip
-    loadBalancerIP: "158.160.211.144"
+    loadBalancerIP: ""
     annotations:
       external-dns.alpha.kubernetes.io/hostname: minecraft.leonid.sh
     externalTrafficPolicy: Cluster

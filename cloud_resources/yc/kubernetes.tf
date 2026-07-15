@@ -35,7 +35,7 @@ module "kube" {
   node_groups_defaults = {
     template_name = "{instance_group.id}-{instance.zone_id}-{instance.index}"
     platform_id   = "standard-v3"
-    node_cores    = 4
+    node_cores    = 2
     node_memory   = 8
     node_gpus     = 0
     core_fraction = 100
@@ -56,7 +56,7 @@ module "kube" {
 
       platform_id   = "standard-v3"
       node_cores    = 2
-      node_memory   = 8
+      node_memory   = 12
       core_fraction = 100
 
       disk_type = "network-ssd"

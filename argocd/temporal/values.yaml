@@ -55,6 +55,15 @@ server:
       enabled: false
   frontend:
     replicaCount: 2
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/instance: temporal
+            app.kubernetes.io/component: frontend
     service:
       type: ClusterIP
     resources:
@@ -67,6 +76,15 @@ server:
       minAvailable: 1
   history:
     replicaCount: 2
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/instance: temporal
+            app.kubernetes.io/component: history
     resources:
       requests:
         cpu: 150m
@@ -77,6 +95,15 @@ server:
       minAvailable: 1
   matching:
     replicaCount: 2
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/instance: temporal
+            app.kubernetes.io/component: matching
     resources:
       requests:
         cpu: 100m
@@ -87,6 +114,15 @@ server:
       minAvailable: 1
   worker:
     replicaCount: 2
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: temporal
+            app.kubernetes.io/instance: temporal
+            app.kubernetes.io/component: worker
     resources:
       requests:
         cpu: 100m
@@ -108,6 +144,15 @@ shims:
 web:
   enabled: true
   replicaCount: 2
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: temporal
+          app.kubernetes.io/instance: temporal
+          app.kubernetes.io/component: web
   service:
     type: ClusterIP
     port: 8080

@@ -116,7 +116,7 @@ spec:
               mountPath: /data
           resources:
             requests:
-              cpu: "1"
+              cpu: "500m"
               memory: "3Gi"
             limits:
               cpu: "2"

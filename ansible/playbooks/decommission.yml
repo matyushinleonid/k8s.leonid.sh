@@ -1,0 +1,7 @@
+- name: Remove cluster-owned resources before Terraform destroy
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - terraform_outputs
+    - kubeconfig
+    - cluster_decommission

@@ -35,3 +35,15 @@ argocd_platform_applications:
   - loki-stack
   - kube-prometheus-stack
   - opentelemetry-collector
+
+decommission_confirmation: ""
+decommission_preserved_applications:
+  - argocd
+  - external-dns
+  - external-secrets
+decommission_storage_pvc_names:
+  - storage-loki-stack-0
+  - prometheus-kube-prometheus-stack-prometheus-db-prometheus-kube-prometheus-stack-prometheus-0
+decommission_timeout: 600
+decommission_dns_reconcile_retries: 24
+decommission_dns_reconcile_delay: 5

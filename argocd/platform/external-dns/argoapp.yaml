@@ -22,17 +22,19 @@ spec:
     server: https://kubernetes.default.svc
     namespace: external-dns
   ignoreDifferences:
-    # Marketplace chart 0.5.1-b generates the txt-prefix suffix with
-    # randAlphaNum 4 on every render and does not expose it through values.
+    # Marketplace chart 0.5.1-b generates the same suffix for txt-owner-id
+    # and txt-prefix with randAlphaNum 4 on every render and does not expose
+    # it through values.
     - group: apps
       kind: Deployment
       name: external-dns-externaldns
       jqPathExpressions:
         - >-
-          .spec.template.spec.containers[] |
-          select(.name == "externaldns") |
-          .args[] |
-          select(startswith("--txt-prefix=external-dns-"))
+          .spec.template.spec.containers[].args[] |
+          select(
+            startswith("--txt-owner-id=external-dns-") or
+            startswith("--txt-prefix=external-dns-")
+          )
     - kind: Secret
       name: external-dns-externaldns
       jsonPointers:

@@ -15,7 +15,7 @@ output "argocd_github_lockbox_secret_id" {
 }
 
 output "ingress_nginx_public_ip" {
-  description = "set manually in argocd/platform/ingress-nginx/values.yaml."
+  description = "Shared public IP for HTTP, HTTPS, TCP traffic; set manually in argocd/platform/ingress-nginx/values.yaml."
   value       = yandex_vpc_address.ingress_nginx.external_ipv4_address[0].address
 }
 

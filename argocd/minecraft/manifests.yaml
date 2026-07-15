@@ -51,7 +51,7 @@ data:
   ENABLE_WHITELIST: "TRUE"
   ENABLE_RCON: "TRUE"
   RCON_PORT: "25575"
-  MEMORY: "2G"
+  MEMORY: "3G"
   MOTD: "\u00A7c\u00A7lNo entry for soyjaks"
   ICON: "https://storage.yandexcloud.net/leonid.sh/minecraft/server-icon.png"
   OVERRIDE_ICON: "TRUE"
@@ -68,11 +68,8 @@ kind: Service
 metadata:
   name: papermc
   namespace: minecraft
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: minecraft.leonid.sh
 spec:
-  type: LoadBalancer
-  externalTrafficPolicy: Local
+  type: ClusterIP
   selector:
     app: papermc
   ports:

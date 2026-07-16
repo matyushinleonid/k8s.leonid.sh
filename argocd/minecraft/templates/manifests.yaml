@@ -3,17 +3,40 @@ kind: Namespace
 metadata:
   name: minecraft
 ---
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
+apiVersion: v1
+kind: PersistentVolume
 metadata:
-  name: yc-network-ssd-retain-expand
-provisioner: disk-csi-driver.mks.ycloud.io
-volumeBindingMode: WaitForFirstConsumer
-parameters:
-  type: network-ssd
-  csi.storage.k8s.io/fstype: ext4
-allowVolumeExpansion: true
-reclaimPolicy: Retain
+  name: minecraft-data
+spec:
+  capacity:
+    storage: {{ .Values.storage.capacity }}
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.storage.storageClassName }}
+  claimRef:
+    namespace: minecraft
+    name: minecraft-data
+  csi:
+    driver: disk-csi-driver.mks.ycloud.io
+    fsType: ext4
+    volumeHandle: {{ required "storage.diskId is required" .Values.storage.diskId | quote }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-data
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: {{ .Values.storage.storageClassName }}
+  volumeName: minecraft-data
+  resources:
+    requests:
+      storage: {{ .Values.storage.capacity }}
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -31,11 +54,11 @@ spec:
     template:
       type: Opaque
       data:
-        RCON_PASSWORD: "{{ .rcon_password }}"
+        RCON_PASSWORD: "{{ `{{ .rcon_password }}` }}"
   data:
     - secretKey: rcon_password
       remoteRef:
-        key: e6q7dr9jusl4saot0mkg
+        key: {{ required "externalSecret.lockboxSecretId is required" .Values.externalSecret.lockboxSecretId | quote }}
         property: rcon-password
 ---
 apiVersion: v1
@@ -49,6 +72,7 @@ data:
   VERSION: "26.1.2"
   ONLINE_MODE: "FALSE"
   ENABLE_WHITELIST: "TRUE"
+  MAX_PLAYERS: "5"
   ENABLE_RCON: "TRUE"
   RCON_PORT: "25575"
   INIT_MEMORY: "2G"
@@ -59,8 +83,8 @@ data:
   MODE: "survival"
   DIFFICULTY: "hard"
   SPAWN_PROTECTION: "0"
-  VIEW_DISTANCE: "14"
-  SIMULATION_DISTANCE: "9"
+  VIEW_DISTANCE: "16"
+  SIMULATION_DISTANCE: "8"
   STOP_SERVER_ANNOUNCE_DELAY: "30"
   MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky"
 ---
@@ -129,6 +153,8 @@ kind: StatefulSet
 metadata:
   name: papermc
   namespace: minecraft
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
 spec:
   serviceName: papermc
   replicas: 1
@@ -141,6 +167,10 @@ spec:
         app: papermc
     spec:
       terminationGracePeriodSeconds: 120
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minecraft-data
       containers:
         - name: minecraft
           image: itzg/minecraft-server:2026.7.0
@@ -181,13 +211,3 @@ spec:
             failureThreshold: 5
           stdin: true
           tty: true
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: yc-network-ssd-retain-expand
-        resources:
-          requests:
-            storage: 10Gi

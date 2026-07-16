@@ -1,0 +1,6 @@
+apiVersion: v2
+name: minecraft
+description: PaperMC server with a statically provisioned Yandex Cloud disk
+type: application
+version: 0.1.0
+appVersion: 26.1.2

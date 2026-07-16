@@ -9,8 +9,9 @@ spec:
     repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
     targetRevision: HEAD
     path: argocd/minecraft
-    directory:
-      exclude: 'argoapp.yaml'
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: minecraft

@@ -15,4 +15,4 @@ externalSecret:
   refreshInterval: 15m
   # Tung Tung Tung Sahur
   # terraform -chdir=cloud_resources/yc output -raw cert_manager_lockbox_secret_id
-  lockboxSecretId: "e6qgfci82tt6bvpk9an9"
+  lockboxSecretId: "e6q515gv8a7o2lsf77kj"

@@ -28,3 +28,8 @@ output "external_dns_lockbox_secret_id" {
   description = "set manually in argocd/platform/external-dns/values.yaml."
   value       = yandex_lockbox_secret.external_dns.id
 }
+
+output "minecraft_disk_id" {
+  description = "Set as storage.diskId in argocd/minecraft/values.yaml."
+  value       = yandex_compute_disk.minecraft.id
+}

@@ -6,8 +6,13 @@ config:
   auth:
     json: "{}"
 
+# cert-manager is installed from its upstream chart so it can be upgraded
+# independently from the Yandex DNS webhook.
+cert-manager:
+  enabled: false
+
 externalSecret:
   refreshInterval: 15m
   # Tung Tung Tung Sahur
   # terraform -chdir=cloud_resources/yc output -raw cert_manager_lockbox_secret_id
-  lockboxSecretId: ""
+  lockboxSecretId: "e6qgfci82tt6bvpk9an9"

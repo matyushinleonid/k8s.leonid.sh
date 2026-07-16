@@ -28,7 +28,7 @@ argocd_platform_applications:
   - external-secrets
   - node-local-dns
   - node-sitter
-  - ingress-nginx
+  - envoy-gateway
   - cert-manager
   - external-dns
   - argocd
@@ -39,6 +39,7 @@ argocd_platform_applications:
 decommission_confirmation: ""
 decommission_preserved_applications:
   - argocd
+  - envoy-gateway
   - external-dns
   - external-secrets
 decommission_storage_pvc_names:

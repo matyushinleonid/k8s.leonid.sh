@@ -29,14 +29,14 @@ yc managed-kubernetes cluster get-credentials \
 Read the values created by Terraform:
 
 ```sh
-terraform output -raw ingress_nginx_public_ip
+terraform output -raw gateway_public_ip
 terraform output -raw cert_manager_lockbox_secret_id
 terraform output -raw external_dns_lockbox_secret_id
 ```
 
 Copy them into:
 
-- `controller.service.loadBalancerIP` in `argocd/platform/ingress-nginx/values.yaml`
+- `gateway.publicIP` in `argocd/platform/envoy-gateway/values.yaml`
 - `externalSecret.lockboxSecretId` in `argocd/platform/cert-manager/values.yaml`
 - `externalSecret.lockboxSecretId` in `argocd/platform/external-dns/values.yaml`
 
@@ -44,7 +44,7 @@ Commit and push these values before bootstrap because Argo CD reads its applicat
 
 ```sh
 cd ../..
-git add argocd/platform/ingress-nginx/values.yaml \
+git add argocd/platform/envoy-gateway/values.yaml \
   argocd/platform/cert-manager/values.yaml \
   argocd/platform/external-dns/values.yaml
 git commit -m "Configure platform cloud values"

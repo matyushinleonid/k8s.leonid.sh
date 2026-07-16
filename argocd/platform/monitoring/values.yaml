@@ -29,15 +29,4 @@ grafana:
       access: proxy
       isDefault: false
   ingress:
-    enabled: true
-    ingressClassName: nginx
-    annotations:
-      cert-manager.io/cluster-issuer: yc-clusterissuer
-    hosts:
-      - grafana.leonid.sh
-    path: /
-    pathType: Prefix
-    tls:
-      - secretName: grafana-tls
-        hosts:
-          - grafana.leonid.sh
+    enabled: false

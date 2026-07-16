@@ -7,4 +7,4 @@ externalSecret:
   refreshInterval: 15m
   # Tung Tung Tung Sahur
   # terraform -chdir=cloud_resources/yc output -raw external_dns_lockbox_secret_id
-  lockboxSecretId: ""
+  lockboxSecretId: "e6qg7cjirc0pe3lhb8kr"

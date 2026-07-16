@@ -96,6 +96,26 @@
       propagation_policy: Orphan
   when: decommission_root_application.resources | length > 0
 
+- name: Check whether Gateway API is installed
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    name: gateways.gateway.networking.k8s.io
+  register: decommission_gateway_crd
+
+- name: Delete shared Gateway so Envoy removes its LoadBalancer Service
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_path }}"
+    api_version: gateway.networking.k8s.io/v1
+    kind: Gateway
+    namespace: envoy-gateway-system
+    name: public
+    state: absent
+    wait: true
+    wait_timeout: "{{ decommission_timeout }}"
+  when: decommission_gateway_crd.resources | length > 0
+
 - name: Read Services that can be ExternalDNS sources
   kubernetes.core.k8s_info:
     kubeconfig: "{{ kubeconfig_path }}"
@@ -317,5 +337,5 @@
   ansible.builtin.debug:
     msg: >-
       DNS records and dynamic storage are cleaned up. The Argo CD and
-      External Secrets control planes remain in the cluster so Terraform can
-      destroy the cluster normally.
+      External Secrets and Envoy Gateway control planes remain in the cluster
+      so Terraform can destroy the cluster normally.

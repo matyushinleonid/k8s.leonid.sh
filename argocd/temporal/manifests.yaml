@@ -1,4 +1,4 @@
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: temporal-postgres
@@ -23,7 +23,7 @@ spec:
         key: e6qojcm2ke05j3v745t1
         property: temporal_postgres_password
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: temporal-web-basic-auth
@@ -41,7 +41,8 @@ spec:
     template:
       type: Opaque
       data:
-        auth: "{{ .htpasswd }}"
+        # Envoy Gateway reads this key and accepts SHA-formatted htpasswd entries.
+        ".htpasswd": "{{ .htpasswd }}"
   data:
     - secretKey: htpasswd
       remoteRef:
@@ -80,3 +81,90 @@ spec:
           env:
             - name: TEMPORAL_ADDRESS
               value: temporal-frontend.temporal.svc:7233
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-public-dns
+  namespace: temporal
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: temporal.leonid.sh
+    external-dns.alpha.kubernetes.io/target: gateway.leonid.sh
+spec:
+  type: ExternalName
+  externalName: gateway.leonid.sh
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: temporal-web
+  namespace: temporal
+  annotations:
+    cert-manager.io/cluster-issuer: yc-clusterissuer
+spec:
+  parentRef:
+    name: public
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: temporal.leonid.sh
+      port: 443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: temporal-web-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: temporal-web
+  namespace: temporal
+spec:
+  parentRefs:
+    - name: temporal-web
+      kind: ListenerSet
+      sectionName: https
+  hostnames:
+    - temporal.leonid.sh
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: temporal-web
+          port: 8080
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: temporal-web-basic-auth
+  namespace: temporal
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: temporal-web
+  basicAuth:
+    users:
+      name: temporal-web-basic-auth
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: temporal-web-http-redirect
+  namespace: temporal
+spec:
+  parentRefs:
+    - name: public
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - temporal.leonid.sh
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

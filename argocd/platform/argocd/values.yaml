@@ -5,10 +5,9 @@ server:
   extraArgs:
     - --insecure
 
-ingress:
+gateway:
   enabled: true
   host: argocd.leonid.sh
-  ingressClassName: nginx
   clusterIssuer: yc-clusterissuer
 
 externalSecrets:

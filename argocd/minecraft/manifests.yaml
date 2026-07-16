@@ -15,7 +15,7 @@ parameters:
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 ---
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: papermc-secret
@@ -78,6 +78,51 @@ spec:
       protocol: TCP
       port: 25565
       targetPort: 25565
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-public-dns
+  namespace: minecraft
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: minecraft.leonid.sh
+    external-dns.alpha.kubernetes.io/target: gateway.leonid.sh
+spec:
+  type: ExternalName
+  externalName: gateway.leonid.sh
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  parentRef:
+    name: public
+    namespace: envoy-gateway-system
+  listeners:
+    - name: minecraft
+      port: 25565
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  parentRefs:
+    - name: minecraft
+      kind: ListenerSet
+      sectionName: minecraft
+  rules:
+    - backendRefs:
+        - name: papermc
+          port: 25565
 ---
 apiVersion: apps/v1
 kind: StatefulSet

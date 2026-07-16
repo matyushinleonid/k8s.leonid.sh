@@ -1,0 +1,14 @@
+crds:
+  enabled: true
+
+serviceAccount:
+  name: cert-manager-with-yc-webhook
+
+config:
+  apiVersion: controller.config.cert-manager.io/v1alpha1
+  kind: ControllerConfiguration
+  gatewayAPI:
+    enabled: true
+    enableListenerSet: true
+  featureGates:
+    ListenerSets: true

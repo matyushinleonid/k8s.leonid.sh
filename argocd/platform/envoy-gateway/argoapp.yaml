@@ -1,27 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets
+  name: envoy-gateway
   namespace: argocd
 spec:
   project: default
   sources:
-    - repoURL: https://charts.external-secrets.io
-      chart: external-secrets
-      targetRevision: 2.7.0
+    - repoURL: docker.io/envoyproxy
+      chart: gateway-helm
+      targetRevision: v1.8.2
       helm:
-        values: |
-          installCRDs: true
-          crds:
-            unsafeServeV1Beta1: false
+        valueFiles:
+          - $values/argocd/platform/envoy-gateway/controller-values.yaml
     - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
       targetRevision: HEAD
-      path: argocd/platform/external-secrets
-      directory:
-        exclude: argoapp.yaml
+      ref: values
+    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
+      targetRevision: HEAD
+      path: argocd/platform/envoy-gateway
   destination:
     server: https://kubernetes.default.svc
-    namespace: external-secrets
+    namespace: envoy-gateway-system
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

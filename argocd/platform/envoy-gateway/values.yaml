@@ -1,0 +1,5 @@
+gateway:
+  # Tung Tung Tung Sahur
+  # terraform -chdir=cloud_resources/yc output -raw gateway_public_ip
+  publicIP: "158.160.131.245"
+  dnsName: gateway.leonid.sh

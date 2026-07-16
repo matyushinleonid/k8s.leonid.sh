@@ -32,6 +32,7 @@ Read the values created by Terraform:
 terraform output -raw gateway_public_ip
 terraform output -raw cert_manager_lockbox_secret_id
 terraform output -raw external_dns_lockbox_secret_id
+terraform output -raw minecraft_disk_id
 ```
 
 Copy them into:
@@ -39,6 +40,7 @@ Copy them into:
 - `gateway.publicIP` in `argocd/platform/envoy-gateway/values.yaml`
 - `externalSecret.lockboxSecretId` in `argocd/platform/cert-manager/values.yaml`
 - `externalSecret.lockboxSecretId` in `argocd/platform/external-dns/values.yaml`
+- `storage.diskId` in `argocd/minecraft/values.yaml`
 
 Commit and push these values before bootstrap because Argo CD reads its applications from `master` on GitHub:
 
@@ -46,7 +48,8 @@ Commit and push these values before bootstrap because Argo CD reads its applicat
 cd ../..
 git add argocd/platform/envoy-gateway/values.yaml \
   argocd/platform/cert-manager/values.yaml \
-  argocd/platform/external-dns/values.yaml
+  argocd/platform/external-dns/values.yaml \
+  argocd/minecraft/values.yaml
 git commit -m "Configure platform cloud values"
 git push origin master
 ```

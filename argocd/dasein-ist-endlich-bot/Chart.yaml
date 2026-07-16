@@ -1,0 +1,6 @@
+apiVersion: v2
+name: dasein-ist-endlich-bot
+description: Telegram bot and its ephemeral Redis instance
+type: application
+version: 0.1.0
+appVersion: cce7621554e89b62b6f2b15d054392e72fc53e26

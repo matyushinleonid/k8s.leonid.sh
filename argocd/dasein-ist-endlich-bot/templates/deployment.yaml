@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dasein
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: dasein-ist-endlich-bot
+    app.kubernetes.io/component: listener
+spec:
+  replicas: {{ .Values.listener.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dasein-ist-endlich-bot
+      app.kubernetes.io/component: listener
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dasein-ist-endlich-bot
+        app.kubernetes.io/component: listener
+    spec:
+      containers:
+        - name: listener
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - listener
+            - --config-path
+            - /configs/local.yaml
+          envFrom:
+            - secretRef:
+                name: dasein-secret
+          ports:
+            - name: healthz
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: healthz
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.listener.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /configs
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: dasein-config
+            items:
+              - key: local.yaml
+                path: local.yaml

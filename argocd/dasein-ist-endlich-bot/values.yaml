@@ -1,0 +1,39 @@
+image:
+  repository: matyushinleonid/dasein-ist-endlich-bot
+  tag: cce7621554e89b62b6f2b15d054392e72fc53e26
+  pullPolicy: IfNotPresent
+
+externalSecret:
+  lockboxSecretId: "e6qg76s1dc902obr2l1b"
+  refreshInterval: 15m
+  properties:
+    telegramBotToken: telegram-bot-token
+    openaiApiKey: openai-api-key
+    mongoPassword: mongo-password
+
+listener:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+notifier:
+  schedule: "0 * * * *"
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+redis:
+  image: redis:7.4.2
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      memory: 256Mi

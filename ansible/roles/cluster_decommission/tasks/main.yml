@@ -93,7 +93,7 @@
     wait: true
     wait_timeout: "{{ decommission_timeout }}"
     delete_options:
-      propagation_policy: Orphan
+      propagationPolicy: Orphan
   when: decommission_root_application.resources | length > 0
 
 - name: Check whether Gateway API is installed

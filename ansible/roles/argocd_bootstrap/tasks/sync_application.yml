@@ -20,7 +20,7 @@
       - --retry-backoff-max-duration
       - "{{ argocd_sync_retry_backoff_max_duration }}"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    KUBECONFIG: "{{ argocd_core_kubeconfig.path }}"
     YC_CLI_INITIALIZATION_SILENCE: "true"
   changed_when: true
 
@@ -55,6 +55,6 @@
       - --timeout
       - "{{ argocd_sync_timeout }}"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    KUBECONFIG: "{{ argocd_core_kubeconfig.path }}"
     YC_CLI_INITIALIZATION_SILENCE: "true"
   changed_when: false

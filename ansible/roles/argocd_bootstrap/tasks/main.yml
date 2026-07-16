@@ -109,12 +109,26 @@
     state: present
     definition: "{{ lookup('ansible.builtin.template', 'root-application.yaml.j2') | from_yaml }}"
 
-- name: Set Argo CD namespace on bootstrap kubeconfig context
+- name: Create isolated kubeconfig for Argo CD core mode
+  ansible.builtin.tempfile:
+    state: file
+    prefix: argocd-core-
+    suffix: .yaml
+  register: argocd_core_kubeconfig
+
+- name: Copy bootstrap kubeconfig for Argo CD core mode
+  ansible.builtin.copy:
+    src: "{{ kubeconfig_path }}"
+    dest: "{{ argocd_core_kubeconfig.path }}"
+    remote_src: true
+    mode: "0600"
+
+- name: Set Argo CD namespace on isolated kubeconfig context
   ansible.builtin.command:
     argv:
       - "{{ kubectl_command }}"
       - --kubeconfig
-      - "{{ kubeconfig_path }}"
+      - "{{ argocd_core_kubeconfig.path }}"
       - config
       - set-context
       - --current
@@ -135,7 +149,7 @@
       - --timeout
       - "{{ argocd_sync_timeout }}"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    KUBECONFIG: "{{ argocd_core_kubeconfig.path }}"
     YC_CLI_INITIALIZATION_SILENCE: "true"
   changed_when: true
 
@@ -161,6 +175,11 @@
       - --timeout
       - "{{ argocd_sync_timeout }}"
   environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    KUBECONFIG: "{{ argocd_core_kubeconfig.path }}"
     YC_CLI_INITIALIZATION_SILENCE: "true"
   changed_when: false
+
+- name: Remove isolated Argo CD core mode kubeconfig
+  ansible.builtin.file:
+    path: "{{ argocd_core_kubeconfig.path }}"
+    state: absent

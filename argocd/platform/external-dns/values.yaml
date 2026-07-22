@@ -1,7 +1,24 @@
 config:
   folder_id: b1g3o4ahe2b4o5od724t
-  auth:
-    json: "{}"
+  txtOwnerId: external-dns-w4s4
+  txtPrefix: external-dns-w4s4-
+  sources:
+    - service
+    - ingress
+  publishInternalServices: true
+  interval: 1m
+
+image:
+  repository: cr.yandex/yc-marketplace/yandex-cloud/externaldns/externaldns1740381704064773431763120350102291379936788013545
+  tag: 0.5.1
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
 
 externalSecret:
   refreshInterval: 15m

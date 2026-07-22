@@ -1,5 +1,6 @@
 apiVersion: v2
-name: external-dns-external-secrets
-description: ExternalSecret resources for the Yandex external-dns chart
+name: externaldns
+description: Yandex ExternalDNS with External Secrets integration
 type: application
 version: 0.1.0
+appVersion: "0.5.1"

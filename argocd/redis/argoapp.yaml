@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: redis
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: registry-1.docker.io/bitnamicharts
+      chart: redis
+      targetRevision: 27.0.15
+      helm:
+        valueFiles:
+          - $values/argocd/redis/values.yaml
+    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
+      targetRevision: HEAD
+      path: argocd/redis
+      helm:
+        valueFiles:
+          - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: redis
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sein-zum-tode
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: git@github.com:matyushinleonid/sein-zum-tode.git
+      targetRevision: HEAD
+      path: chart
+      helm:
+        valueFiles:
+          - $values/argocd/sein-zum-tode/values.yaml
+    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sein-zum-tode
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

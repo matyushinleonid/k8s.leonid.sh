@@ -13,5 +13,8 @@ resource "yandex_compute_disk" "minecraft" {
 
   lifecycle {
     prevent_destroy = true
+    ignore_changes = [
+      labels["managed-kubernetes-cluster-id"]
+    ]
   }
 }

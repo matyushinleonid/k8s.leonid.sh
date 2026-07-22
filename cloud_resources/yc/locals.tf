@@ -27,4 +27,13 @@ locals {
     public_key         = yandex_iam_service_account_key.external_secrets.public_key
     private_key        = yandex_iam_service_account_key.external_secrets.private_key
   }))
+
+  github_ci_sa_key_json = sensitive(jsonencode({
+    id                 = yandex_iam_service_account_key.github_ci.id
+    service_account_id = yandex_iam_service_account.github_ci.id
+    created_at         = yandex_iam_service_account_key.github_ci.created_at
+    key_algorithm      = yandex_iam_service_account_key.github_ci.key_algorithm
+    public_key         = yandex_iam_service_account_key.github_ci.public_key
+    private_key        = yandex_iam_service_account_key.github_ci.private_key
+  }))
 }

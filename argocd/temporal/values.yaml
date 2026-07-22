@@ -66,6 +66,9 @@ server:
             app.kubernetes.io/component: frontend
     service:
       type: ClusterIP
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: temporal.local
+        external-dns.alpha.kubernetes.io/target: temporal-frontend.temporal.svc.cluster.local
     resources:
       requests:
         cpu: 100m
@@ -137,7 +140,7 @@ schema:
     argocd.argoproj.io/sync-wave: "-1"
     argocd.argoproj.io/sync-options: Force=true,Replace=true
   backoffLimit: 100
-  ttlSecondsAfterFinished: 86400
+  ttlSecondsAfterFinished: null
 shims:
   dockerize: false
   elasticsearchTool: false

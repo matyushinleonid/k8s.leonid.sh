@@ -71,3 +71,16 @@ resource "yandex_mdb_postgresql_database" "temporal_visibility" {
     name = "btree_gin"
   }
 }
+
+resource "yandex_mdb_postgresql_user" "sein_zum_tode" {
+  cluster_id = yandex_mdb_postgresql_cluster.postgres.id
+  name       = "sein_zum_tode"
+  password   = data.yandex_lockbox_secret_version_entry.sein_zum_tode_pg_password.text_value
+  conn_limit = 50
+}
+
+resource "yandex_mdb_postgresql_database" "sein_zum_tode" {
+  cluster_id = yandex_mdb_postgresql_cluster.postgres.id
+  name       = "sein_zum_tode"
+  owner      = yandex_mdb_postgresql_user.sein_zum_tode.name
+}

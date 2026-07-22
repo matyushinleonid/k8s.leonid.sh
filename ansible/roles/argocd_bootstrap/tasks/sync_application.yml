@@ -57,4 +57,9 @@
   environment:
     KUBECONFIG: "{{ argocd_core_kubeconfig.path }}"
     YC_CLI_INITIALIZATION_SILENCE: "true"
+  register: argocd_application_wait
+  until: argocd_application_wait.rc != 20
+  retries: "{{ argocd_health_degraded_retries }}"
+  delay: "{{ argocd_health_degraded_retry_delay }}"
+  failed_when: argocd_application_wait.rc != 0
   changed_when: false

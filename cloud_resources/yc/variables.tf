@@ -27,3 +27,8 @@ variable "argocd_github_lockbox_secret_id" {
   type    = string
   default = "e6q864he4ggl6se9gng5"
 }
+
+variable "sein_zum_tode_postgres_lockbox_secret_id" {
+  type    = string
+  default = "e6q9a6e7f5rhlc092fsd"
+}

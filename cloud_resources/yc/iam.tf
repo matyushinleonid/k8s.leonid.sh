@@ -13,6 +13,11 @@ resource "yandex_iam_service_account" "external_secrets" {
   name      = "${var.base_name}-external-secrets"
 }
 
+resource "yandex_iam_service_account" "github_ci" {
+  folder_id = var.folder_id
+  name      = "${var.base_name}-github-ci"
+}
+
 resource "yandex_resourcemanager_folder_iam_member" "cert_manager_dns_editor" {
   folder_id = var.folder_id
   role      = "dns.editor"
@@ -41,4 +46,8 @@ resource "yandex_iam_service_account_key" "external_dns" {
 
 resource "yandex_iam_service_account_key" "external_secrets" {
   service_account_id = yandex_iam_service_account.external_secrets.id
+}
+
+resource "yandex_iam_service_account_key" "github_ci" {
+  service_account_id = yandex_iam_service_account.github_ci.id
 }

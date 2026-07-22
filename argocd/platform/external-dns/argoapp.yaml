@@ -5,50 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  sources:
-    - repoURL: cr.yandex/yc-marketplace/yandex-cloud/externaldns/chart
-      chart: externaldns
-      targetRevision: 0.5.1-b
-      helm:
-        valueFiles:
-          - $values/argocd/platform/external-dns/values.yaml
-    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
-      targetRevision: HEAD
-      ref: values
-    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
-      targetRevision: HEAD
-      path: argocd/platform/external-dns
+  source:
+    repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
+    targetRevision: HEAD
+    path: argocd/platform/external-dns
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: external-dns
-  ignoreDifferences:
-    # Marketplace chart 0.5.1-b generates the same suffix for txt-owner-id
-    # and txt-prefix with randAlphaNum 4 on every render and does not expose
-    # it through values.
-    - group: apps
-      kind: Deployment
-      name: external-dns-externaldns
-      jqPathExpressions:
-        - >-
-          .spec.template.spec.containers[].args[] |
-          select(
-            startswith("--txt-owner-id=external-dns-") or
-            startswith("--txt-prefix=external-dns-")
-          )
-    - kind: Secret
-      name: external-dns-externaldns
-      jsonPointers:
-        - /data/iamkeyfile.json
-    - group: external-secrets.io
-      kind: ExternalSecret
-      name: external-dns-yandex-credentials
-      jqPathExpressions:
-        - .spec.data[].remoteRef.conversionStrategy
-        - .spec.data[].remoteRef.decodingStrategy
-        - .spec.data[].remoteRef.metadataPolicy
-        - .spec.target.deletionPolicy
   syncPolicy:
     syncOptions:
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
       - SkipDryRunOnMissingResource=true

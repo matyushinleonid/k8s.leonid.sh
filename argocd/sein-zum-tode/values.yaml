@@ -1,4 +1,53 @@
+replicaCount: 1
+
+image:
+  repository: cr.yandex/crpo19gj048i31sr0f6k/k8s.leonid.sh
+  pullPolicy: IfNotPresent
+  tag: latest
+
+application:
+  logLevel: INFO
+  telegramBotTokenSecretKey: TELEGRAM_BOT_TOKEN
+
+postgres:
+  host: postgres.local
+  port: 6432
+  database: sein_zum_tode
+  user: sein_zum_tode
+  passwordSecretKey: POSTGRES_PASSWORD
+  ssl: false
+  pgbouncer: true
+
+redis:
+  host: redis.local
+  port: 6379
+  passwordSecretKey: REDIS_PASSWORD
+  database: 0
+
+temporal:
+  address: temporal.local:7233
+  namespace: default
+  taskQueue: sein-zum-tode
+  tls: false
+
 externalSecret:
-  lockboxSecretId: e6q9a6e7f5rhlc092fsd
+  enabled: true
+  refreshInterval: 15m
+  secretStoreRef:
+    name: yc-lockbox
+    kind: ClusterSecretStore
+  remoteKey: e6q9a6e7f5rhlc092fsd
+  targetName: sein-zum-tode-secrets
   properties:
     postgresPassword: postgres_password
+    redisPassword: redis_password
+    telegramBotToken: telegram_bot_token
+
+existingSecret: ""
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi

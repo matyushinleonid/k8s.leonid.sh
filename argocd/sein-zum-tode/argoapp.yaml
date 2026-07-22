@@ -8,7 +8,7 @@ spec:
   sources:
     - repoURL: git@github.com:matyushinleonid/sein-zum-tode.git
       targetRevision: HEAD
-      path: chart
+      path: deploy/helm/sein-zum-tode
       helm:
         valueFiles:
           - $values/argocd/sein-zum-tode/values.yaml

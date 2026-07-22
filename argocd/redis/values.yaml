@@ -1,0 +1,47 @@
+architecture: standalone
+
+auth:
+  enabled: true
+  existingSecret: redis-auth
+  existingSecretPasswordKey: redis-password
+
+master:
+  extraFlags:
+    - --maxmemory 384mb
+    - --maxmemory-policy allkeys-lru
+  persistence:
+    enabled: true
+    storageClass: yc-network-hdd
+    size: 1Gi
+  resourcesPreset: none
+  resources:
+    requests:
+      cpu: 25m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    ports:
+      redis: 6379
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: redis.local
+      external-dns.alpha.kubernetes.io/target: redis-master.redis.svc.cluster.local
+
+metrics:
+  enabled: true
+  resourcesPreset: none
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 96Mi
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
+
+externalSecret:
+  refreshInterval: 15m
+  lockboxSecretId: e6q9a6e7f5rhlc092fsd

@@ -30,3 +30,22 @@ data "yandex_lockbox_secret_version_entry" "temporal_pg_password" {
   secret_id = "e6qojcm2ke05j3v745t1"
   key       = "temporal_postgres_password"
 }
+
+data "yandex_lockbox_secret_version_entry" "sein_zum_tode_pg_password" {
+  secret_id = var.sein_zum_tode_postgres_lockbox_secret_id
+  key       = "postgres_password"
+}
+
+resource "yandex_lockbox_secret" "github_ci" {
+  folder_id = var.folder_id
+  name      = "${var.base_name}-github-ci"
+}
+
+resource "yandex_lockbox_secret_version" "github_ci" {
+  secret_id = yandex_lockbox_secret.github_ci.id
+
+  entries {
+    key        = "authorized-key"
+    text_value = local.github_ci_sa_key_json
+  }
+}

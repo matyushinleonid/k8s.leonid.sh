@@ -1,0 +1,4 @@
+externalSecret:
+  lockboxSecretId: e6q9a6e7f5rhlc092fsd
+  properties:
+    postgresPassword: postgres_password

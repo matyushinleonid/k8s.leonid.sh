@@ -1,5 +1,5 @@
 resource "yandex_dns_zone" "local_dns" {
-  name             = "pg-internal-zone"
+  name             = "${var.base_name}-internal-zone"
   zone             = "local."
   public           = false
   private_networks = [yandex_vpc_network.k8s_network.id]

@@ -7,9 +7,9 @@ resource "yandex_container_repository" "applications" {
   name = "${yandex_container_registry.applications.id}/k8s.leonid.sh"
 }
 
-resource "yandex_container_repository_iam_binding" "github_ci_pusher" {
-  repository_id = yandex_container_repository.applications.id
-  role          = "container-registry.images.pusher"
+resource "yandex_container_registry_iam_binding" "github_ci_pusher" {
+  registry_id = yandex_container_registry.applications.id
+  role        = "container-registry.images.pusher"
 
   members = [
     "serviceAccount:${yandex_iam_service_account.github_ci.id}",

@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: cr.yandex/crpo19gj048i31sr0f6k/k8s.leonid.sh
+  repository: cr.yandex/crpo19gj048i31sr0f6k/sein-zum-tode
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: sha-8b5b388fc11e5d3de23c2854d26373c1005b193a
 
 application:
   logLevel: INFO

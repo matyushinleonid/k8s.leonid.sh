@@ -3,10 +3,6 @@ resource "yandex_container_registry" "applications" {
   name      = var.base_name
 }
 
-resource "yandex_container_repository" "applications" {
-  name = "${yandex_container_registry.applications.id}/k8s.leonid.sh"
-}
-
 resource "yandex_container_registry_iam_binding" "github_ci_pusher" {
   registry_id = yandex_container_registry.applications.id
   role        = "container-registry.images.pusher"

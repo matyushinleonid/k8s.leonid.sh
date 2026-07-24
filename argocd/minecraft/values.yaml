@@ -11,7 +11,7 @@ externalSecret:
 bluemap:
   host: map.minecraft.leonid.sh
   port: 8100
-  renderThreadCount: 1
+  renderThreadCount: 2
   web:
     image: nginx:1.30.4-alpine
     resources:

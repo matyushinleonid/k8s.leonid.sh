@@ -86,7 +86,65 @@ data:
   VIEW_DISTANCE: "16"
   SIMULATION_DISTANCE: "8"
   STOP_SERVER_ANNOUNCE_DELAY: "30"
-  MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky"
+  MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky,bluemap"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bluemap-config
+  namespace: minecraft
+data:
+  core.conf: |
+    accept-download: true
+    render-thread-count: {{ .Values.bluemap.renderThreadCount }}
+  webserver.conf: |
+    enabled: false
+  nginx.conf: |
+    worker_processes auto;
+    pid /tmp/nginx.pid;
+
+    events {
+      worker_connections 1024;
+    }
+
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+      access_log /dev/stdout;
+      error_log /dev/stderr warn;
+
+      client_body_temp_path /tmp/client_temp;
+      proxy_temp_path /tmp/proxy_temp;
+      fastcgi_temp_path /tmp/fastcgi_temp;
+      uwsgi_temp_path /tmp/uwsgi_temp;
+      scgi_temp_path /tmp/scgi_temp;
+
+      server {
+        listen {{ .Values.bluemap.port }};
+        root /data/bluemap/web;
+
+        location = /healthz {
+          access_log off;
+          return 204;
+        }
+
+        location /maps/ {
+          gzip_static always;
+
+          location ~* ^/maps/[^/]*/tiles/ {
+            error_page 404 = @empty;
+          }
+        }
+
+        location @empty {
+          return 204;
+        }
+
+        location / {
+          try_files $uri $uri/ =404;
+        }
+      }
+    }
 ---
 apiVersion: v1
 kind: Service
@@ -102,6 +160,10 @@ spec:
       protocol: TCP
       port: 25565
       targetPort: 25565
+    - name: bluemap
+      protocol: TCP
+      port: {{ .Values.bluemap.port }}
+      targetPort: {{ .Values.bluemap.port }}
 ---
 apiVersion: v1
 kind: Service
@@ -110,6 +172,18 @@ metadata:
   namespace: minecraft
   annotations:
     external-dns.alpha.kubernetes.io/hostname: minecraft.leonid.sh
+    external-dns.alpha.kubernetes.io/target: gateway.leonid.sh
+spec:
+  type: ExternalName
+  externalName: gateway.leonid.sh
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-map-public-dns
+  namespace: minecraft
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.bluemap.host | quote }}
     external-dns.alpha.kubernetes.io/target: gateway.leonid.sh
 spec:
   type: ExternalName
@@ -148,6 +222,67 @@ spec:
         - name: papermc
           port: 25565
 ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: minecraft-map
+  namespace: minecraft
+  annotations:
+    cert-manager.io/cluster-issuer: yc-clusterissuer
+spec:
+  parentRef:
+    name: public
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: {{ .Values.bluemap.host | quote }}
+      port: 443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: minecraft-map-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minecraft-map
+  namespace: minecraft
+spec:
+  parentRefs:
+    - name: minecraft-map
+      kind: ListenerSet
+      sectionName: https
+  hostnames:
+    - {{ .Values.bluemap.host | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: papermc
+          port: {{ .Values.bluemap.port }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minecraft-map-http-redirect
+  namespace: minecraft
+spec:
+  parentRefs:
+    - name: public
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - {{ .Values.bluemap.host | quote }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -171,6 +306,27 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: minecraft-data
+        - name: bluemap-config
+          configMap:
+            name: bluemap-config
+      initContainers:
+        - name: configure-bluemap
+          image: busybox:1.37.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p /data/plugins/BlueMap
+              cp /config/core.conf /data/plugins/BlueMap/core.conf
+              cp /config/webserver.conf /data/plugins/BlueMap/webserver.conf
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: bluemap-config
+              mountPath: /config
+              readOnly: true
       containers:
         - name: minecraft
           image: itzg/minecraft-server:2026.7.0
@@ -211,3 +367,32 @@ spec:
             failureThreshold: 5
           stdin: true
           tty: true
+        - name: bluemap-web
+          image: {{ .Values.bluemap.web.image | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: bluemap
+              containerPort: {{ .Values.bluemap.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              readOnly: true
+            - name: bluemap-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+          resources:
+            {{- toYaml .Values.bluemap.web.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: bluemap
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: bluemap
+            initialDelaySeconds: 10
+            periodSeconds: 30

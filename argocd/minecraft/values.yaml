@@ -7,3 +7,16 @@ storage:
 
 externalSecret:
   lockboxSecretId: e6q7dr9jusl4saot0mkg
+
+bluemap:
+  host: map.minecraft.leonid.sh
+  port: 8100
+  renderThreadCount: 1
+  web:
+    image: nginx:1.30.4-alpine
+    resources:
+      requests:
+        cpu: 5m
+        memory: 16Mi
+      limits:
+        memory: 64Mi

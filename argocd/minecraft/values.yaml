@@ -12,6 +12,18 @@ bluemap:
   host: map.minecraft.leonid.sh
   port: 8100
   renderThreadCount: 2
+  maps:
+    overworld:
+      radius: 3000
+    nether:
+      radius: 1000
+    end:
+      radius: 1000
+  views:
+    flat: true
+    perspective: false
+    freeFlight: false
+    hires: false
   web:
     image: nginx:1.30.4-alpine
     resources:

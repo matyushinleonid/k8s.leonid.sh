@@ -3,7 +3,7 @@ resource "yandex_compute_disk" "minecraft" {
   zone      = var.zone
   name      = "${var.base_name}-minecraft-data"
   type      = "network-ssd"
-  size      = 20
+  size      = 35
 
   labels = {
     managed-by = "terraform"

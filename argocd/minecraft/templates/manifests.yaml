@@ -99,6 +99,104 @@ data:
     render-thread-count: {{ .Values.bluemap.renderThreadCount }}
   webserver.conf: |
     enabled: false
+  world.conf: |
+    world: "world"
+    dimension: "minecraft:overworld"
+    name: "world (overworld)"
+    sorting: 0
+    start-pos: { x: 0, z: 0 }
+    sky-color: "#7dabff"
+    void-color: "#000000"
+    sky-light: 1
+    ambient-light: 0.1
+    remove-caves-below-y: 55
+    cave-detection-ocean-floor: -5
+    cave-detection-uses-block-light: false
+    min-inhabited-time: 0
+    render-mask: [
+      {
+        type: circle
+        center-x: 0
+        center-z: 0
+        radius: {{ .Values.bluemap.maps.overworld.radius }}
+      }
+    ]
+    render-edges: true
+    edge-light-strength: 8
+    enable-flat-view: {{ .Values.bluemap.views.flat }}
+    enable-perspective-view: {{ .Values.bluemap.views.perspective }}
+    enable-free-flight-view: {{ .Values.bluemap.views.freeFlight }}
+    enable-hires: {{ .Values.bluemap.views.hires }}
+    storage: "file"
+    ignore-missing-light-data: false
+    marker-sets: {}
+  world_the_nether.conf: |
+    world: "world"
+    dimension: "minecraft:the_nether"
+    name: "world (the_nether)"
+    sorting: 100
+    start-pos: { x: 0, z: 0 }
+    sky-color: "#290000"
+    void-color: "#150000"
+    sky-light: 1
+    ambient-light: 0.6
+    remove-caves-below-y: -10000
+    cave-detection-ocean-floor: -5
+    cave-detection-uses-block-light: false
+    min-inhabited-time: 0
+    render-mask: [
+      {
+        type: circle
+        center-x: 0
+        center-z: 0
+        radius: {{ .Values.bluemap.maps.nether.radius }}
+      }
+      {
+        subtract: true
+        min-y: 90
+        max-y: 127
+      }
+    ]
+    render-edges: true
+    edge-light-strength: 8
+    enable-flat-view: {{ .Values.bluemap.views.flat }}
+    enable-perspective-view: {{ .Values.bluemap.views.perspective }}
+    enable-free-flight-view: {{ .Values.bluemap.views.freeFlight }}
+    enable-hires: {{ .Values.bluemap.views.hires }}
+    storage: "file"
+    ignore-missing-light-data: false
+    marker-sets: {}
+  world_the_end.conf: |
+    world: "world"
+    dimension: "minecraft:the_end"
+    name: "world (the_end)"
+    sorting: 200
+    start-pos: { x: 0, z: 0 }
+    sky-color: "#080010"
+    void-color: "#080010"
+    sky-light: 1
+    ambient-light: 0.6
+    remove-caves-below-y: -10000
+    cave-detection-ocean-floor: -5
+    cave-detection-uses-block-light: false
+    min-inhabited-time: 0
+    render-mask: [
+      {
+        type: circle
+        center-x: 0
+        center-z: 0
+        radius: {{ .Values.bluemap.maps.end.radius }}
+      }
+    ]
+    render-edges: true
+    edge-light-strength: 8
+    enable-flat-view: {{ .Values.bluemap.views.flat }}
+    enable-perspective-view: {{ .Values.bluemap.views.perspective }}
+    enable-free-flight-view: {{ .Values.bluemap.views.freeFlight }}
+    enable-hires: {{ .Values.bluemap.views.hires }}
+    storage: "file"
+    ignore-missing-light-data: false
+    marker-sets: {}
   nginx.conf: |
     worker_processes auto;
     pid /tmp/nginx.pid;
@@ -300,6 +398,8 @@ spec:
     metadata:
       labels:
         app: papermc
+      annotations:
+        checksum/bluemap-config: {{ toJson .Values.bluemap | sha256sum | quote }}
     spec:
       terminationGracePeriodSeconds: 120
       volumes:
@@ -318,9 +418,12 @@ spec:
             - -ec
           args:
             - |
-              mkdir -p /data/plugins/BlueMap
+              mkdir -p /data/plugins/BlueMap/maps
               cp /config/core.conf /data/plugins/BlueMap/core.conf
               cp /config/webserver.conf /data/plugins/BlueMap/webserver.conf
+              cp /config/world.conf /data/plugins/BlueMap/maps/world.conf
+              cp /config/world_the_nether.conf /data/plugins/BlueMap/maps/world_the_nether.conf
+              cp /config/world_the_end.conf /data/plugins/BlueMap/maps/world_the_end.conf
               chown -R 1000:1000 /data/plugins/BlueMap
           volumeMounts:
             - name: data

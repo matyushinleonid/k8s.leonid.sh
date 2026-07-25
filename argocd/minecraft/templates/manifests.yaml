@@ -86,7 +86,7 @@ data:
   VIEW_DISTANCE: "16"
   SIMULATION_DISTANCE: "8"
   STOP_SERVER_ANNOUNCE_DELAY: "30"
-  MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky,bluemap"
+  MODRINTH_PROJECTS: "authmerereloaded,essentialsx,luckperms,chunky,bluemap,coreprotect"
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -2,7 +2,7 @@ storage:
   # Tung Tung Tung Sahur
   # terraform -chdir=cloud_resources/yc output -raw minecraft_disk_id
   diskId: "fv443sdr4derlf9giaqh"
-  capacity: 20Gi
+  capacity: 35Gi
   storageClassName: yc-network-ssd
 
 externalSecret:

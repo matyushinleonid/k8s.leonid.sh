@@ -99,6 +99,27 @@ data:
     render-thread-count: {{ .Values.bluemap.renderThreadCount }}
   webserver.conf: |
     enabled: false
+  plugin.conf: |
+    live-player-markers: {{ .Values.bluemap.markers.playerMarkersEnabled }}
+    hidden-game-modes: [
+      "spectator"
+    ]
+    hide-vanished: true
+    hide-invisible: true
+    hide-sneaking: false
+    hide-below-sky-light: 0
+    hide-below-block-light: 0
+    hide-different-world: false
+    write-markers-interval: {{ .Values.bluemap.markers.writeInterval }}
+    write-players-interval: {{ ternary .Values.bluemap.markers.playersWriteInterval 0 .Values.bluemap.markers.playerMarkersEnabled }}
+    skin-download: true
+    player-render-limit: -1
+  webapp.conf: |
+    enabled: true
+    webroot: "bluemap/web"
+    update-settings-file: true
+    use-cookies: true
+    default-to-flat-view: true
   world.conf: |
     world: "world"
     dimension: "minecraft:overworld"
@@ -421,6 +442,8 @@ spec:
               mkdir -p /data/plugins/BlueMap/maps
               cp /config/core.conf /data/plugins/BlueMap/core.conf
               cp /config/webserver.conf /data/plugins/BlueMap/webserver.conf
+              cp /config/plugin.conf /data/plugins/BlueMap/plugin.conf
+              cp /config/webapp.conf /data/plugins/BlueMap/webapp.conf
               cp /config/world.conf /data/plugins/BlueMap/maps/world.conf
               cp /config/world_the_nether.conf /data/plugins/BlueMap/maps/world_the_nether.conf
               cp /config/world_the_end.conf /data/plugins/BlueMap/maps/world_the_end.conf

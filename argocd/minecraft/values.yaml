@@ -23,7 +23,11 @@ bluemap:
     flat: true
     perspective: false
     freeFlight: false
-    hires: false
+    hires: true
+  markers:
+    playerMarkersEnabled: false
+    writeInterval: 10
+    playersWriteInterval: 3
   web:
     image: nginx:1.30.4-alpine
     resources:

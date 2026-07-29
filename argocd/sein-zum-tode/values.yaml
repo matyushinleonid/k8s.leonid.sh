@@ -1,12 +1,24 @@
 replicaCount: 1
+workerReplicaCount: 1
 
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/sein-zum-tode
   pullPolicy: IfNotPresent
-  tag: sha-8b5b388fc11e5d3de23c2854d26373c1005b193a
+  tag: sha-d7818962d4da23c2e839fb560138dbd84154664c
 
 application:
   logLevel: INFO
+  logFormat: json
+
+  telegramPollingTimeoutSeconds: 30
+  telegramRequestTimeoutSeconds: 40
+  telegramUpdateTtlSeconds: 3600
+
+  retryInitialDelaySeconds: 1
+  retryMaxDelaySeconds: 30
+
+  temporalActivityRetryTimeoutSeconds: 300
+
   telegramBotTokenSecretKey: TELEGRAM_BOT_TOKEN
 
 postgres:

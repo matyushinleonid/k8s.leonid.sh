@@ -1,4 +1,7 @@
 configs:
+  cm:
+    statusbadge.enabled: true
+    statusbadge.url: https://argocd.leonid.sh/
   params:
     server.insecure: true
 server:

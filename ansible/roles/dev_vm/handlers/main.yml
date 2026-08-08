@@ -1,0 +1,10 @@
+---
+- name: Restart SSH
+  ansible.builtin.service:
+    name: ssh
+    state: restarted
+
+- name: Restart Dante
+  ansible.builtin.service:
+    name: danted
+    state: restarted

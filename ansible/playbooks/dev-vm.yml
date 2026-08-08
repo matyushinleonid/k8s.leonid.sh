@@ -1,0 +1,69 @@
+---
+- name: Discover the Hetzner development VM
+  hosts: localhost
+  gather_facts: false
+  vars:
+    dev_vm_terraform_dir: "{{ playbook_dir }}/../../cloud_resources/hetzner"
+    dev_vm_ssh_private_key_path: "{{ lookup('env', 'DEV_VM_SSH_PRIVATE_KEY') | default(lookup('env', 'HOME') + '/.ssh/hetzner-dev', true) }}"
+    dev_vm_ssh_public_key_path: "{{ dev_vm_ssh_private_key_path }}.pub"
+    dev_vm_socks5_password_path: "{{ lookup('env', 'DEV_VM_SOCKS5_PASSWORD_FILE') | default(lookup('env', 'HOME') + '/keys/sock5pass.txt', true) }}"
+
+  tasks:
+    - name: Read the development VM IPv4 address from Terraform
+      ansible.builtin.command:
+        argv:
+          - terraform
+          - "-chdir={{ dev_vm_terraform_dir }}"
+          - output
+          - -raw
+          - server_ipv4
+      register: dev_vm_ipv4
+      changed_when: false
+
+    - name: Read the SOCKS5 port from Terraform
+      ansible.builtin.command:
+        argv:
+          - terraform
+          - "-chdir={{ dev_vm_terraform_dir }}"
+          - output
+          - -raw
+          - socks5_port
+      register: dev_vm_socks5_port
+      changed_when: false
+
+    - name: Read the SOCKS5 password from the controller
+      ansible.builtin.slurp:
+        src: "{{ dev_vm_socks5_password_path }}"
+      register: dev_vm_socks5_password_file
+      no_log: true
+
+    - name: Read the SSH public key from the controller
+      ansible.builtin.slurp:
+        src: "{{ dev_vm_ssh_public_key_path }}"
+      register: dev_vm_ssh_public_key_file
+
+    - name: Register the development VM in the in-memory inventory
+      ansible.builtin.add_host:
+        name: dev-vm
+        groups: dev_vm_targets
+        ansible_host: "{{ dev_vm_ipv4.stdout | trim }}"
+        ansible_user: root
+        ansible_ssh_private_key_file: "{{ dev_vm_ssh_private_key_path }}"
+        ansible_ssh_common_args: -o StrictHostKeyChecking=accept-new
+        dev_vm_socks5_port: "{{ dev_vm_socks5_port.stdout | int }}"
+        dev_vm_socks5_password: "{{ dev_vm_socks5_password_file.content | b64decode | trim }}"
+        dev_vm_authorized_key: "{{ dev_vm_ssh_public_key_file.content | b64decode | trim }}"
+      no_log: true
+
+    - name: Wait for SSH after a possible server resize
+      ansible.builtin.wait_for:
+        host: "{{ dev_vm_ipv4.stdout | trim }}"
+        port: 22
+        timeout: 300
+
+- name: Configure the Hetzner development VM
+  hosts: dev_vm_targets
+  become: true
+  gather_facts: true
+  roles:
+    - dev_vm

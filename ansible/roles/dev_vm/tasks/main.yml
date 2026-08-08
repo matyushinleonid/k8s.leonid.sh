@@ -1,0 +1,313 @@
+---
+- name: Validate the target operating system
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == 'Ubuntu'
+      - ansible_distribution_release == 'noble'
+      - dev_vm_socks5_password | length > 0
+    fail_msg: The development VM role requires Ubuntu 24.04 and a non-empty SOCKS5 password.
+
+- name: Install base development packages
+  ansible.builtin.apt:
+    name: "{{ dev_vm_base_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Hash the SOCKS5 password for the local user
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/openssl
+      - passwd
+      - -6
+      - -salt
+      - devvmsocks
+      - -stdin
+    stdin: "{{ dev_vm_socks5_password }}"
+  register: dev_vm_password_hash
+  changed_when: false
+  no_log: true
+
+- name: Create the development user
+  ansible.builtin.user:
+    name: "{{ dev_vm_user }}"
+    shell: /bin/bash
+    groups:
+      - sudo
+    append: true
+    create_home: true
+    password: "{{ dev_vm_password_hash.stdout }}"
+    update_password: always
+  no_log: true
+
+- name: Allow passwordless sudo for the development user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ dev_vm_user }}"
+    content: "{{ dev_vm_user }} ALL=(ALL) NOPASSWD: ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Create the development user's SSH directory
+  ansible.builtin.file:
+    path: "/home/{{ dev_vm_user }}/.ssh"
+    state: directory
+    owner: "{{ dev_vm_user }}"
+    group: "{{ dev_vm_user }}"
+    mode: "0700"
+
+- name: Install the development user's authorized key
+  ansible.builtin.copy:
+    dest: "/home/{{ dev_vm_user }}/.ssh/authorized_keys"
+    content: "{{ dev_vm_authorized_key }}\n"
+    owner: "{{ dev_vm_user }}"
+    group: "{{ dev_vm_user }}"
+    mode: "0600"
+
+- name: Harden SSH password authentication
+  ansible.builtin.template:
+    src: sshd-dev-vm.conf.j2
+    dest: /etc/ssh/sshd_config.d/99-dev-vm.conf
+    owner: root
+    group: root
+    mode: "0644"
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Restart SSH
+
+- name: Apply SSH hardening before continuing
+  ansible.builtin.meta: flush_handlers
+
+- name: Remove Docker packages that conflict with Docker CE
+  ansible.builtin.apt:
+    name:
+      - containerd
+      - docker-compose
+      - docker-compose-v2
+      - docker-doc
+      - docker.io
+      - podman-docker
+      - runc
+    state: absent
+
+- name: Create the APT keyring directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Read the Debian package architecture
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/dpkg
+      - --print-architecture
+  register: dev_vm_dpkg_architecture
+  changed_when: false
+
+- name: Install the Docker repository key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure the Docker repository
+  ansible.builtin.template:
+    src: docker.sources.j2
+    dest: /etc/apt/sources.list.d/docker.sources
+    owner: root
+    group: root
+    mode: "0644"
+  register: dev_vm_docker_repository
+
+- name: Install the GitHub CLI repository key
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure the GitHub CLI repository
+  ansible.builtin.template:
+    src: github-cli.sources.j2
+    dest: /etc/apt/sources.list.d/github-cli.sources
+    owner: root
+    group: root
+    mode: "0644"
+  register: dev_vm_github_cli_repository
+
+- name: Refresh APT metadata for external repositories
+  ansible.builtin.apt:
+    update_cache: true
+  when: dev_vm_docker_repository.changed or dev_vm_github_cli_repository.changed
+
+- name: Install Docker Engine, Compose, and GitHub CLI
+  ansible.builtin.apt:
+    name:
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-ce
+      - docker-ce-cli
+      - docker-compose-plugin
+      - gh
+    state: present
+
+- name: Enable Docker Engine
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Allow the development user to use Docker
+  ansible.builtin.user:
+    name: "{{ dev_vm_user }}"
+    groups:
+      - docker
+    append: true
+
+- name: Install the deadsnakes repository key
+  ansible.builtin.get_url:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xF23C5A6CF475977595C89F51BA6932366A755776
+    dest: /etc/apt/keyrings/deadsnakes.asc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure the deadsnakes Python repository
+  ansible.builtin.template:
+    src: deadsnakes.sources.j2
+    dest: /etc/apt/sources.list.d/deadsnakes.sources
+    owner: root
+    group: root
+    mode: "0644"
+  register: dev_vm_deadsnakes_repository
+
+- name: Refresh APT metadata for the Python repository
+  ansible.builtin.apt:
+    update_cache: true
+  when: dev_vm_deadsnakes_repository.changed
+
+- name: Install Python 3.14
+  ansible.builtin.apt:
+    name:
+      - "python{{ dev_vm_python_version }}"
+      - "python{{ dev_vm_python_version }}-dev"
+      - "python{{ dev_vm_python_version }}-venv"
+    state: present
+
+- name: Create development directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ dev_vm_user }}"
+    group: "{{ dev_vm_user }}"
+    mode: "0755"
+  loop:
+    - "/home/{{ dev_vm_user }}/.local/bin"
+    - "/home/{{ dev_vm_user }}/.venvs"
+    - "/home/{{ dev_vm_user }}/github"
+
+- name: Create the Python development virtual environment
+  ansible.builtin.command:
+    argv:
+      - "/usr/bin/python{{ dev_vm_python_version }}"
+      - -m
+      - venv
+      - "{{ dev_vm_venv_path }}"
+    creates: "{{ dev_vm_venv_path }}/bin/activate"
+  become_user: "{{ dev_vm_user }}"
+  environment:
+    HOME: "/home/{{ dev_vm_user }}"
+
+- name: Activate the development environment for interactive Bash shells
+  ansible.builtin.blockinfile:
+    path: "/home/{{ dev_vm_user }}/.bashrc"
+    marker: "# {mark} ANSIBLE MANAGED DEV ENVIRONMENT"
+    block: |
+      export PATH="$HOME/.local/bin:$PATH"
+      if [[ $- == *i* ]] && [ -f "{{ dev_vm_venv_path }}/bin/activate" ]; then
+        source "{{ dev_vm_venv_path }}/bin/activate"
+      fi
+    owner: "{{ dev_vm_user }}"
+    group: "{{ dev_vm_user }}"
+    mode: "0644"
+
+- name: Add convenient fd and bat command names
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "/home/{{ dev_vm_user }}/.local/bin/{{ item.dest }}"
+    state: link
+    owner: "{{ dev_vm_user }}"
+    group: "{{ dev_vm_user }}"
+  loop:
+    - src: /usr/bin/fdfind
+      dest: fd
+    - src: /usr/bin/batcat
+      dest: bat
+
+- name: Install yq
+  ansible.builtin.get_url:
+    url: "https://github.com/mikefarah/yq/releases/download/v{{ dev_vm_yq_version }}/yq_linux_{{ dev_vm_dpkg_architecture.stdout }}"
+    dest: /usr/local/bin/yq
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download the Codex CLI installer
+  ansible.builtin.get_url:
+    url: https://chatgpt.com/codex/install.sh
+    dest: /tmp/codex-install.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install Codex CLI for the development user
+  ansible.builtin.command:
+    argv:
+      - /bin/sh
+      - /tmp/codex-install.sh
+    creates: "/home/{{ dev_vm_user }}/.local/bin/codex"
+  become_user: "{{ dev_vm_user }}"
+  environment:
+    HOME: "/home/{{ dev_vm_user }}"
+    CODEX_HOME: "/home/{{ dev_vm_user }}/.codex"
+    CODEX_INSTALL_DIR: "/home/{{ dev_vm_user }}/.local/bin"
+    CODEX_NON_INTERACTIVE: "1"
+
+- name: Download the Claude Code installer
+  ansible.builtin.get_url:
+    url: https://claude.ai/install.sh
+    dest: /tmp/claude-install.sh
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install Claude Code for the development user
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - /tmp/claude-install.sh
+    creates: "/home/{{ dev_vm_user }}/.local/bin/claude"
+  become_user: "{{ dev_vm_user }}"
+  environment:
+    HOME: "/home/{{ dev_vm_user }}"
+
+- name: Configure the authenticated SOCKS5 proxy
+  ansible.builtin.template:
+    src: danted.conf.j2
+    dest: /etc/danted.conf
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/danted -V -f %s
+  notify: Restart Dante
+
+- name: Enable the SOCKS5 proxy
+  ansible.builtin.service:
+    name: danted
+    state: started
+    enabled: true

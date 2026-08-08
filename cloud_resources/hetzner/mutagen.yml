@@ -1,0 +1,16 @@
+sync:
+  github:
+    alpha: ~/github
+    beta: dev:~/github
+    mode: two-way-safe
+    flushOnCreate: true
+    ignore:
+      vcs: false
+      paths:
+        - .DS_Store
+        - "**/__pycache__/"
+        - "**/.mypy_cache/"
+        - "**/.pytest_cache/"
+        - "**/.ruff_cache/"
+        - "**/.venv/"
+        - "**/node_modules/"

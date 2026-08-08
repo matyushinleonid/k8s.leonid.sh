@@ -1,0 +1,52 @@
+---
+dev_vm_user: matyushinleonid
+dev_vm_python_version: "3.14"
+dev_vm_venv_name: dev
+dev_vm_venv_path: "/home/{{ dev_vm_user }}/.venvs/{{ dev_vm_venv_name }}"
+dev_vm_yq_version: "4.53.3"
+
+dev_vm_base_packages:
+  - acl
+  - bat
+  - build-essential
+  - ca-certificates
+  - curl
+  - dante-server
+  - direnv
+  - dnsutils
+  - fd-find
+  - git
+  - gnupg
+  - htop
+  - jq
+  - libbz2-dev
+  - libffi-dev
+  - libgdbm-dev
+  - liblzma-dev
+  - libncurses-dev
+  - libpq-dev
+  - libreadline-dev
+  - libsqlite3-dev
+  - libssl-dev
+  - libyaml-dev
+  - lsof
+  - make
+  - net-tools
+  - openssh-client
+  - openssl
+  - pipx
+  - pkg-config
+  - postgresql-client
+  - redis-tools
+  - ripgrep
+  - rsync
+  - shellcheck
+  - software-properties-common
+  - sqlite3
+  - strace
+  - tmux
+  - tree
+  - unzip
+  - xz-utils
+  - zip
+  - zlib1g-dev

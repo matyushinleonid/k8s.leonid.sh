@@ -1,7 +1,7 @@
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/sein-zum-tode
   pullPolicy: IfNotPresent
-  tag: sha-4fec0fa5eed3caf80a174d1b748067157626f423
+  tag: sha-a50378e3808f32c089e5e8690bdb0940878c0d1c
   digest: ""
 
 imagePullSecrets: []
@@ -952,8 +952,22 @@ metrics:
 ingress:
   replicaCount: 1
   strategy:
-    type: Recreate
-  terminationGracePeriodSeconds: 45
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  coordination:
+    enabled: true
+    leaseName: ""
+    leaseDurationSeconds: 60
+    retryIntervalSeconds: 0.2
+    handoffDelaySeconds: 0.5
+    apiRequestTimeoutSeconds: 5
+    serviceAccount:
+      create: true
+      name: ""
+      annotations: {}
+  terminationGracePeriodSeconds: 60
   annotations: {}
   podAnnotations: {}
   podLabels: {}

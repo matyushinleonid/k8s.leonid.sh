@@ -6,8 +6,8 @@ metadata:
 data:
   local.yaml: |
     dasein_bot:
-      check_if_user_allowed: false
-      allowed_users: []
+      check_if_user_allowed: {{ .Values.accessControl.enabled }}
+      allowed_users: {{ .Values.accessControl.allowedUserIds | toJson }}
       start: "Добро пожаловать! Нажмите /help для получения справки по использованию бота."
       about: "Dasein ist endlich bot by Leonid Matyushin. [GitHub](https://github.com/matyushinleonid/dasein-ist-endlich-bot). Мы открыты к вашим пулл реквестам!"
       help: |

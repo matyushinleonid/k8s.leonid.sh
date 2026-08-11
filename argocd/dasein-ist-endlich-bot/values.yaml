@@ -11,6 +11,11 @@ externalSecret:
     openaiApiKey: openai-api-key
     mongoPassword: mongo-password
 
+accessControl:
+  enabled: true
+  allowedUserIds:
+    - 162573173
+
 listener:
   replicas: 1
   resources:

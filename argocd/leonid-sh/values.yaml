@@ -11,4 +11,6 @@ gateway:
   aliases:
     - host: home.leonid.sh
       dnsTarget: gateway.leonid.sh
+    - host: www.leonid.sh
+      dnsTarget: gateway.leonid.sh
   clusterIssuer: yc-clusterissuer

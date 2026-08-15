@@ -51,11 +51,7 @@ application:
   retryMaxDelaySeconds: 30
   temporalActivityRetryTimeoutSeconds: 300
   broadcastRecipientPageSize: 100
-  telegramAllowedUserIds:
-    - 162573173
-    - 447813844
-    - 118755020
-    - 184073599
+  telegramAllowedUserIds: []
   telegramAdminUserIds:
     - 162573173
   telegramKeyboardMode: reply

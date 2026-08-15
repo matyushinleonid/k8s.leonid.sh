@@ -1,0 +1,11 @@
+image:
+  repository: cr.yandex/crpo19gj048i31sr0f6k/leonid.sh
+  tag: sha-45818188952c88dccd3eb653431a5165ac677abb
+
+design: teletext
+
+gateway:
+  enabled: true
+  host: home.leonid.sh
+  dnsTarget: gateway.leonid.sh
+  clusterIssuer: yc-clusterissuer

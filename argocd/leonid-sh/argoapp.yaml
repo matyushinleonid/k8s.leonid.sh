@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: leonid-sh
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: git@github.com:matyushinleonid/leonid.sh.git
+      targetRevision: HEAD
+      path: deploy/helm/leonid-sh
+      helm:
+        valueFiles:
+          - $values/argocd/leonid-sh/values.yaml
+    - repoURL: git@github.com:matyushinleonid/k8s.leonid.sh.git
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: leonid-sh
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true

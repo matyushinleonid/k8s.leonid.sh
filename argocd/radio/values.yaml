@@ -3,7 +3,7 @@ host: radio.leonid.sh
 station:
   name: govnovoz
   mount: govnovoz.mp3
-  bitrate: 128
+  bitrate: 192
   maxListeners: 5
 
 objectStorage:

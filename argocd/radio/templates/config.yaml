@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: radio-liquidsoap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "radio.labels" . | nindent 4 }}
+data:
+  radio.liq: |
+    settings.log.stdout := true
+    settings.log.file := false
+
+    music = playlist(
+      mode="random",
+      reload={{ .Values.objectStorage.syncIntervalSeconds }},
+      "/media"
+    )
+    radio = mksafe(music)
+
+    output.icecast(
+      %mp3(bitrate={{ .Values.station.bitrate }}),
+      host="radio-icecast",
+      port=8000,
+      user="source",
+      password=environment.get("ICECAST_SOURCE_PASSWORD"),
+      mount="/{{ .Values.station.mount }}",
+      name="{{ .Values.station.name }}",
+      genre="radio",
+      public=false,
+      radio
+    )
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: radio-icecast
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "radio.labels" . | nindent 4 }}
+data:
+  icecast.xml: |
+    <?xml version="1.0"?>
+    <icecast>
+      <location>ru-central1</location>
+      <admin>admin@leonid.sh</admin>
+      <hostname>{{ .Values.host }}</hostname>
+
+      <limits>
+        <clients>{{ .Values.icecast.maxClients }}</clients>
+        <sources>10</sources>
+        <queue-size>524288</queue-size>
+        <client-timeout>30</client-timeout>
+        <header-timeout>15</header-timeout>
+        <source-timeout>10</source-timeout>
+        <burst-size>65535</burst-size>
+      </limits>
+
+      <authentication>
+        <source-password>placeholder</source-password>
+        <relay-password>placeholder</relay-password>
+        <admin-user>admin</admin-user>
+        <admin-password>placeholder</admin-password>
+      </authentication>
+
+      <listen-socket>
+        <port>8000</port>
+      </listen-socket>
+
+      <http-headers>
+        <header type="cors" name="Access-Control-Allow-Origin" />
+        <header type="cors" name="Access-Control-Allow-Headers" />
+        <header type="cors" name="Access-Control-Expose-Headers" />
+      </http-headers>
+
+      <mount type="normal">
+        <mount-name>/{{ .Values.station.mount }}</mount-name>
+        <max-listeners>{{ .Values.station.maxListeners }}</max-listeners>
+        <public>false</public>
+      </mount>
+
+      <paths>
+        <basedir>/usr/share/icecast</basedir>
+        <logdir>/var/log/icecast</logdir>
+        <webroot>/usr/share/icecast/web</webroot>
+        <adminroot>/usr/share/icecast/admin</adminroot>
+        <reportxmldb>/usr/share/icecast/report-db.xml</reportxmldb>
+      </paths>
+
+      <logging>
+        <accesslog>access.log</accesslog>
+        <errorlog>-</errorlog>
+        <loglevel>information</loglevel>
+        <logsize>10000</logsize>
+      </logging>
+
+      <security>
+        <chroot>false</chroot>
+        <prng-seed type="profile">linux</prng-seed>
+      </security>
+    </icecast>

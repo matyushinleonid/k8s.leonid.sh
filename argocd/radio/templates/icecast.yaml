@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radio-icecast
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "radio.labels" . | nindent 4 }}
+    app.kubernetes.io/name: radio-icecast
+    app.kubernetes.io/component: broadcaster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: radio-icecast
+  template:
+    metadata:
+      labels:
+        {{- include "radio.labels" . | nindent 8 }}
+        app.kubernetes.io/name: radio-icecast
+        app.kubernetes.io/component: broadcaster
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum | quote }}
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+        - name: prepare-config
+          image: {{ .Values.images.icecast | quote }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              cp /config-template/icecast.xml /config/icecast.xml
+              chmod 0600 /config/icecast.xml
+          volumeMounts:
+            - name: config-template
+              mountPath: /config-template
+              readOnly: true
+            - name: config
+              mountPath: /config
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      containers:
+        - name: icecast
+          image: {{ .Values.images.icecast | quote }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: ICECAST_SOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: radio-s3
+                  key: icecast-source-password
+            - name: ICECAST_RELAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: radio-s3
+                  key: icecast-relay-password
+            - name: ICECAST_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: radio-s3
+                  key: icecast-admin-password
+            - name: ICECAST_ADMIN_USERNAME
+              value: admin
+            - name: ICECAST_ADMIN_EMAIL
+              value: admin@leonid.sh
+            - name: ICECAST_HOSTNAME
+              value: {{ .Values.host | quote }}
+            - name: ICECAST_LOCATION
+              value: ru-central1
+            - name: ICECAST_MAX_CLIENTS
+              value: {{ .Values.icecast.maxClients | quote }}
+            - name: ICECAST_MAX_SOURCES
+              value: "10"
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/icecast.xml
+              subPath: icecast.xml
+          readinessProbe:
+            httpGet:
+              path: /status-json.xsl
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /status-json.xsl
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:
+            {{- toYaml .Values.icecast.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: config-template
+          configMap:
+            name: radio-icecast
+        - name: config
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radio-icecast
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "radio.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: radio-icecast
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      protocol: TCP

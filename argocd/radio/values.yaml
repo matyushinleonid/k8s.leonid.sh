@@ -1,0 +1,49 @@
+host: radio.leonid.sh
+
+station:
+  name: govnovoz
+  mount: govnovoz.mp3
+  bitrate: 128
+  maxListeners: 5
+
+objectStorage:
+  endpoint: storage.yandexcloud.net
+  region: ru-central1
+  bucket: matyushinleonid
+  prefix: radio/govnovoz
+  syncIntervalSeconds: 300
+  cacheSizeLimit: 10Gi
+  lockboxSecretId: e6q352hr67bnde4kjo5b
+  lockboxProperty: s3-yaml
+
+images:
+  icecast: libretime/icecast:2.5.0
+  liquidsoap: savonet/liquidsoap:v2.4.5
+  rclone: rclone/rclone:1.74.2
+
+icecast:
+  maxClients: 100
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+
+liquidsoap:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+rclone:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+      ephemeral-storage: 512Mi
+    limits:
+      memory: 128Mi
+      ephemeral-storage: 10Gi

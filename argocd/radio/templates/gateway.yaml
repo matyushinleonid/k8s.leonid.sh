@@ -1,3 +1,4 @@
+{{- $defaultStation := index .Values.stations .Values.defaultStation -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -45,14 +46,16 @@ spec:
     - {{ .Values.host | quote }}
   rules:
     - matches:
+{{- range $name, $station := .Values.stations }}
         - method: GET
           path:
             type: Exact
-            value: /{{ .Values.station.mount }}
+            value: /{{ $station.mount }}
         - method: HEAD
           path:
             type: Exact
-            value: /{{ .Values.station.mount }}
+            value: /{{ $station.mount }}
+{{- end }}
       backendRefs:
         - name: radio-icecast
           port: 8000
@@ -65,7 +68,7 @@ spec:
           requestRedirect:
             path:
               type: ReplaceFullPath
-              replaceFullPath: /{{ .Values.station.mount }}
+              replaceFullPath: /{{ $defaultStation.mount }}
             statusCode: 302
 ---
 apiVersion: gateway.networking.k8s.io/v1

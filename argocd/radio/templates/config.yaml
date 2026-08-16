@@ -1,10 +1,11 @@
+{{- range $name, $station := .Values.stations }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: radio-liquidsoap
-  namespace: {{ .Release.Namespace }}
+  name: {{ $station.configMapName }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "radio.labels" . | nindent 4 }}
+    {{- include "radio.labels" $ | nindent 4 }}
 data:
   radio.liq: |
     settings.log.stdout := true
@@ -12,24 +13,25 @@ data:
 
     music = playlist(
       mode="random",
-      reload={{ .Values.objectStorage.syncIntervalSeconds }},
+      reload={{ $.Values.objectStorage.syncIntervalSeconds }},
       "/media"
     )
     radio = mksafe(music)
 
     output.icecast(
-      %mp3(bitrate={{ .Values.station.bitrate }}),
+      %mp3(bitrate={{ $station.bitrate }}),
       host="radio-icecast",
       port=8000,
       user="source",
       password=environment.get("ICECAST_SOURCE_PASSWORD"),
-      mount="/{{ .Values.station.mount }}",
-      name="{{ .Values.station.name }}",
+      mount="/{{ $station.mount }}",
+      name="{{ $name }}",
       genre="radio",
       public=false,
       radio
     )
 ---
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -72,11 +74,13 @@ data:
         <header type="cors" name="Access-Control-Expose-Headers" />
       </http-headers>
 
+{{- range $name, $station := .Values.stations }}
       <mount type="normal">
-        <mount-name>/{{ .Values.station.mount }}</mount-name>
-        <max-listeners>{{ .Values.station.maxListeners }}</max-listeners>
+        <mount-name>/{{ $station.mount }}</mount-name>
+        <max-listeners>{{ $station.maxListeners }}</max-listeners>
         <public>false</public>
       </mount>
+{{- end }}
 
       <paths>
         <basedir>/usr/share/icecast</basedir>

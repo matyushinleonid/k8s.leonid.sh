@@ -1,30 +1,31 @@
+{{- range $name, $station := .Values.stations }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: radio-{{ .Values.station.name }}
-  namespace: {{ .Release.Namespace }}
+  name: radio-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "radio.labels" . | nindent 4 }}
-    app.kubernetes.io/name: radio-{{ .Values.station.name }}
+    {{- include "radio.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: radio-{{ $name }}
     app.kubernetes.io/component: source
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: radio-{{ .Values.station.name }}
+      app.kubernetes.io/name: radio-{{ $name }}
   template:
     metadata:
       labels:
-        {{- include "radio.labels" . | nindent 8 }}
-        app.kubernetes.io/name: radio-{{ .Values.station.name }}
+        {{- include "radio.labels" $ | nindent 8 }}
+        app.kubernetes.io/name: radio-{{ $name }}
         app.kubernetes.io/component: source
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum | quote }}
+        checksum/config: {{ toJson (dict "station" $station "syncInterval" $.Values.objectStorage.syncIntervalSeconds) | sha256sum | quote }}
     spec:
       automountServiceAccountToken: false
       initContainers:
         - name: initial-media-sync
-          image: {{ .Values.images.rclone | quote }}
+          image: {{ $.Values.images.rclone | quote }}
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
@@ -34,13 +35,13 @@ spec:
               export RCLONE_CONFIG_RADIO_ACCESS_KEY_ID="$(cat /credentials/access-key-id)"
               export RCLONE_CONFIG_RADIO_SECRET_ACCESS_KEY="$(cat /credentials/secret-access-key)"
               rclone sync \
-                "radio:{{ .Values.objectStorage.bucket }}/{{ .Values.objectStorage.prefix }}" \
+                "radio:{{ $.Values.objectStorage.bucket }}/{{ $station.objectStoragePrefix }}" \
                 /media \
                 --include '*.mp3' \
                 --fast-list \
                 --log-level INFO
           env:
-            {{- include "radio.rcloneEnvironment" . | nindent 12 }}
+            {{- include "radio.rcloneEnvironment" $ | nindent 12 }}
           volumeMounts:
             - name: media
               mountPath: /media
@@ -48,7 +49,7 @@ spec:
               mountPath: /credentials
               readOnly: true
           resources:
-            {{- toYaml .Values.rclone.resources | nindent 12 }}
+            {{- toYaml $.Values.rclone.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -56,7 +57,7 @@ spec:
                 - ALL
       containers:
         - name: liquidsoap
-          image: {{ .Values.images.liquidsoap | quote }}
+          image: {{ $.Values.images.liquidsoap | quote }}
           imagePullPolicy: IfNotPresent
           args:
             - /etc/liquidsoap/radio.liq
@@ -74,14 +75,14 @@ spec:
               mountPath: /etc/liquidsoap
               readOnly: true
           resources:
-            {{- toYaml .Values.liquidsoap.resources | nindent 12 }}
+            {{- toYaml $.Values.liquidsoap.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
                 - ALL
         - name: media-sync
-          image: {{ .Values.images.rclone | quote }}
+          image: {{ $.Values.images.rclone | quote }}
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
@@ -92,17 +93,17 @@ spec:
                 export RCLONE_CONFIG_RADIO_ACCESS_KEY_ID="$(cat /credentials/access-key-id)"
                 export RCLONE_CONFIG_RADIO_SECRET_ACCESS_KEY="$(cat /credentials/secret-access-key)"
                 if ! rclone sync \
-                  "radio:{{ .Values.objectStorage.bucket }}/{{ .Values.objectStorage.prefix }}" \
+                  "radio:{{ $.Values.objectStorage.bucket }}/{{ $station.objectStoragePrefix }}" \
                   /media \
                   --include '*.mp3' \
                   --fast-list \
                   --log-level INFO; then
                   echo "Media synchronization failed; keeping the existing cache" >&2
                 fi
-                sleep {{ .Values.objectStorage.syncIntervalSeconds }}
+                sleep {{ $.Values.objectStorage.syncIntervalSeconds }}
               done
           env:
-            {{- include "radio.rcloneEnvironment" . | nindent 12 }}
+            {{- include "radio.rcloneEnvironment" $ | nindent 12 }}
           volumeMounts:
             - name: media
               mountPath: /media
@@ -110,7 +111,7 @@ spec:
               mountPath: /credentials
               readOnly: true
           resources:
-            {{- toYaml .Values.rclone.resources | nindent 12 }}
+            {{- toYaml $.Values.rclone.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -119,10 +120,12 @@ spec:
       volumes:
         - name: media
           emptyDir:
-            sizeLimit: {{ .Values.objectStorage.cacheSizeLimit }}
+            sizeLimit: {{ $.Values.objectStorage.cacheSizeLimit }}
         - name: liquidsoap-config
           configMap:
-            name: radio-liquidsoap
+            name: {{ $station.configMapName }}
         - name: s3-credentials
           secret:
             secretName: radio-s3
+---
+{{- end }}

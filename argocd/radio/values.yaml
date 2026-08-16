@@ -1,16 +1,25 @@
 host: radio.leonid.sh
 
-station:
-  name: govnovoz
-  mount: govnovoz.mp3
-  bitrate: 192
-  maxListeners: 5
+defaultStation: govnovoz
+
+stations:
+  govnovoz:
+    configMapName: radio-liquidsoap
+    mount: govnovoz.mp3
+    bitrate: 224
+    maxListeners: 5
+    objectStoragePrefix: radio/govnovoz
+  gachi:
+    configMapName: radio-gachi
+    mount: gachi.mp3
+    bitrate: 224
+    maxListeners: 5
+    objectStoragePrefix: radio/gachi
 
 objectStorage:
   endpoint: storage.yandexcloud.net
   region: ru-central1
   bucket: matyushinleonid
-  prefix: radio/govnovoz
   syncIntervalSeconds: 300
   cacheSizeLimit: 10Gi
   lockboxSecretId: e6q352hr67bnde4kjo5b

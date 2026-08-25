@@ -1,7 +1,7 @@
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/sein-zum-tode
   pullPolicy: IfNotPresent
-  tag: sha-305b6f165988b31c7d15516c1f6a1e6291d004e4
+  tag: sha-8acdcbc6041ea22f30c2c4b7ec802862ad519567
   digest: ""
 
 imagePullSecrets: []

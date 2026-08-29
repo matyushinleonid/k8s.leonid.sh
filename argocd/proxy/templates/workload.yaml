@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "proxy.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "proxy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "proxy.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum | quote }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gost
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - -C
+            - /etc/gost/config/gost.yaml
+          ports:
+            - name: proxy
+              containerPort: {{ .Values.proxy.containerPort }}
+              protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: proxy
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 1
+          readinessProbe:
+            tcpSocket:
+              port: proxy
+            periodSeconds: 5
+            timeoutSeconds: 1
+          livenessProbe:
+            tcpSocket:
+              port: proxy
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /etc/gost/config
+              readOnly: true
+            - name: auth
+              mountPath: /etc/gost/auth
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: proxy
+        - name: auth
+          secret:
+            secretName: proxy-auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "proxy.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "proxy.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: proxy
+      port: {{ .Values.proxy.containerPort }}
+      targetPort: proxy
+      protocol: TCP

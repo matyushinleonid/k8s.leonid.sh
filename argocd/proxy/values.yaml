@@ -1,0 +1,52 @@
+replicaCount: 1
+
+host: proxy.leonid.sh
+
+image:
+  repository: gogost/gost
+  tag: 3.2.6
+  pullPolicy: IfNotPresent
+
+proxy:
+  publicPort: 8443
+  containerPort: 8080
+  authReloadInterval: 30s
+  dnsServers:
+    - 77.88.8.8
+    - 1.1.1.1
+  deniedDestinations:
+    - 0.0.0.0/8
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 127.0.0.0/8
+    - 158.160.154.6/32
+    - 169.254.0.0/16
+    - 172.16.0.0/12
+    - 192.0.0.0/24
+    - 192.0.2.0/24
+    - 192.168.0.0/16
+    - 198.18.0.0/15
+    - 198.51.100.0/24
+    - 203.0.113.0/24
+    - 224.0.0.0/4
+    - 240.0.0.0/4
+
+gateway:
+  name: public
+  namespace: envoy-gateway-system
+  clusterIssuer: yc-clusterissuer
+  dnsTarget: gateway.leonid.sh
+
+externalSecret:
+  refreshInterval: 15m
+  secretStoreName: yc-lockbox
+  lockboxSecretId: e6qghr7pvmscelc7o4ai
+  loginProperty: https-login
+  passwordProperty: https-password
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi

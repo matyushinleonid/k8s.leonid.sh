@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-opencanary-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  opencanary.json: |-
+    {
+      "annotations": {"list": []},
+      "description": "Envoy access logs are the source of truth for external client IPs. OpenCanary protocol logs see the Envoy backend connection address.",
+      "editable": true,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+          "id": 1,
+          "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" [$__range]))", "queryType": "instant", "refId": "A"}],
+          "title": "Connections",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+          "id": 2,
+          "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"expr": "count(sum by (source_ip) (count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range])))", "queryType": "instant", "refId": "A"}],
+          "title": "Unique source IPs",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
+          "id": 3,
+          "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"expr": "sum(sum_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" | unwrap bytes_received [$__range]))", "queryType": "instant", "refId": "A"}],
+          "title": "Bytes received",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "ms"}, "overrides": []},
+          "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
+          "id": 4,
+          "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+          "targets": [{"expr": "max(quantile_over_time(0.95, {namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" | unwrap duration [$__range]))", "queryType": "instant", "refId": "A"}],
+          "title": "Connection duration p95",
+          "type": "stat"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5},
+          "id": 5,
+          "options": {"legend": {"displayMode": "table", "placement": "bottom", "showLegend": true}},
+          "targets": [{"expr": "sum by (destination_port) (count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" | line_format \"{{.downstream_local_address}}\" | pattern \"<destination_host>:<destination_port>\" | destination_port=~\"$port\" [$__interval]))", "legendFormat": "port {{destination_port}}", "queryType": "range", "refId": "A"}],
+          "title": "Connections by public port",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5},
+          "id": 6,
+          "options": {"legend": {"displayMode": "table", "placement": "bottom", "showLegend": true}},
+          "targets": [{"expr": "sum by (public_port, logtype) (count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json | logtype != \"\" | dst_port != \"-1\" | label_format public_port=\"{{ if eq .dst_port \\\"2222\\\" }}22{{ else if eq .dst_port \\\"2323\\\" }}23{{ else }}{{ .dst_port }}{{ end }}\" | public_port=~\"$port\" [$__interval]))", "legendFormat": "port {{public_port}} / type {{logtype}}", "queryType": "range", "refId": "A"}],
+          "title": "OpenCanary events",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "gridPos": {"h": 9, "w": 12, "x": 0, "y": 13},
+          "id": 7,
+          "options": {"cellHeight": "sm", "showHeader": true},
+          "targets": [{"expr": "topk(25, sum by (source_ip) (count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range])))", "queryType": "instant", "refId": "A"}],
+          "title": "Top source IPs",
+          "transformations": [{"id": "labelsToFields", "options": {}}, {"id": "organize", "options": {"excludeByName": {"Time": true}, "renameByName": {"Value": "Connections", "source_ip": "Source IP"}}}],
+          "type": "table"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "gridPos": {"h": 9, "w": 12, "x": 12, "y": 13},
+          "id": 8,
+          "options": {"cellHeight": "sm", "showHeader": true},
+          "targets": [{"expr": "topk(25, sum by (username) (count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json username=\"logdata.USERNAME\" | username != \"\" [$__range])))", "queryType": "instant", "refId": "A"}],
+          "title": "Attempted usernames",
+          "transformations": [{"id": "labelsToFields", "options": {}}, {"id": "organize", "options": {"excludeByName": {"Time": true}, "renameByName": {"Value": "Attempts", "username": "Username"}}}],
+          "type": "table"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "gridPos": {"h": 11, "w": 24, "x": 0, "y": 22},
+          "id": 9,
+          "description": "The downstream_remote_address field contains the external client IP after externalTrafficPolicy is set to Local.",
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [{"expr": "{namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/.+\" | downstream_remote_address=~\"$source_ip:[0-9]+\"", "queryType": "range", "refId": "A"}],
+          "title": "External connections from Envoy",
+          "type": "logs"
+        },
+        {
+          "datasource": {"type": "loki", "uid": "${loki}"},
+          "gridPos": {"h": 13, "w": 24, "x": 0, "y": 33},
+          "id": 10,
+          "description": "JSON protocol events and Twisted HTTP access logs. src_host in JSON is the Envoy pod address; correlate with the preceding panel by timestamp.",
+          "options": {"dedupStrategy": "none", "enableLogDetails": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+          "targets": [{"expr": "{namespace=\"opencanary\", container=\"opencanary\"}", "queryType": "range", "refId": "A"}],
+          "title": "OpenCanary protocol events and service logs",
+          "type": "logs"
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 42,
+      "tags": ["opencanary", "honeypot", "security", "loki"],
+      "templating": {
+        "list": [
+          {"current": {}, "label": "Loki", "name": "loki", "options": [], "query": "loki", "refresh": 1, "type": "datasource"},
+          {"current": {"text": ".*", "value": ".*"}, "label": "Public port regexp", "name": "port", "options": [], "query": ".*", "type": "textbox"},
+          {"current": {"text": ".*", "value": ".*"}, "label": "Source IP regexp", "name": "source_ip", "options": [], "query": ".*", "type": "textbox"}
+        ]
+      },
+      "time": {"from": "now-24h", "to": "now"},
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "OpenCanary Internet Scanning",
+      "uid": "opencanary-internet-scanning",
+      "version": 1
+    }

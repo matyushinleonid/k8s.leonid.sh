@@ -27,7 +27,7 @@ spec:
             compactor:
               retention_enabled: true
             limits_config:
-              retention_period: 336h
+              retention_period: 2160h
         promtail:
           enabled: true
         grafana:

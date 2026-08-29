@@ -1,0 +1,126 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: opencanary
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opencanary.labels" . | nindent 4 }}
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gateway.name | quote }}
+    namespace: {{ .Values.gateway.namespace | quote }}
+  listeners:
+    - name: ssh
+      port: {{ .Values.services.ssh.publicPort }}
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+        namespaces:
+          from: Same
+    - name: telnet
+      port: {{ .Values.services.telnet.publicPort }}
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+        namespaces:
+          from: Same
+    - name: http
+      port: {{ .Values.services.http.publicPort }}
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+        namespaces:
+          from: Same
+    - name: redis
+      port: {{ .Values.services.redis.publicPort }}
+      protocol: TCP
+      allowedRoutes:
+        kinds:
+          - group: gateway.networking.k8s.io
+            kind: TCPRoute
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: opencanary-ssh
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: opencanary
+      sectionName: ssh
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: opencanary
+          port: {{ .Values.services.ssh.publicPort }}
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: opencanary-telnet
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: opencanary
+      sectionName: telnet
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: opencanary
+          port: {{ .Values.services.telnet.publicPort }}
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: opencanary-http
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: opencanary
+      sectionName: http
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: opencanary
+          port: {{ .Values.services.http.publicPort }}
+          weight: 1
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: opencanary-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: opencanary
+      sectionName: redis
+  rules:
+    - backendRefs:
+        - group: ""
+          kind: Service
+          name: opencanary
+          port: {{ .Values.services.redis.publicPort }}
+          weight: 1

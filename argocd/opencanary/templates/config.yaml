@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencanary
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opencanary.labels" . | nindent 4 }}
+data:
+  opencanary.conf: |-
+    {
+      "device.node_id": "opencanary-k8s",
+      "ip.ignorelist": [],
+      "logtype.ignorelist": [],
+      "ssh.enabled": true,
+      "ssh.port": {{ .Values.services.ssh.containerPort }},
+      "ssh.version": "SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.13",
+      "ssh.key_path": "/var/tmp",
+      "telnet.enabled": true,
+      "telnet.port": {{ .Values.services.telnet.containerPort }},
+      "telnet.banner": "Ubuntu 22.04 LTS",
+      "telnet.honeycreds": [
+        {"username": "admin", "password": "admin"},
+        {"username": "root", "password": "toor"}
+      ],
+      "telnet.log_tcp_connection": true,
+      "http.enabled": true,
+      "http.port": {{ .Values.services.http.containerPort }},
+      "http.banner": "Apache/2.4.52 (Ubuntu)",
+      "http.skin": "basicLogin",
+      "http.log_unimplemented_method_requests": true,
+      "http.log_redirect_request": true,
+      "redis.enabled": true,
+      "redis.port": {{ .Values.services.redis.containerPort }},
+      "redis.max_arg_length": 256,
+      "portscan.enabled": false,
+      "logger": {
+        "class": "PyLogger",
+        "kwargs": {
+          "formatters": {
+            "plain": {"format": "%(message)s"}
+          },
+          "handlers": {
+            "console": {
+              "class": "logging.StreamHandler",
+              "formatter": "plain",
+              "stream": "ext://sys.stdout"
+            }
+          }
+        }
+      }
+    }

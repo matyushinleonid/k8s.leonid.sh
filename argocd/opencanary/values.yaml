@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: thinkst/opencanary
+  tag: 0.9.9
+  pullPolicy: IfNotPresent
+
+gateway:
+  name: public
+  namespace: envoy-gateway-system
+
+services:
+  ssh:
+    publicPort: 22
+    containerPort: 2222
+  telnet:
+    publicPort: 23
+    containerPort: 2323
+  http:
+    publicPort: 8080
+    containerPort: 8080
+  redis:
+    publicPort: 6379
+    containerPort: 6379
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 512Mi

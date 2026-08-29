@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencanary
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opencanary.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "opencanary.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "opencanary.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum | quote }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: opencanary
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /opencanary/.venv/bin/twistd
+          args:
+            - -noy
+            - /opencanary/bin/opencanary.tac
+            - --pidfile
+            - /run/opencanaryd.pid
+          env:
+            - name: HOME
+              value: /tmp
+          ports:
+            - name: ssh
+              containerPort: {{ .Values.services.ssh.containerPort }}
+              protocol: TCP
+            - name: telnet
+              containerPort: {{ .Values.services.telnet.containerPort }}
+              protocol: TCP
+            - name: http
+              containerPort: {{ .Values.services.http.containerPort }}
+              protocol: TCP
+            - name: redis
+              containerPort: {{ .Values.services.redis.containerPort }}
+              protocol: TCP
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -r /proc/1/status
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -r /proc/1/status
+            periodSeconds: 5
+            timeoutSeconds: 1
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test -r /proc/1/status
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 1
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: config
+              mountPath: /etc/opencanaryd
+              readOnly: true
+            - name: run
+              mountPath: /run
+            - name: tmp
+              mountPath: /tmp
+            - name: var-tmp
+              mountPath: /var/tmp
+      volumes:
+        - name: config
+          configMap:
+            name: opencanary
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: var-tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opencanary
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "opencanary.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "opencanary.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: ssh
+      port: {{ .Values.services.ssh.publicPort }}
+      targetPort: ssh
+      protocol: TCP
+    - name: telnet
+      port: {{ .Values.services.telnet.publicPort }}
+      targetPort: telnet
+      protocol: TCP
+    - name: http
+      port: {{ .Values.services.http.publicPort }}
+      targetPort: http
+      protocol: TCP
+    - name: redis
+      port: {{ .Values.services.redis.publicPort }}
+      targetPort: redis
+      protocol: TCP

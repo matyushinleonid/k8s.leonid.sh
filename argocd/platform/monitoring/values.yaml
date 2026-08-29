@@ -1,6 +1,6 @@
 prometheus:
   prometheusSpec:
-    retention: 14d
+    retention: 21d
     resources:
       requests:
         cpu: 200m

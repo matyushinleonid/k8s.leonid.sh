@@ -1,0 +1,6 @@
+apiVersion: v2
+name: opencanary
+description: Isolated public honeypot behind the shared Envoy Gateway
+type: application
+version: 0.1.0
+appVersion: "0.9.9"

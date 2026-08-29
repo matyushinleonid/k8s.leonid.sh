@@ -29,12 +29,14 @@ spec:
         minAvailable: 1
       envoyService:
         type: LoadBalancer
-        externalTrafficPolicy: Cluster
+        externalTrafficPolicy: Local
         {{- if .Values.gateway.publicIP }}
         loadBalancerIP: {{ .Values.gateway.publicIP | quote }}
         {{- end }}
         annotations:
           external-dns.alpha.kubernetes.io/hostname: {{ .Values.gateway.dnsName | quote }}
+          yandex.cloud/load-balancer-healthcheck-healthy-threshold: "2"
+          yandex.cloud/load-balancer-healthcheck-interval: "2s"
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass

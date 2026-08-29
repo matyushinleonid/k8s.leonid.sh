@@ -19,6 +19,8 @@ metadata:
     cert-manager.io/cluster-issuer: {{ .Values.gateway.clusterIssuer | quote }}
 spec:
   parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
     name: {{ .Values.gateway.name | quote }}
     namespace: {{ .Values.gateway.namespace | quote }}
   listeners:
@@ -29,11 +31,15 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:
-          - name: proxy-tls
+          - group: ""
+            kind: Secret
+            name: proxy-tls
       allowedRoutes:
         kinds:
           - group: gateway.networking.k8s.io
             kind: TCPRoute
+        namespaces:
+          from: Same
 ---
 apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
@@ -42,10 +48,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   parentRefs:
-    - name: proxy
+    - group: gateway.networking.k8s.io
       kind: ListenerSet
+      name: proxy
       sectionName: https-proxy
   rules:
     - backendRefs:
-        - name: proxy
+        - group: ""
+          kind: Service
+          name: proxy
           port: {{ .Values.proxy.containerPort }}
+          weight: 1

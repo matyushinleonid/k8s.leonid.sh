@@ -5,6 +5,40 @@ image:
   tag: 0.9.9
   pullPolicy: IfNotPresent
 
+enricher:
+  enabled: true
+  image:
+    repository: python
+    tag: 3.13-alpine
+    pullPolicy: IfNotPresent
+  lokiURL: http://loki-stack.monitoring.svc:3100
+  pollIntervalSeconds: "5"
+  lookbackSeconds: "3600"
+  overlapSeconds: "10"
+  stateTtlSeconds: "21600"
+  queryLimit: "5000"
+  backfill:
+    enabled: true
+    lookbackSeconds: "7776000"
+    endDelaySeconds: "3600"
+    chunkSeconds: "21600"
+    activeDeadlineSeconds: 3600
+    backoffLimit: 3
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
 gateway:
   name: public
   namespace: envoy-gateway-system

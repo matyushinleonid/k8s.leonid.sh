@@ -28,7 +28,7 @@ data:
           "gridPos": {"h": 5, "w": 8, "x": 0, "y": 1},
           "id": 1,
           "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
-          "targets": [{"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range]))", "queryType": "instant", "refId": "A"}],
+          "targets": [{"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range]))", "queryType": "instant", "refId": "A"}],
           "title": "Completed external connections",
           "type": "stat"
         },
@@ -39,7 +39,7 @@ data:
           "gridPos": {"h": 5, "w": 8, "x": 8, "y": 1},
           "id": 2,
           "options": {"colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
-          "targets": [{"expr": "count(sum by (source_ip) (count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range])))", "queryType": "instant", "refId": "A"}],
+          "targets": [{"expr": "count(sum by (source_ip) (count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range])))", "queryType": "instant", "refId": "A"}],
           "title": "Unique external IPs",
           "type": "stat"
         },
@@ -50,7 +50,7 @@ data:
           "gridPos": {"h": 5, "w": 8, "x": 16, "y": 1},
           "id": 3,
           "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
-          "targets": [{"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=~\"4002|6001\" | dst_port=~\"${service:raw}\" [$__range]))", "queryType": "instant", "refId": "A"}],
+          "targets": [{"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=~\"4002|6001\" | dst_port=~\"${type:raw}\" [$__range]))", "queryType": "instant", "refId": "A"}],
           "title": "Authentication attempts",
           "type": "stat"
         },
@@ -70,10 +70,10 @@ data:
           "id": 5,
           "options": {"legend": {"displayMode": "table", "placement": "bottom", "showLegend": true}},
           "targets": [
-            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-ssh/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "SSH", "queryType": "range", "refId": "A"},
-            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-telnet/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "Telnet", "queryType": "range", "refId": "B"},
-            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-http/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "HTTP", "queryType": "range", "refId": "C"},
-            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-redis/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "Redis", "queryType": "range", "refId": "D"}
+            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-ssh/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "SSH", "queryType": "range", "refId": "A"},
+            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-telnet/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "Telnet", "queryType": "range", "refId": "B"},
+            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-http/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "HTTP", "queryType": "range", "refId": "C"},
+            {"expr": "sum(count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=\"tcproute/opencanary/opencanary-redis/rule/-1\" | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__interval]))", "legendFormat": "Redis", "queryType": "range", "refId": "D"}
           ],
           "title": "External connections by service",
           "type": "timeseries"
@@ -86,10 +86,10 @@ data:
           "id": 6,
           "options": {"legend": {"displayMode": "table", "placement": "bottom", "showLegend": true}},
           "targets": [
-            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=\"4002\" | dst_port=~\"${service:raw}\" [$__interval]))", "legendFormat": "SSH login attempt", "queryType": "range", "refId": "A"},
-            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=\"6001\" | dst_port=~\"${service:raw}\" [$__interval]))", "legendFormat": "Telnet login attempt", "queryType": "range", "refId": "B"},
-            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=~\"3000|3003\" | dst_port=~\"${service:raw}\" [$__interval]))", "legendFormat": "HTTP request", "queryType": "range", "refId": "C"},
-            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=\"17001\" | dst_port=~\"${service:raw}\" [$__interval]))", "legendFormat": "Redis command", "queryType": "range", "refId": "D"}
+            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=\"4002\" | dst_port=~\"${type:raw}\" [$__interval]))", "legendFormat": "SSH login attempt", "queryType": "range", "refId": "A"},
+            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=\"6001\" | dst_port=~\"${type:raw}\" [$__interval]))", "legendFormat": "Telnet login attempt", "queryType": "range", "refId": "B"},
+            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=~\"3000|3003\" | dst_port=~\"${type:raw}\" [$__interval]))", "legendFormat": "HTTP request", "queryType": "range", "refId": "C"},
+            {"expr": "sum(count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\" | logtype=\"17001\" | dst_port=~\"${type:raw}\" [$__interval]))", "legendFormat": "Redis command", "queryType": "range", "refId": "D"}
           ],
           "title": "Actionable security events",
           "type": "timeseries"
@@ -104,26 +104,26 @@ data:
         },
         {
           "datasource": {"type": "loki", "uid": "${loki}"},
-          "description": "External client addresses from Envoy. The external-IP filter only applies to network panels.",
+          "description": "External client addresses ranked by enriched protocol-level security events.",
           "fieldConfig": {"defaults": {"unit": "short"}, "overrides": [{"matcher": {"id": "byName", "options": "External IP"}, "properties": [{"id": "links", "value": [{"targetBlank": true, "title": "Open geolocation and network details", "url": "https://ipinfo.io/${__value.text}"}]}]}]},
           "gridPos": {"h": 9, "w": 8, "x": 0, "y": 16},
           "id": 7,
           "options": {"cellHeight": "sm", "showHeader": true},
-          "targets": [{"expr": "topk(25, sum by (source_ip) (count_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | line_format \"{{.downstream_remote_address}}\" | pattern \"<source_ip>:<source_port>\" | source_ip=~\"$source_ip\" [$__range])))", "queryType": "instant", "refId": "A"}],
+          "targets": [{"expr": "topk(25, sum by (source_ip) (count_over_time({job=\"opencanary-enriched\", service=~\"${type:raw}\"} | json source_ip=\"source_ip\" | source_ip=~\"$source_ip\" [$__range])))", "queryType": "instant", "refId": "A"}],
           "title": "Top external source IPs — click an IP for location",
-          "transformations": [{"id": "labelsToFields", "options": {}}, {"id": "organize", "options": {"excludeByName": {"Time": true}, "renameByName": {"Value": "Connections", "source_ip": "External IP"}}}],
+          "transformations": [{"id": "labelsToFields", "options": {}}, {"id": "organize", "options": {"excludeByName": {"Time": true}, "renameByName": {"Value": "Events", "source_ip": "External IP"}}}],
           "type": "table"
         },
         {
           "datasource": {"type": "loki", "uid": "${loki}"},
-          "description": "Top SSH and Telnet username/password pairs. Captured values cannot be reliably joined to an external IP because OpenCanary sees the Envoy peer.",
-          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": [{"matcher": {"id": "byName", "options": "Service"}, "properties": [{"id": "mappings", "value": [{"options": {"2222": {"index": 0, "text": "SSH"}, "2323": {"index": 1, "text": "Telnet"}}, "type": "value"}]}]}]},
+          "description": "Top enriched SSH and Telnet username/password pairs. Both Type and External IP filters apply. HTTP and Redis do not produce credential events.",
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": [{"matcher": {"id": "byName", "options": "Service"}, "properties": [{"id": "mappings", "value": [{"options": {"ssh": {"index": 0, "text": "SSH"}, "telnet": {"index": 1, "text": "Telnet"}}, "type": "value"}]}]}]},
           "gridPos": {"h": 9, "w": 8, "x": 8, "y": 16},
           "id": 8,
           "options": {"cellHeight": "sm", "showHeader": true},
-          "targets": [{"expr": "topk(25, sum by (dst_port, username, password) (count_over_time({namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\", username=\"logdata.USERNAME\", password=\"logdata.PASSWORD\" | logtype=~\"4002|6001\" | dst_port=~\"${service:raw}\" | username != \"\" [$__range])))", "queryType": "instant", "refId": "A"}],
+          "targets": [{"expr": "topk(25, sum by (service, username, password) (count_over_time({job=\"opencanary-enriched\", service=~\"${type:raw}\"} | json source_ip=\"source_ip\", username=\"username\", password=\"password\" | source_ip=~\"$source_ip\" | username != \"\" [$__range])))", "queryType": "instant", "refId": "A"}],
           "title": "Top attempted credentials",
-          "transformations": [{"id": "labelsToFields", "options": {}}, {"id": "organize", "options": {"excludeByName": {"Time": true}, "indexByName": {"dst_port": 0, "username": 1, "password": 2, "Value": 3}, "renameByName": {"Value": "Attempts", "dst_port": "Service", "password": "Password", "username": "Username"}}}],
+          "transformations": [{"id": "labelsToFields", "options": {}}, {"id": "organize", "options": {"excludeByName": {"Time": true}, "indexByName": {"service": 0, "username": 1, "password": 2, "Value": 3}, "renameByName": {"Value": "Attempts", "password": "Password", "service": "Service", "username": "Username"}}}],
           "type": "table"
         },
         {
@@ -169,17 +169,17 @@ data:
         },
         {
           "datasource": {"type": "loki", "uid": "${loki}"},
-          "description": "Curated OpenCanary events. Gateway peer addresses are deliberately omitted because they are not external attacker IPs.",
+          "description": "One enriched event per OpenCanary action. source_ip comes from the matching Envoy connection; events normally appear after the TCP connection closes.",
           "gridPos": {"h": 12, "w": 24, "x": 0, "y": 34},
           "id": 12,
           "options": {"dedupStrategy": "none", "enableLogDetails": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": false},
           "targets": [
-            {"expr": "{namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\", username=\"logdata.USERNAME\", password=\"logdata.PASSWORD\", remote_version=\"logdata.REMOTEVERSION\" | logtype=\"4002\" | dst_port=~\"${service:raw}\" | line_format \"SSH login attempt | username={{.username}} | password={{.password}} | client={{.remote_version}}\"", "queryType": "range", "refId": "A"},
-            {"expr": "{namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\", username=\"logdata.USERNAME\", password=\"logdata.PASSWORD\" | logtype=\"6001\" | dst_port=~\"${service:raw}\" | line_format \"Telnet login attempt | username={{.username}} | password={{.password}}\"", "queryType": "range", "refId": "B"},
-            {"expr": "{namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\", path=\"logdata.PATH\", user_agent=\"logdata.USERAGENT\" | logtype=~\"3000|3003\" | dst_port=~\"${service:raw}\" | line_format \"HTTP request | path={{.path}} | user-agent={{.user_agent}}\"", "queryType": "range", "refId": "C"},
-            {"expr": "{namespace=\"opencanary\", container=\"opencanary\"} | json logtype=\"logtype\", dst_port=\"dst_port\", command=\"logdata.CMD\", args=\"logdata.ARGS\" | logtype=\"17001\" | dst_port=~\"${service:raw}\" | line_format \"Redis command | command={{.command}} | arguments={{.args}}\"", "queryType": "range", "refId": "D"}
+            {"expr": "{job=\"opencanary-enriched\", service=~\"${type:raw}\"} | json event_type=\"event_type\", source_ip=\"source_ip\", source_port=\"source_port\", username=\"username\", password=\"password\", client_version=\"client_version\" | event_type=\"SSH login attempt\" | source_ip=~\"$source_ip\" | line_format \"SSH login attempt | source_ip={{.source_ip}} | source_port={{.source_port}} | username={{.username}} | password={{.password}} | client={{.client_version}}\"", "queryType": "range", "refId": "A"},
+            {"expr": "{job=\"opencanary-enriched\", service=~\"${type:raw}\"} | json event_type=\"event_type\", source_ip=\"source_ip\", source_port=\"source_port\", username=\"username\", password=\"password\" | event_type=\"Telnet login attempt\" | source_ip=~\"$source_ip\" | line_format \"Telnet login attempt | source_ip={{.source_ip}} | source_port={{.source_port}} | username={{.username}} | password={{.password}}\"", "queryType": "range", "refId": "B"},
+            {"expr": "{job=\"opencanary-enriched\", service=~\"${type:raw}\"} | json event_type=\"event_type\", source_ip=\"source_ip\", source_port=\"source_port\", path=\"path\", user_agent=\"user_agent\" | event_type=~\"HTTP GET request|HTTP request\" | source_ip=~\"$source_ip\" | line_format \"{{.event_type}} | source_ip={{.source_ip}} | source_port={{.source_port}} | path={{.path}} | user-agent={{.user_agent}}\"", "queryType": "range", "refId": "C"},
+            {"expr": "{job=\"opencanary-enriched\", service=~\"${type:raw}\"} | json event_type=\"event_type\", source_ip=\"source_ip\", source_port=\"source_port\", command=\"command\", arguments=\"arguments\" | event_type=\"Redis command\" | source_ip=~\"$source_ip\" | line_format \"Redis command | source_ip={{.source_ip}} | source_port={{.source_port}} | command={{.command}} | arguments={{.arguments}}\"", "queryType": "range", "refId": "D"}
           ],
-          "title": "Security events",
+          "title": "Enriched security events",
           "type": "logs"
         },
         {
@@ -193,7 +193,7 @@ data:
               "gridPos": {"h": 5, "w": 6, "x": 0, "y": 47},
               "id": 13,
               "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
-              "targets": [{"expr": "sum(sum_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | downstream_remote_address=~\"$source_ip:[0-9]+\" | unwrap bytes_received [$__range]))", "queryType": "instant", "refId": "A"}],
+              "targets": [{"expr": "sum(sum_over_time({namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | downstream_remote_address=~\"$source_ip:[0-9]+\" | unwrap bytes_received [$__range]))", "queryType": "instant", "refId": "A"}],
               "title": "Bytes received",
               "type": "stat"
             },
@@ -203,7 +203,7 @@ data:
               "gridPos": {"h": 5, "w": 6, "x": 6, "y": 47},
               "id": 14,
               "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
-              "targets": [{"expr": "max(quantile_over_time(0.95, {namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | downstream_remote_address=~\"$source_ip:[0-9]+\" | unwrap duration [$__range]))", "queryType": "instant", "refId": "A"}],
+              "targets": [{"expr": "max(quantile_over_time(0.95, {namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${type:raw})/rule/-1\" | downstream_remote_address=~\"$source_ip:[0-9]+\" | unwrap duration [$__range]))", "queryType": "instant", "refId": "A"}],
               "title": "Connection duration p95",
               "type": "stat"
             },
@@ -220,18 +220,8 @@ data:
             },
             {
               "datasource": {"type": "loki", "uid": "${loki}"},
-              "description": "Raw Envoy records. downstream_remote_address contains the external client address.",
-              "gridPos": {"h": 11, "w": 24, "x": 0, "y": 52},
-              "id": 16,
-              "options": {"dedupStrategy": "none", "enableLogDetails": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
-              "targets": [{"expr": "{namespace=\"envoy-gateway-system\", container=\"envoy\"} | json | upstream_cluster=~\"tcproute/opencanary/opencanary-(${service:raw})/rule/-1\" | downstream_remote_address=~\"$source_ip:[0-9]+\"", "queryType": "range", "refId": "A"}],
-              "title": "Raw Envoy connections",
-              "type": "logs"
-            },
-            {
-              "datasource": {"type": "loki", "uid": "${loki}"},
               "description": "Non-JSON OpenCanary/Twisted output. These lines are operational diagnostics, not normalized security events.",
-              "gridPos": {"h": 11, "w": 24, "x": 0, "y": 63},
+              "gridPos": {"h": 11, "w": 24, "x": 0, "y": 52},
               "id": 17,
               "options": {"dedupStrategy": "none", "enableLogDetails": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
               "targets": [{"expr": "{namespace=\"opencanary\", container=\"opencanary\"} !~ \"^\\\\{\"", "queryType": "range", "refId": "A"}],
@@ -239,7 +229,7 @@ data:
               "type": "logs"
             }
           ],
-          "title": "Diagnostics — raw sources",
+          "title": "Diagnostics",
           "type": "row"
         }
       ],
@@ -249,8 +239,8 @@ data:
       "templating": {
         "list": [
           {"current": {}, "label": "Loki", "name": "loki", "options": [], "query": "loki", "refresh": 1, "type": "datasource"},
-          {"current": {"text": "All", "value": "ssh|telnet|http|redis|2222|2323|8080|6379"}, "includeAll": false, "label": "Service", "multi": false, "name": "service", "options": [], "query": "All : ssh|telnet|http|redis|2222|2323|8080|6379,SSH : ssh|2222,Telnet : telnet|2323,HTTP : http|8080,Redis : redis|6379", "type": "custom"},
-          {"current": {"text": ".*", "value": ".*"}, "description": "Applies only to Envoy-backed network panels; OpenCanary does not receive the original client IP.", "label": "External IP regexp (network data only)", "name": "source_ip", "options": [], "query": ".*", "type": "textbox"},
+          {"current": {"text": "All", "value": "ssh|telnet|http|redis|2222|2323|8080|6379"}, "includeAll": false, "label": "Type", "multi": false, "name": "type", "options": [], "query": "All : ssh|telnet|http|redis|2222|2323|8080|6379,SSH : ssh|2222,Telnet : telnet|2323,HTTP : http|8080,Redis : redis|6379", "type": "custom"},
+          {"current": {"text": ".*", "value": ".*"}, "description": "Applies to enriched events and Envoy-backed network panels. Raw OpenCanary-only aggregates have no external client IP and are unaffected.", "label": "External IP regexp", "name": "source_ip", "options": [], "query": ".*", "type": "textbox"},
           {"current": {"text": ".*", "value": ".*"}, "label": "SSH client regexp", "name": "ssh_client", "options": [], "query": ".*", "type": "textbox"},
           {"current": {"text": ".*", "value": ".*"}, "label": "HTTP path regexp", "name": "http_path", "options": [], "query": ".*", "type": "textbox"}
         ]

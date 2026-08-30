@@ -1,0 +1,206 @@
+{{- if .Values.enricher.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opencanary-enricher
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: opencanary-enricher
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: opencanary
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  enricher.py: |-
+{{ .Files.Get "files/enricher.py" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencanary-enricher
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: opencanary-enricher
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: opencanary
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opencanary-enricher
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: realtime
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opencanary-enricher
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: realtime
+        app.kubernetes.io/part-of: opencanary
+      annotations:
+        checksum/script: {{ .Files.Get "files/enricher.py" | sha256sum | quote }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: enricher
+          image: "{{ .Values.enricher.image.repository }}:{{ .Values.enricher.image.tag }}"
+          imagePullPolicy: {{ .Values.enricher.image.pullPolicy }}
+          command:
+            - python
+            - -u
+            - /app/enricher.py
+          env:
+            - name: LOKI_URL
+              value: {{ .Values.enricher.lokiURL | quote }}
+            - name: POLL_INTERVAL_SECONDS
+              value: {{ .Values.enricher.pollIntervalSeconds | quote }}
+            - name: LOOKBACK_SECONDS
+              value: {{ .Values.enricher.lookbackSeconds | quote }}
+            - name: OVERLAP_SECONDS
+              value: {{ .Values.enricher.overlapSeconds | quote }}
+            - name: STATE_TTL_SECONDS
+              value: {{ .Values.enricher.stateTtlSeconds | quote }}
+            - name: QUERY_LIMIT
+              value: {{ .Values.enricher.queryLimit | quote }}
+          resources:
+            {{- toYaml .Values.enricher.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: script
+              mountPath: /app/enricher.py
+              subPath: enricher.py
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: script
+          configMap:
+            name: opencanary-enricher
+            defaultMode: 0444
+        - name: tmp
+          emptyDir: {}
+{{- if .Values.enricher.backfill.enabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: opencanary-enricher-backfill-v1
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: opencanary-enricher
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backfill
+    app.kubernetes.io/part-of: opencanary
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  activeDeadlineSeconds: {{ .Values.enricher.backfill.activeDeadlineSeconds }}
+  backoffLimit: {{ .Values.enricher.backfill.backoffLimit }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opencanary-enricher
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: backfill
+        app.kubernetes.io/part-of: opencanary
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backfill
+          image: "{{ .Values.enricher.image.repository }}:{{ .Values.enricher.image.tag }}"
+          imagePullPolicy: {{ .Values.enricher.image.pullPolicy }}
+          command:
+            - python
+            - -u
+            - /app/enricher.py
+          env:
+            - name: MODE
+              value: backfill
+            - name: LOKI_URL
+              value: {{ .Values.enricher.lokiURL | quote }}
+            - name: LOOKBACK_SECONDS
+              value: {{ .Values.enricher.backfill.lookbackSeconds | quote }}
+            - name: BACKFILL_END_DELAY_SECONDS
+              value: {{ .Values.enricher.backfill.endDelaySeconds | quote }}
+            - name: BACKFILL_CHUNK_SECONDS
+              value: {{ .Values.enricher.backfill.chunkSeconds | quote }}
+            - name: STATE_TTL_SECONDS
+              value: {{ .Values.enricher.stateTtlSeconds | quote }}
+            - name: QUERY_LIMIT
+              value: {{ .Values.enricher.queryLimit | quote }}
+          resources:
+            {{- toYaml .Values.enricher.backfill.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: script
+              mountPath: /app/enricher.py
+              subPath: enricher.py
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: script
+          configMap:
+            name: opencanary-enricher
+            defaultMode: 0444
+        - name: tmp
+          emptyDir: {}
+{{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: opencanary-enricher
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: opencanary-enricher
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/part-of: opencanary
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: opencanary-enricher
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 3100
+{{- end }}

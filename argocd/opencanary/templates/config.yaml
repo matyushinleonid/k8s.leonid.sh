@@ -18,10 +18,6 @@ data:
       "telnet.enabled": true,
       "telnet.port": {{ .Values.services.telnet.containerPort }},
       "telnet.banner": "Ubuntu 22.04 LTS",
-      "telnet.honeycreds": [
-        {"username": "admin", "password": "admin"},
-        {"username": "root", "password": "toor"}
-      ],
       "telnet.log_tcp_connection": true,
       "http.enabled": true,
       "http.port": {{ .Values.services.http.containerPort }},

@@ -28,6 +28,7 @@ spec:
               retention_enabled: true
             limits_config:
               max_query_parallelism: 4
+              max_query_series: 5000
               retention_period: 2160h
               split_queries_by_interval: 6h
             query_scheduler:

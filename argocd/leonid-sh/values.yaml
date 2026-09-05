@@ -23,5 +23,8 @@ gemini:
 tor:
   enabled: true
   onionAddress: leonideoyh3d5l7mewj5tvfawu4eznjpmwqisk6njpijywgy22lvtjad.onion
+  socks5:
+    host: 46.225.131.34
+    port: 32768
   externalSecret:
     lockboxSecretId: "e6qgdr52rhids4mb7qu0"

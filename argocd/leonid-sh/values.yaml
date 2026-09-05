@@ -1,6 +1,6 @@
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/leonid.sh
-  tag: sha-180b87c572c46140cb7d032753a75afee4705e33
+  tag: sha-5aa8cc0be96627b5666f08513995634e59cb1988
 
 gateway:
   enabled: true
@@ -14,3 +14,8 @@ gateway:
     - host: www.leonid.sh
       dnsTarget: gateway.leonid.sh
   clusterIssuer: yc-clusterissuer
+
+gemini:
+  enabled: true
+  externalSecret:
+    lockboxSecretId: "e6qgdr52rhids4mb7qu0"

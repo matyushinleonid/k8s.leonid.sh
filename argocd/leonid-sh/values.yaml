@@ -1,6 +1,6 @@
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/leonid.sh
-  tag: sha-1b1ab82126df3144b847962a28b3ddd36a8b7fbf
+  tag: sha-7a675f2bc8adbe0d430cb4b168caa4f4cc208c86
 
 gateway:
   enabled: true
@@ -17,5 +17,11 @@ gateway:
 
 gemini:
   enabled: true
+  externalSecret:
+    lockboxSecretId: "e6qgdr52rhids4mb7qu0"
+
+tor:
+  enabled: true
+  onionAddress: leonideoyh3d5l7mewj5tvfawu4eznjpmwqisk6njpijywgy22lvtjad.onion
   externalSecret:
     lockboxSecretId: "e6qgdr52rhids4mb7qu0"

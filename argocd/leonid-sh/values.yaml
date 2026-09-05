@@ -1,6 +1,6 @@
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/leonid.sh
-  tag: sha-5aa8cc0be96627b5666f08513995634e59cb1988
+  tag: sha-1b1ab82126df3144b847962a28b3ddd36a8b7fbf
 
 gateway:
   enabled: true

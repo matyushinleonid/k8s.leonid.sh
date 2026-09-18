@@ -1,0 +1,16 @@
+image:
+  repository: cr.yandex/crpo19gj048i31sr0f6k/kongzilla
+  tag: sha-c64eaa7a66363f7d72e276e4fd805d87e500e742
+  pullPolicy: Always
+
+beacon:
+  enabled: true
+  image:
+    repository: cr.yandex/crpo19gj048i31sr0f6k/kongzilla-beacon
+  replicaCount: 1
+
+gateway:
+  enabled: true
+  host: kongzilla.leonid.sh
+  dnsTarget: gateway.leonid.sh
+  clusterIssuer: yc-clusterissuer

@@ -5,6 +5,7 @@
 ## Workloads
 
 [![dasein-ist-endlich-bot](https://argocd.leonid.sh/api/badge?name=dasein-ist-endlich-bot&showAppName=true)](https://argocd.leonid.sh/applications/argocd/dasein-ist-endlich-bot)
+[![kongzilla](https://argocd.leonid.sh/api/badge?name=kongzilla&showAppName=true)](https://argocd.leonid.sh/applications/argocd/kongzilla)
 [![leonid-sh](https://argocd.leonid.sh/api/badge?name=leonid-sh&showAppName=true)](https://argocd.leonid.sh/applications/argocd/leonid-sh)
 [![minecraft](https://argocd.leonid.sh/api/badge?name=minecraft&showAppName=true)](https://argocd.leonid.sh/applications/argocd/minecraft)
 [![opencanary](https://argocd.leonid.sh/api/badge?name=opencanary&showAppName=true)](https://argocd.leonid.sh/applications/argocd/opencanary)

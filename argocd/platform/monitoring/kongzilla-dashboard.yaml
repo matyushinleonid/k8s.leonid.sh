@@ -1,0 +1,620 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-kongzilla-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  kongzilla.json: |-
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "graphTooltip": 1,
+      "title": "Kongzilla",
+      "uid": "kongzilla",
+      "tags": [
+        "kongzilla"
+      ],
+      "timezone": "utc",
+      "time": {
+        "from": "now-7d",
+        "to": "now"
+      },
+      "refresh": "5m",
+      "schemaVersion": 39,
+      "templating": {
+        "list": [
+          {
+            "name": "datasource",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": {},
+            "hide": 0,
+            "label": "Data source"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "stat",
+          "title": "Visitors today",
+          "id": 1,
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "max(kongzilla_visitors{job=\"kongzilla-beacon\", namespace=\"kongzilla\"})",
+              "legendFormat": "today",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "Distinct people, counted by the beacon and deduplicated there - Prometheus cannot do this, so the number arrives already computed. The identifier is a salted hash that is thrown away every night.",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "stat",
+          "title": "Page views / day",
+          "id": 2,
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum(increase(kongzilla_pageviews_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\"}[24h]))",
+              "legendFormat": "views",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "stat",
+          "title": "Sessions that used the tool",
+          "id": 3,
+          "gridPos": {
+            "h": 4,
+            "w": 5,
+            "x": 8,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum(increase(kongzilla_events_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\", name=~\"flop_dealt|chart_loaded|street_filter|paint_top\"}[24h]))",
+              "legendFormat": "actions",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "Dealing a flop, loading a chart, painting or filtering. Someone arriving is a page view; this is someone actually using it.",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "stat",
+          "title": "Robots turned away / day",
+          "id": 4,
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 13,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum(increase(kongzilla_beacon_rejected_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\", reason=\"bot\"}[24h]))",
+              "legendFormat": "bots",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "stat",
+          "title": "Beacon up",
+          "id": 5,
+          "gridPos": {
+            "h": 4,
+            "w": 3,
+            "x": 17,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "down",
+                      "color": "red",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "up",
+                      "color": "green",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "min(up{job=\"kongzilla-beacon\", namespace=\"kongzilla\"})",
+              "legendFormat": "up",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "stat",
+          "title": "Store reachable",
+          "id": 6,
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "counting locally",
+                      "color": "orange",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "ok",
+                      "color": "green",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "min(kongzilla_beacon_store_up{job=\"kongzilla-beacon\", namespace=\"kongzilla\"})",
+              "legendFormat": "store",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "When the shared visitor store is unreachable the count falls back to this process, which undercounts across replicas rather than failing.",
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "timeseries",
+          "title": "Distinct visitors a day",
+          "id": 10,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 60
+              }
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "max by (day) (kongzilla_visitors{job=\"kongzilla-beacon\", namespace=\"kongzilla\"})",
+              "legendFormat": "{{day}}",
+              "refId": "A",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "sum"
+              ]
+            }
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "timeseries",
+          "title": "Page views an hour, by page",
+          "id": 11,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (path) (increase(kongzilla_pageviews_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\"}[1h]))",
+              "legendFormat": "{{path}}",
+              "refId": "A",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "description": "The written pages are the ones search engines land on; / is the app.",
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "sum"
+              ]
+            }
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "timeseries",
+          "title": "What people do, an hour",
+          "id": 20,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 12
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (name) (increase(kongzilla_events_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\", name!=\"pageview\"}[1h]))",
+              "legendFormat": "{{name}}",
+              "refId": "A",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "description": "The whole point of a first-party beacon: not who arrived, but who stayed and used it.",
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "sum"
+              ]
+            }
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "barchart",
+          "title": "Where people come from, a day",
+          "id": 21,
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 12
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sort_desc(sum by (host) (increase(kongzilla_referrers_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\"}[24h])))",
+              "legendFormat": "{{host}}",
+              "refId": "A",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "description": "Referrer hosts, normalised to the site and capped at 64 before the tail is folded into `other` - a label taken from a request is a cardinality bomb otherwise.",
+          "options": {
+            "legend": {
+              "showLegend": false
+            },
+            "orientation": "horizontal",
+            "xTickLabelRotation": 0
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "timeseries",
+          "title": "Reports not counted, an hour",
+          "id": 30,
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 20
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum by (reason) (increase(kongzilla_beacon_rejected_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\"}[1h]))",
+              "legendFormat": "{{reason}}",
+              "refId": "A",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "description": "bot: a crawler. flooding: one address over 120 reports a minute. malformed / unknown_event: something that is not the page talking.",
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "calcs": [
+                "sum"
+              ]
+            }
+          }
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "type": "timeseries",
+          "title": "Conversion: actions per page view",
+          "id": 31,
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 20
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "expr": "sum(increase(kongzilla_events_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\", name!=\"pageview\"}[6h])) / clamp_min(sum(increase(kongzilla_pageviews_total{job=\"kongzilla-beacon\", namespace=\"kongzilla\"}[6h])), 1)",
+              "legendFormat": "actions per view",
+              "refId": "A",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "description": "Under about 1 means most arrivals leave without touching anything."
+        }
+      ]
+    }

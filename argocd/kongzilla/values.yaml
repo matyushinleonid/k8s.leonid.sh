@@ -1,6 +1,6 @@
 image:
   repository: cr.yandex/crpo19gj048i31sr0f6k/kongzilla
-  tag: 0.1.2
+  tag: sha-5eaab7fe55cc12807e388139708a2fc5feb06410
   pullPolicy: Always
 
 beacon:
